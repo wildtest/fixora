@@ -21,7 +21,7 @@ Muchos pequeños servicios técnicos gestionan las reparaciones por WhatsApp, ll
 
 Solicitud recibida → Equipo recibido → En diagnóstico → Esperando aprobación → En reparación → Listo para recojo → Entregado. Además existe **Cancelado** cuando las reglas de negocio lo permitan.
 
-No todas las transiciones son válidas (p. ej. una solicitud nueva no puede pasar directamente a Entregado). Las transiciones exactas las definirán el PRD y el Technical Design.
+No todas las transiciones son válidas (p. ej. una solicitud nueva no puede pasar directamente a Entregado). La matriz exacta de transiciones y sus reglas están aprobadas en el PRD (`docs/01-producto/PRD.md`, §4.4); el Technical Design decide cómo se implementan.
 
 ## Diferenciadores aprobados
 
@@ -45,7 +45,7 @@ Fuente de verdad en `docs/` (ver `docs/README.md`). Cada documento consume el an
 | Fase | Ruta |
 |---|---|
 | 00 Definición | `docs/00-definicion/PROJECT-BRIEF.md` |
-| 01 PRD | `docs/01-producto/` |
+| 01 PRD | `docs/01-producto/PRD.md` |
 | 02 Diseño | `docs/02-diseno/` |
 | 03 Arquitectura (Technical Design + ADRs) | `docs/03-arquitectura/` |
 | 04 Backlog | `docs/04-backlog/` |
@@ -55,11 +55,26 @@ Fuente de verdad en `docs/` (ver `docs/README.md`). Cada documento consume el an
 | 08 Seguridad | `docs/08-seguridad/` |
 | 09 Deploy | `docs/09-deploy/` |
 
+## Fuente de verdad funcional
+
+`docs/00-definicion/PROJECT-BRIEF.md` es el punto de partida. **`docs/01-producto/PRD.md` es la fuente de verdad funcional aprobada de FIXORA V1**; el detalle vigente del alcance, el no alcance, los criterios de éxito (`SC-*`), los casos borde (`E*`) y los supuestos y riesgos (`SUP-*`, `VAL-*`, `RIE-*`) está allí. Las fases siguientes derivan de esos documentos.
+
+Lee el PRD antes de:
+
+- proponer funcionalidad;
+- diseñar pantallas;
+- tomar decisiones de arquitectura que dependan del producto;
+- crear backlog;
+- crear specs;
+- implementar comportamiento funcional.
+
+No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige cambiar una decisión de producto aprobada, señala primero la contradicción y actualiza la documentación de forma explícita y trazable.
+
 ## Estado actual del pipeline
 
 ```
 00 Definición   COMPLETADO
-01 PRD          PENDIENTE
+01 PRD          COMPLETADO
 02 Diseño       PENDIENTE
 03 Arquitectura PENDIENTE
 04 Backlog      PENDIENTE
@@ -70,11 +85,17 @@ Fuente de verdad en `docs/` (ver `docs/README.md`). Cada documento consume el an
 09 Deploy       PENDIENTE
 ```
 
+Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25. La siguiente fase es 02 Diseño.
+
 Mantén esta tabla actualizada (aquí y en `docs/README.md`) cuando una fase cambie de estado.
 
 ## Stack
 
-Next.js (App Router, `src/`), React y Tailwind CSS están instalados. Todo lo demás es **provisional y NO aprobado**: PostgreSQL, Prisma, Neon, autenticación, Vercel, OpenSpec, Playwright y GitHub Actions. Se decidirán en el Technical Design.
+Next.js (App Router, `src/`), React y Tailwind CSS están instalados.
+
+**Restricción de entrega:** FIXORA V1 debe disponer de un despliegue público de demostración en Vercel. Vercel figuraba antes como provisional; se fijó durante el PRD (§4.11, `SUP-10`). El Technical Design decide *cómo* desplegar en Vercel, no *si* se utiliza.
+
+Todo lo demás es **provisional y NO aprobado**: persistencia, base de datos, ORM y proveedor (PostgreSQL, Prisma y Neon son solo direcciones provisionales), autenticación y sesiones, OpenSpec, Playwright y GitHub Actions. Se decidirán en el Technical Design.
 
 ## Comandos disponibles hoy
 
@@ -87,7 +108,7 @@ No existen aún scripts de test, typecheck ni base de datos. No inventes ni asum
 
 ## Reglas duras para Claude Code
 
-1. **Consulta antes de implementar.** Antes de planificar código, lee los documentos relevantes de `docs/`; cuando exista, lee el PRD.
+1. **Consulta antes de implementar.** Antes de planificar código, lee los documentos relevantes de `docs/`, incluido el PRD aprobado (`docs/01-producto/PRD.md`).
 2. **No inventes funcionalidades.** Implementa solo lo documentado y aprobado.
 3. **Fuera de alcance = no se implementa silenciosamente.** Si algo parece necesario pero está fuera de alcance, detente y consúltalo.
 4. **No modifiques decisiones aprobadas de producto en silencio.** Cualquier cambio se propone explícitamente y se refleja en el documento correspondiente.

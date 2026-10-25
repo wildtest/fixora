@@ -116,13 +116,20 @@ Ninguno de estos elementos está aprobado arquitectónicamente. Se decidirán fo
 - PostgreSQL
 - Prisma
 - Neon
-- Vercel
 - Claude Code
 - OpenSpec
 - Playwright
 - GitHub Actions
 
 PostgreSQL, Prisma, Neon y la autenticación en particular **no están aprobados**.
+
+### Actualización de trazabilidad — Vercel (2026-10-25)
+
+Vercel figuraba originalmente en la lista anterior como tecnología provisional. Durante la construcción y aprobación del PRD (`docs/01-producto/PRD.md`, §4.11 y `SUP-10`) se decidió establecerlo como **destino obligatorio del despliegue público de FIXORA V1** (despliegue público de demostración). Por tanto, Vercel **deja de ser provisional** y es una restricción de entrega fija.
+
+El Technical Design decidirá **cómo** desplegar correctamente en Vercel (integración con CI/CD, variables, persistencia y limitaciones), no **si** se utiliza Vercel.
+
+El resto de elementos de la lista anterior continúa provisional hasta el Technical Design.
 
 ## 9. Pipeline del proyecto
 
