@@ -120,7 +120,7 @@ No existen aún scripts de test, typecheck ni base de datos. No inventes ni asum
 
 ## Reglas sobre decisiones arquitectónicas
 
-- No implementes decisiones de arquitectura futuras (base de datos, ORM, autenticación, hosting, estructura de API, etc.) antes de que exista el **TECH-DESIGN** aprobado.
+- No implementes decisiones de arquitectura futuras (base de datos, ORM, autenticación, estructura de API, estrategia de despliegue, etc.) antes de que exista el **TECH-DESIGN** aprobado. **Vercel ya está fijado como destino de despliegue**; lo pendiente es definir cómo se desplegará y operará FIXORA allí. Antes del Technical Design no inventes arquitectura de hosting, integración con persistencia, ambientes, estrategia de variables, CI/CD, funciones/serverless ni decisiones técnicas equivalentes.
 - Toda decisión arquitectónica importante futura debe quedar registrada mediante un **ADR** en `docs/03-arquitectura/`.
 - Cuando OpenSpec sea incorporado, los cambios de comportamiento deben pasar por una **Spec** antes de implementarse.
 - Cuando la arquitectura quede definida, el **servidor será la fuente de verdad** de las reglas de negocio sensibles (transiciones de estado, separación público/interno, autorización); el cliente nunca es la única barrera.

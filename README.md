@@ -32,4 +32,4 @@ El proyecto sigue un pipeline documental AI-First. Consulta [docs/README.md](doc
 
 ## Nota
 
-La arquitectura, la base de datos y el despliegue **todavía no están definidos**. Se decidirán durante el Technical Design. Este README es inicial, no el definitivo.
+La arquitectura y la estrategia de persistencia (base de datos) **todavía no están definidas**. Se decidirán durante el Technical Design. Vercel está establecido como destino del despliegue público de demostración de FIXORA V1; el Technical Design definirá cómo se realizará ese despliegue. Este README es inicial, no el definitivo.
