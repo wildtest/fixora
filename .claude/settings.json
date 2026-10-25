@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./.env.e2e)",
+      "Read(./.env.*.local)",
+      "Read(./admin-credentials.local)",
+      "Read(./**/.env)",
+      "Read(./**/.env.local)",
+      "Read(./**/.env.e2e)",
+      "Read(./**/admin-credentials.local)"
+    ]
+  }
+}
