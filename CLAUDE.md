@@ -75,7 +75,7 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 ```
 00 Definición   COMPLETADO
 01 PRD          COMPLETADO
-02 Diseño       PENDIENTE
+02 Diseño       EN CURSO (Exploración UX COMPLETADA; sistema visual PENDIENTE)
 03 Arquitectura PENDIENTE
 04 Backlog      PENDIENTE
 05 Specs        PENDIENTE
@@ -85,7 +85,12 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 09 Deploy       PENDIENTE
 ```
 
-Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25. La siguiente fase es 02 Diseño.
+Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25. La exploración UX con Google Stitch (parte de 02 Diseño) está completada: existe una **Dirección UX Consolidada aprobada** documentada en `docs/02-diseno/UX-EXPLORATION.md` (con `STITCH-BRIEF.md` y las evidencias en `docs/02-diseno/evidencias/stitch/`). La siguiente fase es Claude Design + sistema visual.
+
+- `PRD.md` continúa siendo la **fuente de verdad funcional**.
+- `UX-EXPLORATION.md` es la **fuente de verdad de estructura UX y navegación aprobada** (nueve pantallas, flujos, estados).
+- Cualquier trabajo de sistema visual debe partir de **PRD + UX-EXPLORATION**.
+- No introduzcas silenciosamente nuevas pantallas, flujos ni funcionalidades. Las capturas de Stitch son evidencia, no requisitos: contienen contenido fuera del PRD (ver `UX-EXPLORATION.md` §8 y §19.5) y sus colores, tipografías y componentes son provisionales, no un Design System.
 
 Mantén esta tabla actualizada (aquí y en `docs/README.md`) cuando una fase cambie de estado.
 
