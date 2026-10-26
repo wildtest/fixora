@@ -26,7 +26,7 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 |---|---|---|
 | 00 Definición | `00-definicion/` | COMPLETADO |
 | 01 PRD | `01-producto/` | COMPLETADO |
-| 02 Diseño | `02-diseno/` | EN CURSO — Exploración UX COMPLETADA; sistema visual PENDIENTE |
+| 02 Diseño | `02-diseno/` | COMPLETADO — Exploración UX + sistema visual (`DESIGN.md` aprobado) |
 | 03 Arquitectura | `03-arquitectura/` | PENDIENTE |
 | 04 Backlog | `04-backlog/` | PENDIENTE |
 | 05 Specs | `05-specs/` | PENDIENTE |
@@ -37,19 +37,23 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 
 Entregable aprobado de la fase 01: `01-producto/PRD.md` (aprobado el 2026-10-25). Es la fuente de verdad funcional de FIXORA V1.
 
-Fase 02 Diseño — Exploración UX (Google Stitch) completada. Entregables en `02-diseno/`:
+Fase 02 Diseño completada (exploración UX con Google Stitch + sistema visual con Claude Design). Entregables en `02-diseno/`:
 
 - `STITCH-BRIEF.md` — briefing UX derivado del PRD.
-- `UX-EXPLORATION.md` — exploración A/B/C, Dirección UX Consolidada, pantallas, navegación y estados. Es la fuente de verdad de estructura UX/navegación.
-- `evidencias/stitch/` — capturas de la exploración (evidencia; no fuente de requisitos).
+- `UX-EXPLORATION.md` — exploración A/B/C, Dirección UX Consolidada, pantallas, navegación y estados. Fuente de verdad de estructura UX/navegación.
+- `DESIGN-BRIEF.md` — contexto controlado entregado a Claude Design (insumo histórico).
+- `DESIGN.md` — **fuente de verdad visual y de detalle UX/UI** (aprobado 2026-10-26): sistema visual, componentes, patrones y decisiones de diseño. No sustituye al PRD en reglas funcionales.
+- `referencias/` — capturas de Stitch (`stitch/`) y sistema visual de Claude Design (`claude-design/`); referencias, no fuente de requisitos.
 
-Siguiente paso: Claude Design + sistema visual (pendiente; también se archivará en `02-diseno/`).
+Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias.
+
+Siguiente paso: fase 03 Arquitectura (Technical Design + ADRs).
 
 ## Qué consume cada fase
 
 - **00 Definición** — `PROJECT-BRIEF.md`: decisiones aprobadas de producto. Punto de partida.
 - **01 PRD** — consume la definición; fija requisitos de producto. Aprobado: es la fuente de verdad funcional de V1.
-- **02 Diseño** — consume el PRD; define experiencia (exploración UX, completada) y sistema visual (pendiente).
+- **02 Diseño** — consume el PRD; define experiencia (exploración UX) y sistema visual (`DESIGN.md`). Completada.
 - **03 Arquitectura** — consume PRD y diseño; contiene el Technical Design y los ADRs. Aquí se aprueban (o descartan) las tecnologías provisionales. Va seguido de una revisión adversarial.
 - **04 Backlog** — consume PRD, diseño y arquitectura; descompone el trabajo.
 - **05 Specs** — consume el backlog; especificación y tareas (OpenSpec cuando se incorpore). Todo cambio de comportamiento pasa por una spec antes del código.
