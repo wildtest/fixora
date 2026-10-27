@@ -37,4 +37,4 @@ El proyecto sigue un pipeline documental AI-First. Punto de entrada: [docs/READM
 
 ## Próxima etapa
 
-Fase 6.4 (en curso): la Ola 1 de changes de OpenSpec está materializada y aprobada; sigue la Ola 2 (comenzando por `repair-request-registration`); después el gate de cobertura (6.5) y, ya en la Fase 7, el Architecture Validation Gate y la implementación.
+Fase 6.4 (en curso): las Olas 1 y 2 de changes de OpenSpec están materializadas y aprobadas; sigue la Ola 3 (comenzando por `admin-access`); después el gate de cobertura (6.5) y, ya en la Fase 7, el Architecture Validation Gate y la implementación.
