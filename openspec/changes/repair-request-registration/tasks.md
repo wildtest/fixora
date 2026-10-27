@@ -9,7 +9,7 @@
 
 ## 2. Validación y dominio
 
-- [ ] 2.1 Implementar `DeviceType` (seis valores) y los validadores puros por campo con `trim`, rechazo de `U+0000`, límites en caracteres (no bytes), opcionales vacíos como `null`, teléfono por dígitos normalizados (7–15) y correo sintáctico; se verifica con pruebas unitarias de válidos, vacíos, límites exactos y excedidos, Unicode multibyte, teléfonos inválidos y correos inválidos.
+- [ ] 2.1 Implementar `DeviceType` (seis valores), la primitiva pura compartida de normalización del nombre para búsqueda (TD §19: `Muñoz → munoz`; la reutilizará CHG-09a) y los validadores puros por campo con `trim`, rechazo de `U+0000`, límites en caracteres (no bytes), opcionales vacíos como `null`, teléfono por dígitos normalizados (7–15) y correo sintáctico; se verifica con pruebas unitarias de válidos, vacíos, límites exactos y excedidos, Unicode multibyte, teléfonos inválidos y correos inválidos; y, para la primitiva, mayúsculas, tildes, `ñ`, espacios interiores y exteriores.
 - [ ] 2.2 Implementar el parseo explícito de `FormData` con allowlist; se verifica con pruebas unitarias de campos extra ignorados y ausentes.
 
 ## 3. Código de seguimiento
@@ -19,7 +19,7 @@
 
 ## 4. Aplicación y persistencia
 
-- [ ] 4.1 Implementar el caso de uso `registerRepair` y el repositorio de registro (orden + evento inicial + idempotencia en una transacción); se verifica con pruebas de integración en PostgreSQL real (estado `SOLICITUD_RECIBIDA`, historial inicial, atomicidad).
+- [ ] 4.1 Implementar el caso de uso `registerRepair` y el repositorio de registro (orden con `customer_name_search` calculado por la primitiva compartida + evento inicial + idempotencia en una sola transacción, sin actualización posterior); se verifica con pruebas de integración en PostgreSQL real (estado `SOLICITUD_RECIBIDA`, historial inicial, atomicidad y `customer_name_search` poblado al existir la orden).
 - [ ] 4.2 Implementar la idempotencia con `SHA-256(key)`; se verifica con pruebas de replay, de duplicado concurrente y de validación fallida sin consumo de clave.
 - [ ] 4.3 Implementar la Server Action adaptadora y el `ActionResult` con códigos propios; se verifica con pruebas de que no se filtran Prisma, SQL ni pila.
 

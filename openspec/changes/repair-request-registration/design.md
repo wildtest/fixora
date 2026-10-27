@@ -50,6 +50,8 @@ La clave es aleatoria y de alta entropía, generada en el cliente por intento y 
 ### D5. Persistencia
 Repositorio funcional específico de registro en `infrastructure`, sin tipos de Prisma hacia arriba y sin `GenericRepository`. Estado inicial `SOLICITUD_RECIBIDA`; no hay tabla de transiciones, cancelación ni E11 (CHG-10).
 
+**Valor derivado de búsqueda.** Al insertar la orden se escribe también `customer_name_search` (columna física que posee CHG-02) calculada con la **primitiva pura compartida** definida por TD §19 (`normalizeCustomerNameSearch` o nombre equivalente: pura, determinista, sin Prisma ni React, en `domain`), a partir del nombre ya validado y recortado; `customer_name` conserva el valor de negocio sin alterar y `customer_name_search` es un dato interno derivado que nunca entra en un DTO ni se muestra. La escritura ocurre **en la misma transacción de registro** (`customer_name` + `customer_name_search` en el mismo `INSERT`; no hay una creación seguida de una actualización posterior), de modo que el valor existe desde que existe la orden. El comportamiento observable del registro no cambia. CHG-05 no es dueño de la búsqueda por nombre (es de CHG-09a); solo introduce la primitiva que ambos lados deben compartir. CHG-13 deberá recalcularla con la misma primitiva y en la misma mutación cuando corrija `customer_name`.
+
 ### D6. Resultado y errores
 `ActionResult` de CHG-01 con códigos tipados mínimos propios: validación (con errores por campo) y fallo inesperado genérico. Sin Prisma, SQL ni pila hacia el cliente.
 
