@@ -78,7 +78,7 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 02 Diseño       COMPLETADO (Exploración UX + sistema visual; DESIGN.md aprobado)
 03 Arquitectura CERRADA (área de la Fase 5 — Technical Design / Arquitectura; Technical Design y ADR-001…010 aprobados; cerrada el 2026-10-26)
 04 Backlog      CERRADO (Fase 6.3 ✅; docs/04-planificacion/BACKLOG.md aprobado)
-05 Specs        OpenSpec inicializado (Fase 6.1 completada); Specs PENDIENTES (Fase 6.4)
+05 Specs        OpenSpec inicializado (Fase 6.1 completada); Specs PENDIENTES (Fase 6.4 en curso: Ola 1)
 06 Diagramas    PENDIENTE
 07 Testing      PENDIENTE
 08 Seguridad    PENDIENTE
@@ -100,7 +100,7 @@ Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25.
 
 Fases 0–4 cerradas (hasta `DESIGN.md`, incluidas la exploración UX y el sistema visual). **Fase 5 — Technical Design / Arquitectura: ✅ CERRADA el 2026-10-26** (Technical Design aprobado, ADR-001…010 aceptados, revisión adversarial completada con 0 Critical y 0 High, A-5 completado). No es una fase de implementación: no hay código de la arquitectura aprobada.
 
-**Fase 6 — OpenSpec, Specs y Backlog: EN CURSO.** Subfases: 6.1 bootstrap de OpenSpec (**✅ completada**); 6.2 estrategia de partición de Specs y mapa de dependencias (**✅ completada**); 6.3 backlog maestro priorizado (**✅ completada**); 6.4 materialización y revisión de changes OpenSpec por olas (**siguiente**, no iniciada); 6.5 gate de cobertura (PRD + DESIGN + Technical Design + ADRs → Specs/backlog) (pendiente). **Fase 7 — Implementación: pendiente**; empieza con el Architecture Validation Gate, que **no se ha ejecutado**.
+**Fase 6 — OpenSpec, Specs y Backlog: EN CURSO.** Subfases: 6.1 bootstrap de OpenSpec (**✅ completada**); 6.2 estrategia de partición de Specs y mapa de dependencias (**✅ completada**); 6.3 backlog maestro priorizado (**✅ completada**); 6.4 materialización y revisión de changes OpenSpec por olas (**EN CURSO**: **Ola 1 ✅ MATERIALIZADA Y APROBADA**, Ola 2 siguiente (no iniciada); CHG-01 `application-skeleton` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**; CHG-02 `persistence-foundation` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**; CHG-03 `ci-quality-gates` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**; CHG-04 `ui-foundation-and-public-entry` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (primer change con DELTA SPECS: `public-site-entry`)); 6.5 gate de cobertura (PRD + DESIGN + Technical Design + ADRs → Specs/backlog) (pendiente). **Fase 7 — Implementación: pendiente**; empieza con el Architecture Validation Gate, que **no se ha ejecutado**.
 
 Mantén esta tabla actualizada (aquí y en `docs/README.md`) cuando una fase cambie de estado.
 

@@ -168,7 +168,7 @@ Convenciones: **Hard / Spec-base / Delivery / Soft** son los tipos de dependenci
 | Título | Infraestructura de calidad y CI |
 | Tipo / Tratamiento | foundation (delivery) / **SKIP_SPECS** |
 | Prioridad / Tier / Tamaño / Riesgo | P0 / 0 / M / Medio (secretos de CI, capacidades del plan de GitHub) |
-| Objetivo | Cobertura (`@vitest/coverage-v8`, umbral en `domain/`), integración con PostgreSQL de pruebas, base de Playwright (proyectos de escritorio y móvil), `TRACEABILITY.md` y su verificación, jobs `static` y `db-tests` con cola, protección de `main`, escaneo de secretos y `npm audit` |
+| Objetivo | Cobertura (`@vitest/coverage-v8`, umbral en `domain/`), orquestación global de Vitest y ejecución en CI del harness de persistencia de CHG-02 (el contrato de BD de test, el marcador, la guardia y el reinicio son de CHG-02), base de Playwright (proyectos de escritorio y móvil), `TRACEABILITY.md` y su verificación, jobs `static` y `db-tests` con cola, protección de `main`, escaneo de secretos y `npm audit` |
 | Capabilities | Ninguna |
 | Hard / Spec-base / Delivery / Soft | CHG-02 (y CHG-01) / — / — / — |
 | Requiere AV | AV-2 (por `db-tests`) |
