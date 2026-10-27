@@ -40,7 +40,7 @@
 ## 6. Despliegue y smoke
 
 - [ ] 6.1 Desplegar `main` por la integración Git y registrar SHA, despliegue de Vercel, migración, fecha y resultado; se verifica con el registro de evidencia.
-- [ ] 6.2 Crear el smoke de infraestructura público y no mutante (Production responde, `/`, aviso demostrativo, `/registrar`, `/consultar`, cabeceras/configuración de Production, sin fallo fatal) y ejecutarlo contra la URL real; se verifica con la ejecución en verde y que no crea órdenes, no consulta códigos inexistentes ni depende de una orden demo. La comprobación de `/admin/**` y la consulta de la orden demo se incorporan después (CHG-08, CHG-15).
+- [ ] 6.2 Crear el smoke de infraestructura público y no mutante (Production responde, `/`, aviso demostrativo, `/registrar`, `/consultar`, cabeceras/configuración de Production, sin fallo fatal) y ejecutarlo contra la URL real; se verifica con la ejecución en verde y que no crea órdenes, no consulta códigos inexistentes ni depende de una orden demo. La comprobación de `/admin/**` y la consulta de la orden demo se incorporan después al mismo mecanismo (CHG-08; ejecución y evidencia final en CHG-15).
 - [ ] 6.3 Ejecutar AV-3 con el despliegue real (fuente de IP, variables inyectadas) y registrar el resultado; se verifica con la nota de AV-3.
 
 ## 7. Rollback y recuperación
@@ -58,4 +58,4 @@
 
 - Revisar y aprobar el change; el usuario autoriza `/opsx:apply` en la Fase 7.
 - Al ser `skip_specs`, confirmar el comportamiento del archive sin deltas.
-- CHG-15 completa el smoke funcional, el *seed* y los runbooks restantes.
+- CHG-15 reutiliza el mecanismo del smoke para la ejecución final, la evidencia y el cierre de `SC-20`, y completa el *seed* y los runbooks restantes.

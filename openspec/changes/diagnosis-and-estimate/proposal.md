@@ -32,7 +32,7 @@ CHG-10 dejó el ciclo de vida completo, pero el avance a *Esperando aprobación*
 ## Impact
 
 - **Documentos que respaldan el cambio:** PRD §4.4–§4.8, `SC-07`, `SC-08`, `SC-10`, `SC-17`, `E5`, `E6`, `RIE-05`, `RIE-06`, `RIE-07`; `DESIGN.md` ADM-04, §11, §12, PUB-05; Technical Design §7.3, §8, §14, §17, §18; ADR-005, ADR-006; backlog `CHG-11`.
-- **Criterios PRD:** completa `SC-07` junto con CHG-10; dueño principal de `SC-08`; completa el historial administrativo de `SC-10`; cierra `SC-17` (`E2E-01`); `E5` y `E6`; aporta a `SC-09` la terminalidad de diagnóstico y costo.
+- **Criterios PRD:** completa `SC-07` junto con CHG-10; dueño principal de `SC-08`; completa el historial administrativo de `SC-10`; cierra `SC-17` (`E2E-01`) y es propietario primario de la evidencia del ciclo completo de `SC-04` (soporte CHG-10) con una prueba distinta; `E5` y `E6`; aporta a `SC-09` la terminalidad de diagnóstico y costo.
 - **Código afectado (cuando se implemente):** primitivas de dominio de diagnóstico y dinero, operaciones de mutación y repositorio, proyección pública condicionada, DTO y UI de ADM-04 y PUB-05, y pruebas.
 - **Dependencias:** ninguna nueva.
 - **Fuera de alcance:** notas (CHG-12), corrección de datos básicos (CHG-13), descongelar, nuevo presupuesto, rediagnóstico, moneda seleccionable, desglose, máximo de negocio, indicador «publicado» y seguridad/lanzamiento (CHG-14, CHG-15). AV-2 (`NUMERIC`) es previo a `apply`.

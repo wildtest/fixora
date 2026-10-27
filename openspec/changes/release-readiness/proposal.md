@@ -27,13 +27,13 @@ Ninguna. No se crea una capability `release`, `deployment`, `release-readiness` 
 
 - **Hard:** CHG-14 (Security Pass cerrado). **Delivery:** CHG-07 (Production y flujo de entrega). **AV:** resultados de **AV-3** (no se ejecuta aquí).
 - **Para ejecutar en la Fase 7:** CHG-14 completado, Production operativa, CHG-07 operativo, AV-3 disponible y un CI real. Esto no impide materializar el plan ahora.
-- Consume sin redefinir: CHG-02 (persistencia), CHG-03 (pipeline y `TRACEABILITY.md`/`test:trace`), CHG-04 y las pantallas de cada slice (responsive), CHG-07 (smoke de infraestructura, flujo de migración), CHG-11 (dueño de `E2E-01`) y CHG-14 (informe de seguridad).
+- Consume sin redefinir: CHG-02 (persistencia), CHG-03 (pipeline y `TRACEABILITY.md`/`test:trace`), CHG-04 y las pantallas de cada slice (responsive), CHG-07 (mecanismo y *baseline* del smoke, flujo de migración), CHG-11 (dueño de `E2E-01`) y CHG-14 (informe de seguridad).
 
 ## Impact
 
 - **Documentos que respaldan el cambio:** PRD `SC-14`, `SC-15`, `SC-17`, `SC-18`, `SC-19`, `SC-20`, `VAL-03`, `VAL-04`, `RIE-20`; `DESIGN.md` §14 y §15; Technical Design §24, §25, §25.6, §26, §27; ADR-008, ADR-009, ADR-010; backlog `CHG-15` y `M5`.
 - **Criterios PRD:** cierre de `SC-14`, `SC-15` (dueño), `SC-17`, `SC-19` y `SC-20`; completa `TRACEABILITY.md`.
 - **M5** se alcanzará **solo durante la ejecución en la Fase 7**, cuando se cumpla el DoD; durante la Fase 6.4 está únicamente planificado.
-- **Código afectado (cuando se ejecute):** `seed:demo`, proyecto Playwright `test:smoke`, `TRACEABILITY.md` y documentos en `docs/07-testing/` y `docs/09-deploy/`.
+- **Código afectado (cuando se ejecute):** `seed:demo`, extensión de las aserciones del `test:smoke` de CHG-07, `TRACEABILITY.md` y documentos en `docs/07-testing/` y `docs/09-deploy/`.
 - **Dependencias:** ninguna nueva.
 - **Fuera de alcance:** funcionalidad nueva; repetir el Security Pass; un porcentaje global de cobertura; regresión visual; certificación de navegadores, WCAG o usabilidad con usuarios (`VAL-03`); Sentry, analíticas, OTel o monitor externo; afirmaciones legales o de cumplimiento (`VAL-04`).

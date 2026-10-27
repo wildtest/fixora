@@ -374,7 +374,7 @@ CHG-09 combinaba dos resultados funcionalmente independientes: **encontrar** ór
 | SC-01 | `repair-request-registration` | CHG-05 |
 | SC-02 | `public-order-tracking` | CHG-06 |
 | SC-03 | `admin-access`, `admin-order-management` | CHG-08, 09a, 09b |
-| SC-04 | `repair-lifecycle`, `public-order-tracking` | CHG-10 (completo con CHG-11) |
+| SC-04 | `repair-lifecycle`, `public-order-tracking` | CHG-11 (propietario primario de la evidencia del ciclo completo; soporte CHG-10, que aporta la máquina de estados) |
 | SC-05 | `repair-lifecycle` | CHG-10 |
 | SC-06 | `repair-lifecycle` | CHG-10 |
 | SC-07 | `diagnosis-and-estimate` (obligatoriedad) | CHG-11 (CHG-10 rechaza por defecto) |

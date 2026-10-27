@@ -6,7 +6,7 @@ CHG-09a permite al administrador ver y localizar órdenes, pero no abrir ninguna
 
 ## What Changes
 
-- **Detalle administrativo** (ADM-04) en `/admin/ordenes/[id]`, protegido por la sesión administrativa, solo lectura.
+- **Detalle administrativo** (ADM-04) en `/admin/ordenes/[id]`, protegido por la sesión administrativa; **solo lectura por defecto en este change (línea base)**: los changes posteriores (ciclo de vida, diagnóstico y costo, notas y correcciones) añaden las mutaciones que autorizan expresamente sus propios requisitos.
 - **Datos mostrados:** código de seguimiento, fecha de registro y estado actual; nombre, teléfono y correo (si existe) del cliente; tipo, marca y modelo (si existe) del equipo; descripción del problema.
 - **Estado actual** con el recorrido de etapas y el **historial administrativo de estados** actualmente persistido, con su fecha, más reciente primero.
 - **Navegación funcional** desde las cinco órdenes recientes del panel y desde las filas del directorio, y regreso al directorio.

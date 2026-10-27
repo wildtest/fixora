@@ -8,7 +8,7 @@ CHG-07 deja lista la línea base operativa de Production sin cambiar la arquitec
 
 **Goals:** ruta reproducible `main` → Production; secretos aislados por capacidad; migraciones privilegiadas controladas; Preview sin BD; verificación del rol runtime; smoke no mutante; rollback de aplicación y recuperación de BD separados; runbooks mínimos.
 
-**Non-Goals:** funcionalidad, Security Pass (CHG-14), preparación final de release, *seed* y smoke funcional completo (CHG-15), monitoreo externo (Sentry, Datadog, OpenTelemetry, log drains, analítica), copias de seguridad propias, dominio propio obligatorio, SLA/alta disponibilidad/RPO/RTO, reevaluar la plataforma.
+**Non-Goals:** funcionalidad, Security Pass (CHG-14), preparación final de release, *seed* y ejecución final, evidencia y cierre de `SC-20` (CHG-15), monitoreo externo (Sentry, Datadog, OpenTelemetry, log drains, analítica), copias de seguridad propias, dominio propio obligatorio, SLA/alta disponibilidad/RPO/RTO, reevaluar la plataforma.
 
 ## Decisions
 
@@ -80,7 +80,7 @@ Durante el aprovisionamiento y el *preflight* se comprueba por introspección de
 ### D9. Smoke de Production (línea base de infraestructura)
 CHG-07 es dueño del **smoke de infraestructura**: público, seguro y **no mutante**, tras el despliegue (proyecto de Playwright dedicado contra la URL real). Comprueba como mínimo: Production responde; `/` carga sin error fatal; el aviso demostrativo está presente; `/registrar` carga; `/consultar` carga; y la configuración/cabeceras esperadas de Production. No registra reparaciones, no muta datos, no consulta códigos inexistentes (no alimenta el limitador), no depende de una orden demo y no crea un endpoint nuevo para probar la BD (si hace falta validar conectividad, se usa un mecanismo operativo no público). Sin *seed* automático en cada despliegue ni códigos o claves de idempotencia predecibles.
 
-**Relevo.** El smoke de infraestructura (CHG-07) no se duplica con el **smoke de release** de CHG-15, que lo amplía con el flujo funcional real de una orden demo ficticia (consulta por la UI real con `SMOKE_TRACKING_CODE`, cuando exista el dato controlado del *seed*) y la evidencia final. Es un refinamiento de propiedad respecto del TD §25.6, que describe el smoke completo en un solo lugar; se deja registrado para revisar en la Fase 6.5 si hace falta reconciliar la redacción. No se modifica el Technical Design ahora.
+**Propiedad (reconciliada, R8).** CHG-07 es dueño del *baseline* de Production y del **mecanismo del smoke** (`test:smoke`). CHG-15 es dueño de la **ejecución final, la recopilación de evidencia y el cierre de `SC-20`** para el release: reutiliza el mecanismo de CHG-07 y solo puede añadirle aserciones (consulta por la UI real de una orden demo ficticia con `SMOKE_TRACKING_CODE`, cuando exista el dato controlado del *seed*) cuando la evidencia final ya aprobada lo requiera; no recrea la infraestructura del smoke ni es dueño funcional de él. TD §25.6 describe el smoke completo en un solo lugar: la separación es de propiedad de implementación frente a evidencia de release, no una contradicción técnica; no se modifica el Technical Design.
 
 **`/admin/**` fuera de CHG-07.** La comprobación de que `/admin/**` sin sesión no devuelve contenido administrativo no es evidencia obligatoria de este change: la protección administrativa es de CHG-08 (`admin-access`), `SC-12`, CHG-14 y CHG-15, y CHG-07 no depende de una función aún inexistente. El smoke futuro la incorporará cuando `/admin/**` exista.
 
@@ -104,7 +104,7 @@ Logger propio de CHG-01 (JSON cerrado, lista positiva, sin errores crudos, PII, 
 
 - **CHG-03:** `static`, `db-tests`, secretos de test y protección de `main`; CHG-07 consume que estén verdes y no los reimplementa.
 - **CHG-14:** Security Pass global; CHG-07 solo establece entornos seguros, alcances de secretos, control de migraciones y recuperación.
-- **CHG-15:** preparación de release, *seed*, smoke de release (funcional, con orden demo) y revisión de que el riesgo de ausencia de respaldo independiente siga aceptado; CHG-07 aporta el smoke de infraestructura y no declara el release.
+- **CHG-15:** preparación de release, *seed*, ejecución final del smoke de Production, evidencia y cierre de `SC-20` (reutilizando el mecanismo de CHG-07) y revisión de que el riesgo de ausencia de respaldo independiente siga aceptado; CHG-07 aporta el smoke de infraestructura y no declara el release.
 - **CHG-08:** secretos y aprovisionamiento del administrador.
 
 ## Risks / Trade-offs
@@ -120,7 +120,7 @@ Logger propio de CHG-01 (JSON cerrado, lista positiva, sin errores crudos, PII, 
 
 | ID | Pregunta | Clasificación |
 |---|---|---|
-| OQ-1 | Reparto del smoke entre CHG-07 (infraestructura) y CHG-15 (release funcional) | **RESUELTA** |
+| OQ-1 | Reparto del smoke entre CHG-07 (mecanismo y *baseline*) y CHG-15 (ejecución final, evidencia y cierre de `SC-20`) | **RESUELTA** |
 | OQ-2 | Identidad SHA fuente / contenido de migraciones, *squash* e invalidez por cambios | **RESUELTA** |
 | OQ-3 | Conducta si GitHub no ofrece la protección requerida | **RESUELTA** (detener y pedir decisión) |
 | OQ-4 | Capacidades de plataforma (Vercel, Neon, GitHub), protecciones de GitHub, configuración de Vercel/Neon y mecánica del workflow de migración | PRE-IMPLEMENTATION AV-3 |

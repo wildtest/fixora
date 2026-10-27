@@ -34,7 +34,7 @@
 
 ## 8. Smoke de Production (`SC-20`)
 
-- [ ] 8.1 EJECUTAR EN FASE 7: implementar el proyecto Playwright `test:smoke` (`/`, `/registrar`, `/consultar`, cabeceras públicas, consulta por la UI real de la orden demo y `/admin/**` sin sesión sin contenido administrativo), no mutante, sin inicio de sesión, sin contraseña de Production en CI y sin el código en URL, nombres de pruebas, salidas o *traces* públicos; se verifica con la revisión del proyecto y una ejecución contra un entorno no productivo.
+- [ ] 8.1 EJECUTAR EN FASE 7: reutilizar el proyecto/mecanismo `test:smoke` establecido por CHG-07 y extender solo las aserciones necesarias para la evidencia final aprobada (consulta por la UI real de la orden demo y `/admin/**` sin sesión sin contenido administrativo, además de `/`, `/registrar`, `/consultar` y cabeceras públicas), sin recrear su infraestructura y manteniéndolo no mutante, sin inicio de sesión, sin contraseña de Production en CI y sin el código en URL, nombres de pruebas, salidas o *traces* públicos; se verifica con la revisión del proyecto y una ejecución contra un entorno no productivo.
 - [ ] 8.2 EJECUTAR EN FASE 7: ejecutar el smoke contra la URL pública de Production y registrar la evidencia saneada de `SC-20` (un estado «Ready» de Vercel no basta); se verifica con la ejecución en verde y el registro en `docs/09-deploy/`.
 
 ## 9. Flujo manual de cierre

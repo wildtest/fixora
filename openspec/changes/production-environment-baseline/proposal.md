@@ -12,7 +12,7 @@ FIXORA debe tener un despliegue público de demostración en Vercel (`SC-20`) y 
 - **Flujo `migrate-production`**: manual, desde `main`, con SHA explícito aprobado, forward-only y expand/contract, antes de fusionar un cambio de esquema.
 - **Preview sin base de datos**, sin credenciales y sin ramas de BD por Preview.
 - **Verificación de privilegios** del rol runtime por catálogo, sin endpoint.
-- **Smoke de infraestructura público y no mutante** tras el despliegue (el smoke de release con orden demo es de CHG-15).
+- **Smoke de infraestructura público y no mutante** tras el despliegue (CHG-07 es dueño del mecanismo `test:smoke`; la ejecución final contra Production, la consulta de la orden demo ficticia y el cierre de `SC-20` son evidencia de CHG-15 sobre ese mecanismo).
 - **Rollback de aplicación y recuperación de BD** como procedimientos separados, y runbooks mínimos de migración, recuperación y *break-glass*.
 
 ## Capabilities
@@ -26,7 +26,7 @@ Ninguna.
 ## Impact
 
 - **Documentos que respaldan el cambio:** Technical Design §25.1, §25.4–§25.6, §26, §27 (riesgos 8, 10, 14, 15), §28; ADR-003, ADR-007, ADR-009 y ADR-010; backlog `CHG-07`.
-- **Criterios PRD:** evidencia parcial de `SC-19` y línea base de `SC-20`. El cierre de `SC-20` (flujo principal demostrable, *seed* ficticio, smoke completo) es de CHG-15.
+- **Criterios PRD:** evidencia parcial de `SC-19` y línea base de `SC-20`. La ejecución final, la evidencia y el cierre de `SC-20` para el release (flujo principal demostrable, *seed* ficticio) son de CHG-15.
 - **Código y artefactos afectados (cuando se implemente):** un workflow de GitHub `migrate-production`, scripts operativos acotados, configuración de Vercel y Neon, y documentación operativa en `docs/09-deploy/`. No toca código funcional de la aplicación.
 - **Dependencias:** ninguna nueva en el proyecto. Cualquier herramienta (CLI de Vercel, token, API de Neon) requeriría una aprobación explícita nueva.
 - **Fuera de alcance:** funcionalidades, autenticación, consulta y seguimiento, Security Pass (CHG-14), preparación final de release y *seed* (CHG-15), monitoreo externo, copias de seguridad propias y dominio propio obligatorio. No se configura ninguna plataforma real durante la Fase 6.

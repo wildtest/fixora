@@ -19,6 +19,7 @@
 - [ ] 3.1 Implementar `saveDiagnosis` con `requireAdmin()`, `AdminContext`, parseo explícito, la precedencia `STALE_ORDER` → `ORDER_CLOSED` → `DIAGNOSIS_AND_COST_FROZEN` → validación, `canEditDiagnosisAndCost` recalculado, no-op, `UPDATE` condicional y `diagnosis_history` en una transacción; se verifica con pruebas de integración (crear, modificar, limpiar, no-op, `version + 1` efectivo, historial, `STALE_ORDER` por ambas barreras, estados congelados y finales, fallo inyectado sin parciales).
 - [ ] 3.2 Implementar `saveEstimatedCost` (operación independiente: su propio comando, `expectedVersion`, transacción e historial; sin una operación combinada) con las mismas garantías y `cost_history`, con conversión exacta entre cadena canónica, Prisma `Decimal` y `NUMERIC`; se verifica con las mismas pruebas más la conversión sin `number` y el rechazo de cero, negativos y más de dos decimales.
 - [ ] 3.3 Añadir `DIAGNOSIS_AND_COST_FROZEN` (estados congelados no terminales) al conjunto cerrado de resultados, manteniendo `ORDER_CLOSED` solo para estados finales y sin códigos por estado; se verifica con pruebas de integración de cada estado con la versión vigente y de la precedencia (versión distinta → `STALE_ORDER`) sin cambio de versión ni historial.
+- [ ] 3.4 Añadir `saveDiagnosis` y `saveEstimatedCost` a la matriz de autorización de acciones administrativas de CHG-08 (infraestructura solo de pruebas): sin sesión válida, cada una devuelve `SESSION_EXPIRED` sin escribir diagnóstico ni costo, sin fila de historial y sin cambio de `repair_orders.version`; se verifica con la prueba de integración parametrizada (`SC-12`/`E10`).
 
 ## 4. Lectura administrativa y combinada
 
@@ -35,12 +36,13 @@
 - [ ] 6.1 Implementar los bloques Público (diagnóstico y costo) e Interno (historial combinado) con campos editables y un guardado por campo en los tres primeros estados, rótulo «Aún no visible para el cliente», errores por campo y ausencias comprensibles; se verifica con Playwright en móvil y escritorio y la revisión contra DESIGN §11.
 - [ ] 6.2 Implementar la presentación congelada («Congelado»), de solo lectura en estados finales y «Nunca se publicó al cliente»; se verifica con Playwright.
 - [ ] 6.3 Completar el diálogo `E11` #1 con el resumen real del diagnóstico y del costo, el aviso de congelamiento y publicación y la ligadura a la versión revisada; se verifica con Playwright y una prueba de integración de `STALE_ORDER` si el diagnóstico o el costo cambian antes de confirmar.
-- [ ] 6.4 Implementar el bloque público de diagnóstico y costo en PUB-05 (costo destacado, diagnóstico como texto, separado de futuras notas) y el vacío informativo de `E6`; se verifica con Playwright en móvil y escritorio.
+- [ ] 6.4 Implementar el bloque público de diagnóstico y costo en PUB-05 (costo destacado, diagnóstico como texto, separado de las notas públicas de CHG-12) y el vacío informativo de `E6`; se verifica con Playwright en móvil y escritorio.
 
 ## 7. Pruebas y trazabilidad
 
 - [ ] 7.1 Implementar `E2E-01` completo (registro → código → inicio de sesión administrativo → búsqueda → detalle → *Solicitud recibida → Equipo recibido → En diagnóstico* → diagnóstico y costo → `E11` #1 → *Esperando aprobación* → consulta pública con estado, Journey, diagnóstico y costo), con la comprobación previa de que antes de confirmar no se ven; se verifica con la ejecución en verde.
-- [ ] 7.2 Actualizar `TRACEABILITY.md` con `SC-07`, `SC-08`, `SC-10`, `SC-17`, `E5` y `E6`, y la terminalidad de diagnóstico y costo como parte de `SC-09`; se verifica con `npm run test:trace`.
+- [ ] 7.2 Implementar el Playwright independiente de `SC-04` (ciclo completo *Solicitud recibida → Equipo recibido → En diagnóstico → Esperando aprobación → En reparación → Listo para recojo → Entregado*, con diagnóstico y costo registrados antes de la primera confirmación y las confirmaciones `E11` #1, #2 y #4), comprobando en la consulta pública (interfaz real) el estado y la línea de tiempo **tras cada una de las seis transiciones** y la visibilidad del diagnóstico y el costo desde *Esperando aprobación*; depende de CHG-10 archivado y no sustituye ni amplía `E2E-01`; se verifica con la ejecución en verde.
+- [ ] 7.3 Actualizar `TRACEABILITY.md` con `SC-04` (evidencia primaria CHG-11; soporte CHG-10), `SC-07`, `SC-08`, `SC-10`, `SC-17` (`E2E-01`, prueba distinta de la de `SC-04`), `E5` y `E6`, la regresión de `SC-12` y la terminalidad de diagnóstico y costo como parte de `SC-09`; se verifica con `npm run test:trace`.
 
 ## 8. Verificación final
 

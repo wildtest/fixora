@@ -28,6 +28,7 @@
 - [ ] 5.1 Implementar `requireAdmin()` (`server-only`, sin `use cache`) y el `AdminContext` opaco, con `SESSION_EXPIRED` uniforme para toda sesión no válida; se verifica con pruebas de integración de sesión válida, inexistente, inventada, expirada y eliminada.
 - [ ] 5.2 Definir el patrón reutilizable de acción administrativa (`requireAdmin → validar → caso de uso → transacción`) con `SESSION_EXPIRED`; se verifica con una prueba parametrizada de integración de que sin sesión la acción no se ejecuta y no deja estado parcial. No se crea una mutación de depuración.
 - [ ] 5.3 Configurar el renderizado 100 % dinámico y `noindex` de `/admin/**`, y la CSP con nonce vía `proxy.ts` sin relajarla; se verifica con AV-1 y la inspección de cabeceras.
+- [ ] 5.4 Crear el *harness* de la matriz de autorización de acciones administrativas (solo infraestructura de pruebas; ningún registro en el producto) que ejecuta cada acción registrada en la matriz sin sesión válida y comprueba `SESSION_EXPIRED`, ausencia de escritura y de estado parcial, de modo que CHG-10, 11, 12 y 13 añadan sus acciones; se verifica con la prueba parametrizada sobre la acción de ejemplo del patrón de 5.2 y la revisión de que no existe un registro de acciones en `src/`.
 
 ## 6. Acción de login, logout y UI
 

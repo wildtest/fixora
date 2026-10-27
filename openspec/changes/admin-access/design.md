@@ -98,7 +98,7 @@ Logger de CHG-01; catálogo cerrado de TD §23: `auth.login.failed`, `auth.rate_
 CHG-08 entrega: establecimiento de sesión, `requireAdmin()`, `AdminContext`, protección de rutas `/admin/**`, cierre de sesión y la frontera mínima de la entrada administrativa. CHG-09a añade: datos del Dashboard, listado, búsqueda, filtro de estado, paginación y órdenes recientes, y **no rediseña la autenticación**.
 
 ## Handoff to later administrative changes
-CHG-09b, 10, 11, 12 y 13: ejecutan `requireAdmin()` en cada acción, consumen `AdminContext` y el patrón `SESSION_EXPIRED`, no confían en la UI ni duplican la implementación de sesiones, y aportan su propia prueba parametrizada de acción sin sesión.
+CHG-09b, 10, 11, 12 y 13: ejecutan `requireAdmin()` en cada acción, consumen `AdminContext` y el patrón `SESSION_EXPIRED`, no confían en la UI ni duplican la implementación de sesiones, y aportan su propia prueba parametrizada de acción sin sesión. **CHG-08 establece el patrón y el *harness* de pruebas** —una *matriz de autorización de acciones administrativas* (ayudante, arreglo parametrizado o fábrica de casos), **exclusivamente infraestructura de pruebas**, sin registro de acciones en el producto (ni en `domain`, `application`, base de datos o metadatos de ejecución)— para la regresión «acción administrativa invocada directamente + sin sesión → `SESSION_EXPIRED` → sin cambio de estado»; los changes posteriores añaden a ella sus propias acciones (CHG-10: transición; CHG-11: `saveDiagnosis` y `saveEstimatedCost`; CHG-12: `createNote`, `editNote` y `deleteNote`; CHG-13: `saveBasicOrderData`, o sus nombres finales). CHG-14 solo reverifica la matriz completa.
 
 ## Risks / Trade-offs
 

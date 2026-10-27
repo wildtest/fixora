@@ -36,7 +36,7 @@ FIXORA SHALL mostrar en la consulta pública de una orden cancelada el diagnóst
 - **THEN** ve su diagnóstico y su costo
 
 ### Requirement: No change history in the public view
-FIXORA SHALL no mostrar al cliente los historiales de diagnóstico ni de costo, sino únicamente los valores vigentes publicados y el historial de estados.
+FIXORA SHALL no exponer en la consulta pública versiones anteriores ni historial de cambios del diagnóstico o del costo: cuando son públicos, muestra solo sus valores vigentes, y la línea de tiempo pública sigue compuesta únicamente por transiciones de estado con su fecha. Otros contenidos que un requisito de esta capacidad autorice expresamente pueden coexistir en la vista.
 
 #### Scenario: Valores modificados antes de publicarse
 - **WHEN** el diagnóstico o el costo fueron modificados varias veces antes de la aprobación
