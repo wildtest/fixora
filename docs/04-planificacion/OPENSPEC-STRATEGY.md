@@ -6,6 +6,8 @@
 >
 > **Este documento es planificación del proyecto, no una Spec OpenSpec ni una fuente canónica de requisitos.** Las Specs vigentes vivirán en `openspec/specs/` (ubicación canónica) y las propuestas en `openspec/changes/`. Aquí solo se decide **cómo dividir** FIXORA antes de crear ningún artefacto OpenSpec. No hay Specs, changes ni backlog creados.
 >
+> La materialización de los 16 changes por olas controladas (Fase 6.4) está aprobada en [`BACKLOG.md`](BACKLOG.md) §15.1.
+>
 > Consume: `docs/01-producto/PRD.md` (qué), `docs/02-diseno/DESIGN.md` (experiencia), `docs/03-arquitectura/TECHNICAL-DESIGN.md` y ADR-001…010 (cómo), `openspec/config.yaml`. Consumido por: Fase 6.3 (backlog maestro) y 6.4 (creación y revisión de Specs).
 >
 > `SC-*`, `E*`, `RIE-*`, `VAL-*` son los del PRD; `PUB-*`/`ADM-*` son las nueve pantallas de DESIGN.md; `CHG-*` son identificadores **conceptuales de este documento**, no nombres OpenSpec.
@@ -464,7 +466,7 @@ Tensión heredada del Technical Design (`E11` se invalida si se editan los datos
 | Q-1 | ¿`public-site-entry` es capability? | **RESUELTA EN 6.2** | Sí: posee requisitos propios (§7). Solo se revisaría si la Spec no confirma al menos tres |
 | Q-2 | ¿`diagnosis-and-estimate` separada de `repair-lifecycle`? | **RESUELTA EN 6.2** | Sí, por propiedad de requisitos (§8.3), sin promesas futuras |
 | Q-3 | ¿`admin-order-management` se divide? | **RESUELTA EN 6.2** | Una capability; su entrega se divide en CHG-09a/09b (§15.2) |
-| Q-4 | Convención documental de planificación y backlog | **RESUELTA EN 6.2** | `docs/04-planificacion/` es la ubicación canónica de la planificación de la Fase 6. Existe además `docs/04-backlog/`, vacía salvo su `.gitkeep`: **recomendación** de consolidar planificación y backlog bajo `docs/04-planificacion/`; la limpieza se ejecuta en la Fase 6.3 |
+| Q-4 | Convención documental de planificación y backlog | **RESUELTA EN 6.2** | `docs/04-planificacion/` es la ubicación canónica de la planificación de la Fase 6. La carpeta `docs/04-backlog/` (vacía salvo su `.gitkeep`) se consolidó y eliminó al iniciar la Fase 6.3; el backlog vive en `docs/04-planificacion/BACKLOG.md` |
 | Q-5 | Mecánica de `skip_specs` en 1.15.0 | **RESUELTA EN 6.2** | §4 |
 | Q-6 | ¿Las columnas de diagnóstico y costo nacen en CHG-05 o en CHG-11? | **DEFERRED — Spec técnica de persistencia / implementación** | Su ubicación en el esquema es *cómo*, no *qué*: la capability y su comportamiento ya están definidos. Por defecto, en CHG-11 mediante expand/contract |
 | Q-7 | `E11` frente a ediciones de datos | **RESUELTA EN 6.2** | La arquitectura ya decidió el comportamiento (ADR-006). `repair-lifecycle` posee la semántica de confirmación y ligadura a la versión; CHG-10 introduce desde el inicio un requisito general: *la confirmación `E11` está ligada a la versión vigente de la orden revisada; si antes de ejecutar la transición ocurre cualquier mutación efectiva que incremente la versión, el servidor rechaza la transición como vista desactualizada y no aplica cambios* (redacción final en la Fase 6.4). Una corrección de datos (CHG-13) incrementa la versión y participa automáticamente: no hace falta `MODIFIED` salvo contradicción objetiva al redactar |
