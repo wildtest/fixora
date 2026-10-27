@@ -131,6 +131,10 @@ El Technical Design decidirá **cómo** desplegar correctamente en Vercel (integ
 
 El resto de elementos de la lista anterior continúa provisional hasta el Technical Design.
 
+### Actualización de trazabilidad — Technical Design (2026-10-26)
+
+Esta sección conserva la dirección tecnológica provisional **tal como estaba al definir el proyecto**. Las decisiones técnicas vigentes están en `docs/03-arquitectura/TECHNICAL-DESIGN.md` y sus ADRs (`docs/03-arquitectura/adrs/`), que aprueban, entre otras, PostgreSQL en Neon y Prisma ORM 7.x. OpenSpec se inicializará después de cerrar la Fase 5. La Fase 5 se cerró el 2026-10-26.
+
 ## 9. Pipeline del proyecto
 
 ```

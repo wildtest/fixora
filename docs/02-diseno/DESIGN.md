@@ -4,6 +4,8 @@
 >
 > Fecha: 2026-10-26.
 >
+> Revisión (Fase 5): el **Apéndice A** cierra `DUX-13` (carga genérica, error inesperado, 404 y mensajes técnicos de interfaz) reutilizando exclusivamente componentes y patrones ya aprobados. No añade pantallas, flujos ni funcionalidades.
+>
 > Consume: `docs/01-producto/PRD.md` → `docs/02-diseno/UX-EXPLORATION.md` (Dirección UX Consolidada, Google Stitch) → `docs/02-diseno/referencias/claude-design/FIXORA Sistema Visual.html` (Claude Design).
 >
 > Consumido por: 03 Arquitectura (Technical Design + ADRs), 04 Backlog, 05 Specs.
@@ -43,7 +45,7 @@ Este documento es la **fuente de verdad de UX/UI de FIXORA V1**: define la exper
 | Exploración A/B/C de Stitch | `docs/02-diseno/referencias/stitch/exploracion/` | Contexto histórico. `direccion-a/PUB-03.png` y `ADM-03.png` están corruptas. |
 | Briefs | `docs/02-diseno/STITCH-BRIEF.md`, `docs/02-diseno/DESIGN-BRIEF.md` | Contexto previo controlado. |
 
-> Nota documental: `UX-EXPLORATION.md`, `STITCH-BRIEF.md` y `DESIGN-BRIEF.md` aún citan la ruta `evidencias/stitch/`; las capturas están ahora en `referencias/stitch/`. Este documento usa la ruta vigente. La actualización de esas referencias queda como acción documental pendiente (sección 19.4).
+> Nota documental: las capturas de Stitch se movieron de `evidencias/stitch/` a `referencias/stitch/` y las referencias de `UX-EXPLORATION.md`, `STITCH-BRIEF.md` y `DESIGN-BRIEF.md` ya fueron actualizadas. Este documento usa la ruta vigente.
 
 ---
 
@@ -419,7 +421,7 @@ Ver sección 4. Componentes: barra pública (64/56), menú móvil, sidebar admin
 ### 6.14 Estados vacíos, de error, deshabilitados y de solo lectura
 - **Vacío (ADM-03 sin resultados):** card con padding 40/24, icono en cuadro de 48 (`search_off`), mensaje 18/26 «No se encontraron órdenes con esa búsqueda o filtro.», ayuda «Verifica los términos o elige otro estado.» y botón secundario «Limpiar búsqueda y filtros» (restablece búsqueda y filtro; no es una función nueva).
 - **Vacío informativo (PUB-05, `E6`):** donde no hay diagnóstico, costo o notas públicas aún, el bloque se representa con un mensaje claro de que todavía no hay información disponible, sin sección rota.
-- **Error:** campo (6.2), alertas (6.11), código inexistente (13.2).
+- **Error:** campo (6.2), alertas (6.11), código inexistente (13.2). Carga genérica, error inesperado, 404 y resultados técnicos: Apéndice A.
 - **Deshabilitado:** sin opacidad; Surface secondary + texto `#8F99A8`; motivo junto al control.
 - **Solo lectura / congelado:** campo con borde discontinuo, fondo Surface secondary, candado y rótulo (sección 11).
 
@@ -637,8 +639,8 @@ Componente base: Alertas (6.11). Ubicación junto a lo que afectan. Los errores 
 - **Público:** franja Info de ancho completo bajo el header: «Entorno de demostración. No ingreses datos personales reales ni información sensible.» Breve y no intrusiva.
 - **Administrativo:** badge «Entorno demostrativo» al pie de la sidebar (y su equivalente en la barra móvil). Complementa, sin reemplazar, el aviso de la descripción.
 
-### 13.9 No cubierto
-- **Carga y error genérico (`DUX-13`)** no fueron explorados por los artefactos; no se inventa comportamiento aquí. No afecta la estructura aprobada de las nueve pantallas (sección 17.2).
+### 13.9 Estados técnicos de interfaz
+- **Carga genérica, error inesperado, 404 y los resultados técnicos y de negocio esperados** (por ejemplo `RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `STALE_NOTE`, `NOTE_NOT_FOUND`, `ORDER_CLOSED`, `TRANSITION_NOT_ALLOWED`, versión antigua de la aplicación) se detallan de forma completa en el **Apéndice A**, que cierra `DUX-13` y es la única fuente de esa lista. Reutilizan los patrones de este documento y no añaden pantallas ni flujos.
 
 ---
 
@@ -699,6 +701,8 @@ Principios de diseño (`SUP-09`). **Este documento no declara cumplimiento de WC
 Este documento **deliberadamente no resuelve** lo siguiente. Ninguna recomendación visual de este documento debe leerse como decisión de arquitectura.
 
 ### 17.1 Pasan al Technical Design
+Estas decisiones las recoge [`TECHNICAL-DESIGN.md`](../03-arquitectura/TECHNICAL-DESIGN.md) (con sus ADRs), que decide las arquitectónicas y delega explícitamente a Specs el detalle fino (§28); la tabla conserva el registro de lo que Diseño delegó.
+
 | Tema | Nota |
 |---|---|
 | Formato, alfabeto, longitud y entropía del código de seguimiento | `E16`, `E17`, `RIE-01`. Se recomienda evitar caracteres ambiguos (`0 O 1 I l`). |
@@ -717,7 +721,7 @@ Este documento **deliberadamente no resuelve** lo siguiente. Ninguna recomendaci
 Se suman a la tabla anterior, también para el Technical Design: **cantidad exacta de órdenes por página, mecanismo de consulta y estrategia de base de datos de la paginación de ADM-03** (la decisión visual está cerrada en 6.16).
 
 ### 17.2 Pendiente sin bloquear la aprobación del diseño
-- **Carga y error genérico (`DUX-13`):** no explorado por los artefactos y sin efecto sobre la estructura de las nueve pantallas. No se inventa comportamiento; se resuelve cuando el Technical Design o una Spec lo requieran.
+- **Carga y error genérico (`DUX-13`):** cerrado en el Apéndice A (ya no está pendiente).
 - **Refinamientos editoriales y de anatomía** (microcopys puntuales, ajuste fino de los filter chips, 6.10): pueden precisarse en implementación **solo si no cambian comportamiento ni estructura UX**.
 
 ### 17.3 Decisiones de Diseño cerradas en esta versión
@@ -731,6 +735,8 @@ Se suman a la tabla anterior, también para el Technical Design: **cantidad exac
 | Orden de notas | Más reciente primero dentro de cada bloque | 10.4 |
 | Rótulo previo a *Esperando aprobación* en el bloque Público | Aplica la regla del PRD §4.5 | 9, 11 |
 | Journey en *Cancelado* | Rama de salida desde la etapa interrumpida | 7.3 |
+| `DUX-13`: carga genérica, error inesperado y 404 | Patrones reutilizados de alertas, botones y estados vacíos; sin pantallas nuevas | Apéndice A.2–A.4 |
+| Resultados técnicos y de negocio esperados de interfaz | Alerta, texto y acción definidos para cada resultado; lista completa en el Apéndice A (ejemplos: `RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `STALE_NOTE`) | Apéndice A.5 |
 
 ---
 
@@ -759,6 +765,7 @@ Se suman a la tabla anterior, también para el Technical Design: **cantidad exac
 | Responsive | `SC-15`, `SUP-03` | UX-EXPLORATION §14 | §17 | 14 |
 | Accesibilidad | `SUP-09` | — | §18 | 15 |
 | Selector de tipo de equipo | §4.3 (lista cerrada) | DESIGN-BRIEF | §08 | 6.5, 14 |
+| Estados técnicos y resultados esperados de interfaz (carga, error inesperado, 404 y los resultados del Apéndice A) | `E4`, `E9`, `E10`, `E12`, `RIE-01`; sin requisito PRD nuevo | UX-EXPLORATION §12; `DUX-13` (no explorado, cerrado en el Apéndice A) | §14 (alertas) | 6.11, 6.14, Apéndice A |
 
 ---
 
@@ -794,12 +801,14 @@ Realizada el 2026-10-26 contra `PRD.md`, `UX-EXPLORATION.md` y el artefacto de C
 ### 19.3 No se encontraron contradicciones con
 Estados y transiciones (§4.4), visibilidad de diagnóstico/costo (§4.5), edición y estados finales (§4.8), formato de fecha y costo (§7.1), confirmaciones (§7.3), ni con los elementos descartados de UX-EXPLORATION §8 (el artefacto no contiene técnicos, inventario, garantía, SMS, IMEI, barra inferior, `S/ 0.00` en cancelados ni autor en el historial).
 
-### 19.4 Acciones documentales externas pendientes (no realizadas)
-Realizado posteriormente: el estado de la fase 02 se actualizó a COMPLETADO en `CLAUDE.md` y `docs/README.md`.
-Siguen pendientes:
-- Actualizar las rutas `evidencias/stitch/` → `referencias/stitch/` en `UX-EXPLORATION.md`, `STITCH-BRIEF.md` y `DESIGN-BRIEF.md`.
-- Decidir si `DESIGN-BRIEF.md` se conserva como histórico (ya cumplió su función de insumo).
-- `DUX-13` sigue sin resolver (17.2) y `VAL-04` sigue pendiente (PRD §8.2).
+### 19.4 Acciones documentales externas
+Realizadas posteriormente:
+- El estado de la fase 02 se actualizó a COMPLETADO en `CLAUDE.md` y `docs/README.md`.
+- Las rutas `evidencias/stitch/` → `referencias/stitch/` se actualizaron en `UX-EXPLORATION.md`, `STITCH-BRIEF.md` y `DESIGN-BRIEF.md`.
+- `DESIGN-BRIEF.md` se conserva como insumo histórico que cumplió su función y fue consolidado por este documento.
+- `DUX-13` quedó cerrado en el Apéndice A.
+
+Sigue abierto: `VAL-04` (PRD §8.2).
 
 ### 19.5 Verificación final (2026-10-26)
 | Verificación | Resultado |
@@ -814,3 +823,86 @@ Siguen pendientes:
 | Decisiones de Diseño abiertas (paginación, edición de datos, eliminación y orden de notas, microcopy del aviso sensible) | Ninguna. |
 | Decisiones técnicas | Siguen diferidas al Technical Design (17.1). |
 | Contradicciones reales con el PRD | Ninguna encontrada. |
+
+### 19.6 Verificación del Apéndice A (cierre de `DUX-13`)
+| Verificación | Resultado |
+|---|---|
+| Pantallas | Siguen siendo las nueve (`PUB-01`–`PUB-05`, `ADM-01`–`ADM-04`); la carga, el error y la 404 son estados técnicos, no pantallas. |
+| Flujos y navegación | Sin cambios. |
+| Componentes | Solo alerta (6.11), botones (6.1), patrón de estado vacío (6.14) y tokens existentes; ningún componente nuevo. |
+| Funcionalidad | Ninguna añadida; «Reintentar», «Recargar página» y «Actualizar notas» repiten una operación o refrescan una vista existente. |
+| Estados, matriz, `E11`, `SC-11`, `SC-12` | Sin cambios. |
+| Información sensible | Ningún estado técnico muestra stack, mensaje técnico, código de Prisma/PostgreSQL, ruta interna ni identificadores internos. |
+| Contradicciones con el PRD | Ninguna encontrada. |
+
+---
+
+## Apéndice A — Estados técnicos de interfaz (cierra `DUX-13`)
+
+> Este apéndice define **cómo se ven** estados que no son pantallas del producto. No añade pantallas, flujos, campos, acciones ni funcionalidades. Cuándo ocurre cada estado y qué código lo origina lo decide el Technical Design; aquí solo se fija su presentación. Los textos marcados como «literal» se fijan tal cual; el resto es editorial y puede afinarse sin cambiar el comportamiento (como en 13.3).
+
+### A.1 Principios
+1. **Reutilización estricta:** alertas (6.11), botones (6.1), patrón de estado vacío (6.14), iconos ya listados (5.6) y tokens (sección 5).
+2. **Nada técnico hacia el usuario:** nunca se muestra stack, mensaje técnico, código de Prisma o PostgreSQL, SQL, ruta interna, identificador interno de la orden ni el código de seguimiento como «referencia».
+3. **Español, tono neutro y breve,** con el nombre exacto de las acciones.
+4. Las alertas permanecen hasta resolverse (6.11) y se ubican junto a lo que afectan.
+5. Las acciones que no se ejecutaron lo dicen explícitamente (sección 13).
+6. **Los códigos de resultado esperados se representan mediante el patrón específico correspondiente y nunca mediante el error genérico de `INTERNAL_ERROR`.** El error genérico (A.3, «Ocurrió un problema inesperado.») se reserva para fallos inesperados de aplicación o infraestructura.
+
+### A.2 Carga genérica
+- **Sin pantalla ni spinner nuevo.** Mientras una parte de la interfaz espera datos, se muestran **marcadores de posición** con Surface secondary (`#EEF2F7`), radio de 8 y la altura aproximada del bloque que reemplazan, para **mantener el layout estable** y evitar saltos.
+- Los marcadores **no contienen texto ni datos** (ni siquiera de ejemplo): no hay información sensible en placeholders.
+- La estructura persistente (cabecera, navegación pública, sidebar o barra administrativa) no se sustituye por marcadores; solo el contenido que aún no está disponible.
+- Si hay animación, es sutil, solo de opacidad y de 150–200 ms, y se respeta el movimiento reducido (sección 15). Sin animación el estado sigue siendo legible.
+- Se acompaña de un texto accesible «Cargando…» para tecnologías de apoyo (no necesariamente visible).
+- **Acción en curso:** el botón queda deshabilitado con el estilo ya definido (6.1) mientras la acción está pendiente y puede mostrar un texto de progreso («Procesando…»). No se añade ningún indicador nuevo.
+
+### A.3 Error inesperado
+- **Alerta de Error** (6.11, icono `error`).
+  - **Título (literal):** «Ocurrió un problema inesperado.»
+  - **Texto (literal):** «Inténtalo nuevamente.»
+  - **Acción:** «Reintentar» (secundario) **cuando tenga sentido**: repite la operación o recarga la sección afectada. Si reintentar no puede resolver el problema, la alerta se muestra sin acción.
+  - **Referencia:** si existe, una línea secundaria «Referencia: {valor}» en Caption (12/16) con Text secondary. El valor es opaco. La interfaz usa únicamente la palabra «Referencia».
+- **Dónde:**
+  - *Error de una acción* (por ejemplo, al guardar): la alerta aparece **junto a lo afectado** y conserva lo que el usuario había escrito.
+  - *Error al construir una vista:* la alerta ocupa el área de contenido y mantiene la cabecera y la navegación.
+  - *Fallo global de la aplicación:* una alerta centrada sobre el fondo Background, con el mismo texto y «Reintentar», sin depender de la navegación.
+- **Responsive:** ancho completo del contenedor; en móvil el botón ocupa el ancho completo (44 de alto).
+- **Nunca se muestra:** lo listado en A.1.2.
+
+### A.4 Página no encontrada (404)
+- **Estado técnico dentro del layout público,** no una décima pantalla. Reutiliza el patrón de estado vacío (6.14): card centrada con icono en cuadro de 48 (`search_off`).
+  - **Título (literal):** «Página no encontrada»
+  - **Texto:** «La página que buscas no existe o ya no está disponible.»
+  - **Acción (literal):** «Volver al inicio» (primario, lleva a `PUB-01`).
+- **No** ofrece «Reintentar»: reintentar no cambiaría el resultado.
+
+### A.5 Resultados técnicos de interfaz
+
+Todos usan la alerta (6.11), junto a lo que afectan y sin añadir pantallas. Los resultados que ya tienen presentación se enlazan.
+
+| Resultado | Dónde aparece | Alerta | Título | Texto | Acción |
+|---|---|---|---|---|---|
+| `RATE_LIMITED` | Consulta (`PUB-04`) y acceso (`ADM-01`) | Warning, `lock_clock` | «Demasiados intentos» | «Inténtalo nuevamente más tarde.» | Ninguna. No revela si algún código o correo era correcto ni muestra datos de órdenes. No fija un tiempo exacto en este documento (el contrato admite `retryAfterSeconds`; la Spec puede decidir si se muestra, sin alterar este patrón) |
+| `SERVICE_UNAVAILABLE` | Consulta (`PUB-04`) y acceso (`ADM-01`) | Warning, `sync_problem` | «Servicio no disponible temporalmente» | «Inténtalo nuevamente más tarde.» | «Reintentar» (secundario). No explica la causa técnica ni implica que el usuario haya hecho demasiados intentos |
+| `STALE_NOTE` | Bloque de notas de `ADM-04` | Warning, `sync_problem` (como 13.5) | «La nota cambió desde que abriste esta pantalla» | «La acción no se ejecutó. Actualiza para ver la información vigente.» | «Actualizar notas» (recarga el bloque de notas; no es una función nueva) |
+| `NOTE_NOT_FOUND` | Bloque de notas de `ADM-04` | Warning, `sync_problem` | «La nota ya no existe» | «Puede haberse eliminado desde otra pantalla. Actualiza para ver las notas vigentes.» | «Actualizar notas» |
+| Versión antigua de la aplicación | Cualquier acción, pública o administrativa, ejecutada desde una página anterior a una actualización | Warning, `refresh` | «La aplicación se ha actualizado.» | «Recarga la página e inténtalo nuevamente.» (en conjunto, la frase literal: «La aplicación se ha actualizado. Recarga la página e inténtalo nuevamente.») | «Recargar página» (primario) |
+| `ORDER_CLOSED` | `ADM-04`: crear, editar o eliminar una nota, o editar datos, cuando la orden se cerró desde otra pantalla | Warning, `sync_problem` | «La orden ya fue cerrada» | «Esta orden ya no admite cambios. Actualízala para ver su estado actual.» | «Actualizar orden» (mismo mecanismo de 13.5). No se presenta como error interno |
+| `TRANSITION_NOT_ALLOWED` | `ADM-04`: cambio de estado que el servidor rechaza porque ya no es válido | Warning, `sync_problem` | «El cambio de estado ya no está disponible» | «La orden cambió desde que la revisaste. Actualízala e inténtalo nuevamente.» | «Actualizar orden». No muestra estado esperado ni recibido, matriz de estados ni código técnico |
+| `CONFIRMATION_REQUIRED` | `ADM-04`: transición de `E11` enviada sin confirmación explícita (resultado defensivo; la UI normal ya presenta las cuatro confirmaciones) | Warning, `warning` | «Confirma la acción» | «Debes confirmar esta acción antes de continuar.» | Ninguna nueva. La operación no se ejecuta, el administrador permanece en `ADM-04` y vuelve a iniciar la acción con el control existente; no se abre un diálogo automáticamente |
+| `DIAGNOSIS_AND_COST_REQUIRED` | `ADM-04`: avance a *Esperando aprobación* sin diagnóstico y costo (resultado defensivo; la UI normal lo previene con el botón deshabilitado y su motivo, 6.1) | Warning, `warning` | «Faltan datos de la reparación» | «Completa el diagnóstico y el costo estimado antes de continuar.» | Ninguna nueva. El administrador permanece en `ADM-04` y usa los campos existentes |
+
+- `RATE_LIMITED` y `SERVICE_UNAVAILABLE` son **estados distintos** en título, icono y significado: el primero afirma que se superó un límite; el segundo no afirma nada sobre el usuario.
+- `ORDER_CLOSED`, `TRANSITION_NOT_ALLOWED`, `CONFIRMATION_REQUIRED` y `DIAGNOSIS_AND_COST_REQUIRED` son **resultados de negocio esperados**, no excepciones; los dos primeros pueden producirse legítimamente por concurrencia y los dos últimos son principalmente defensivos.
+- Presentaciones previas, sin cambios: validación (13.1), código inexistente (13.2), credenciales inválidas (13.3), sesión expirada (13.4), orden desactualizada (13.5) y éxito (13.6).
+- Ningún resultado técnico muestra el nombre del código interno (`STALE_NOTE`, etc.) al usuario.
+
+### A.6 Reglas comunes
+- **Foco y anuncio:** las alertas de error o aviso se anuncian a las tecnologías de apoyo y no roban el foco de forma intrusiva; las acciones son alcanzables por teclado (sección 15). El detalle de implementación pertenece a la Spec de accesibilidad.
+- **Colores:** Warning y Error según 5.1; el significado nunca depende solo del color (icono + título + texto).
+- **Estado de la interfaz tras el error:** lo ya escrito en formularios se conserva siempre que sea posible.
+- **Datos de ejemplo:** cualquier ejemplo es ficticio (sección 16).
+
+### A.7 Lo que este apéndice no cambia
+Las nueve pantallas, la navegación, los ocho estados, las cuatro confirmaciones `E11`, la separación Público/Interno, las reglas de congelamiento y de estados terminales, ni ninguna decisión funcional del PRD.

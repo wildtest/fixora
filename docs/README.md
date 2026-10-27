@@ -27,7 +27,7 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 | 00 Definición | `00-definicion/` | COMPLETADO |
 | 01 PRD | `01-producto/` | COMPLETADO |
 | 02 Diseño | `02-diseno/` | COMPLETADO — Exploración UX + sistema visual (`DESIGN.md` aprobado) |
-| 03 Arquitectura | `03-arquitectura/` | PENDIENTE |
+| 03 Arquitectura | `03-arquitectura/` | Área de la **Fase 5 — Technical Design / Arquitectura**: CERRADA el 2026-10-26 (Technical Design aprobado y ADR-001…010 aceptados) |
 | 04 Backlog | `04-backlog/` | PENDIENTE |
 | 05 Specs | `05-specs/` | PENDIENTE |
 | 06 Diagramas | `06-diagramas/` | PENDIENTE |
@@ -47,14 +47,34 @@ Fase 02 Diseño completada (exploración UX con Google Stitch + sistema visual c
 
 Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias.
 
-Siguiente paso: fase 03 Arquitectura (Technical Design + ADRs).
+**Fase 5 — Technical Design / Arquitectura** (área documental: `03-arquitectura/`) — entregables:
+
+- [`TECHNICAL-DESIGN.md`](03-arquitectura/TECHNICAL-DESIGN.md) — **fuente de verdad técnica y arquitectónica** (aprobado). La revisión adversarial y sus correcciones están completadas.
+- [`adrs/`](03-arquitectura/adrs/) — ADR-001 … ADR-010 (todos Aceptados): razonamiento y alternativas de las decisiones del Technical Design. Índice en TD §33.
+
+**Fase 5 cerrada el 2026-10-26**: Technical Design aprobado, 10 ADRs aceptados, revisión adversarial completada (0 Critical, 0 High) y A-5 completado. El Architecture Validation Gate (TD §29) **no se ha ejecutado**; es el primer gate de la futura implementación. OpenSpec se inicializará a continuación y aún no existen Specs.
+
+## Mapa de documentos y su rol
+
+| Nivel | Documento | Rol |
+|---|---|---|
+| Definición | `00-definicion/PROJECT-BRIEF.md` | Punto de partida: decisiones aprobadas de producto |
+| Producto | `01-producto/PRD.md` | **Qué** debe hacer el producto (fuente de verdad funcional) |
+| Diseño | `02-diseno/STITCH-BRIEF.md` | Insumo histórico de la exploración UX |
+| Diseño | `02-diseno/UX-EXPLORATION.md` | Exploración UX y estructura/navegación aprobadas |
+| Diseño | `02-diseno/DESIGN-BRIEF.md` | Insumo histórico entregado a Claude Design, consolidado por `DESIGN.md` |
+| Diseño | `02-diseno/DESIGN.md` | **Experiencia** y sistema visual (fuente de verdad UX/UI) |
+| Diseño | `02-diseno/referencias/` | Capturas de Stitch y sistema visual de Claude Design; solo referencia |
+| Arquitectura | `03-arquitectura/TECHNICAL-DESIGN.md` | **Cómo** se construye (fuente de verdad técnica) |
+| Arquitectura | `03-arquitectura/adrs/ADR-001…010` | **Por qué**: razonamiento y alternativas |
+| Specs / OpenSpec | `05-specs/` (futuro) | Detalle implementable de cambios concretos, posterior al cierre de la Fase 5 |
 
 ## Qué consume cada fase
 
 - **00 Definición** — `PROJECT-BRIEF.md`: decisiones aprobadas de producto. Punto de partida.
 - **01 PRD** — consume la definición; fija requisitos de producto. Aprobado: es la fuente de verdad funcional de V1.
 - **02 Diseño** — consume el PRD; define experiencia (exploración UX) y sistema visual (`DESIGN.md`). Completada.
-- **03 Arquitectura** — consume PRD y diseño; contiene el Technical Design y los ADRs. Aquí se aprueban (o descartan) las tecnologías provisionales. Va seguido de una revisión adversarial.
+- **03 Arquitectura** — consume PRD y diseño; contiene el Technical Design y los ADRs. Aquí se aprobaron las tecnologías antes provisionales. Fue seguido de una revisión adversarial (completada). Fase 5 cerrada.
 - **04 Backlog** — consume PRD, diseño y arquitectura; descompone el trabajo.
 - **05 Specs** — consume el backlog; especificación y tareas (OpenSpec cuando se incorpore). Todo cambio de comportamiento pasa por una spec antes del código.
 - **06 Diagramas** — documentan lo implementado y revisado.

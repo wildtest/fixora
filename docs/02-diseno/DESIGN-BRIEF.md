@@ -2,6 +2,8 @@
 
 > Fase 02 · Diseño · Parte 2 (Sistema visual) · Documento de trabajo: contexto controlado para Claude Design. **No es `DESIGN.md`** ni define valores visuales definitivos.
 >
+> **Estado: insumo histórico.** Cumplió su función y fue consolidado por `DESIGN.md` (aprobado el 2026-10-26), que es el documento vigente; este briefing se conserva como registro y no es autoridad posterior a `DESIGN.md`.
+>
 > Fecha de redacción: 2026-10-26.
 >
 > Este briefing se deriva exclusivamente de la documentación aprobada. **No cambia funcionalidades, pantallas, estados ni navegación.** Si contradijera a un documento superior, prevalece el superior.
@@ -12,7 +14,7 @@
 |---|---|---|
 | 1 | `docs/01-producto/PRD.md` | Verdad **funcional** |
 | 2 | `docs/02-diseno/UX-EXPLORATION.md` | Verdad de **estructura UX, pantallas y navegación** |
-| 3 | `docs/02-diseno/evidencias/stitch/` (`consolidado-desktop/`, `consolidado-mobile/`) | **Referencia visual** de la dirección aprobada; no requisito |
+| 3 | `docs/02-diseno/referencias/stitch/` (`consolidado-desktop/`, `consolidado-mobile/`) | **Referencia visual** de la dirección aprobada; no requisito |
 
 `STITCH-BRIEF.md` y `PROJECT-BRIEF.md` son contexto. Las referencias `§`, `SC-*`, `E*`, `SUP-*` y `RIE-*` son del PRD; `DUX-*` son de `STITCH-BRIEF.md` §14.
 

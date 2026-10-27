@@ -2,6 +2,8 @@
 
 > Fase 02 · Diseño · Documento de trabajo: insumo para la exploración UX/UI. **No es `DESIGN.md`, ni un sistema de diseño, ni una decisión visual definitiva.**
 >
+> **Estado: insumo histórico.** La exploración que originó ya se realizó y está consolidada en `UX-EXPLORATION.md` y `DESIGN.md`; este briefing no es autoridad posterior a ellos.
+>
 > Fecha de redacción: 2026-10-25.
 >
 > Fuente de verdad funcional: `docs/01-producto/PRD.md` (aprobado). Este briefing se deriva exclusivamente de la documentación aprobada (`CLAUDE.md`, `docs/README.md`, `PROJECT-BRIEF.md` y `PRD.md`). No agrega funcionalidades ni cambia reglas de negocio. Si este briefing contradijera al PRD, prevalece el PRD.

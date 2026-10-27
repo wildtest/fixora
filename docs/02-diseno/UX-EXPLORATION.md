@@ -1,10 +1,10 @@
 # FIXORA — Exploración UX/UI con Google Stitch
 
-> Fase 02 · Diseño · Parte 1 (Exploración UX) · Estado: **COMPLETADA — pendiente de auditoría y commit**
+> Fase 02 · Diseño · Parte 1 (Exploración UX) · Estado: **COMPLETADA — aprobada y consolidada**
 >
 > Fecha del documento: 2026-10-25.
 >
-> Este documento registra la exploración UX realizada y fija la **estructura UX y la navegación** aprobadas. **No es `DESIGN.md`**, no define el sistema visual y no es un Technical Design.
+> Este documento registra la exploración UX realizada y fija la **estructura UX y la navegación** aprobadas. **No es `DESIGN.md`**, no define el sistema visual y no es un Technical Design. Es un documento de exploración UX que alimentó la dirección consolidada posteriormente en `DESIGN.md` (fuente de verdad visual y de detalle UX/UI, aprobado el 2026-10-26); no es una segunda fuente de verdad visual. Las referencias a «la siguiente fase» y a la «Fase 4» son históricas: describen el estado en el momento de su redacción.
 >
 > **Jerarquía de autoridad:** `PRD.md` (fuente de verdad funcional) > este documento (estructura UX/navegación) > `STITCH-BRIEF.md` (insumo de la exploración) > capturas de Stitch (evidencia, no fuente de requisitos). Si algo de las capturas contradice al PRD o a este documento, prevalece el PRD y luego este documento.
 >
@@ -36,7 +36,7 @@ Como herramienta de exploración UX/UI se utilizó **Google Stitch**. Stitch se 
 - Stitch tuvo **libertad para explorar** layout, jerarquía, densidad, composición, navegación y microcopy provisional.
 - Stitch **no tuvo autoridad para introducir funcionalidades nuevas**, cambiar estados, alterar transiciones ni mover información entre público e interno.
 
-**Hallazgo central de la exploración.** En todas las direcciones, Stitch generó propuestas que **excedían el PRD** (módulos, datos, estados y mensajes que no están aprobados). Esas propuestas fueron **detectadas y descartadas**; la sección 8 las lista. Las capturas conservadas en `evidencias/` **todavía contienen restos de ese contenido** (sección 19.5): por eso son evidencia de composición y de patrones UX, no de contenido ni de comportamiento.
+**Hallazgo central de la exploración.** En todas las direcciones, Stitch generó propuestas que **excedían el PRD** (módulos, datos, estados y mensajes que no están aprobados). Esas propuestas fueron **detectadas y descartadas**; la sección 8 las lista. Las capturas conservadas en `referencias/stitch/` **todavía contienen restos de ese contenido** (sección 19.5): por eso son evidencia de composición y de patrones UX, no de contenido ni de comportamiento.
 
 ---
 
@@ -75,7 +75,7 @@ Como herramienta de exploración UX/UI se utilizó **Google Stitch**. Stitch se 
 - Menor densidad administrativa: el listado y el panel resultan más espaciados y muestran menos información por pantalla.
 - Algunas propuestas de Stitch introdujeron contenido fuera del PRD (sección 8). Ese contenido **no se toma como requisito**.
 
-**Evidencias (válidas):** `evidencias/stitch/exploracion/direccion-a/PUB-01.png` (landing), `PUB-02.png` (registro), `ADM-01.png` (dashboard), `ADM-02.png` (listado). **Evidencias no utilizables:** `PUB-03.png` y `ADM-03.png` están corruptas (ver 19.4). Dirección A, por tanto, no tiene evidencia del seguimiento público ni del detalle administrativo.
+**Evidencias (válidas):** `referencias/stitch/exploracion/direccion-a/PUB-01.png` (landing), `PUB-02.png` (registro), `ADM-01.png` (dashboard), `ADM-02.png` (listado). **Evidencias no utilizables:** `PUB-03.png` y `ADM-03.png` están corruptas (ver 19.4). Dirección A, por tanto, no tiene evidencia del seguimiento público ni del detalle administrativo.
 
 ---
 
@@ -94,7 +94,7 @@ Como herramienta de exploración UX/UI se utilizó **Google Stitch**. Stitch se 
 - Riesgo de saturación.
 - Stitch tendió a introducir conceptos propios de un ERP o sistema de taller que **no pertenecen a FIXORA** (sección 8). Ejemplos visibles en las capturas, todos **descartados**: técnicos de guardia y asignación a técnico, mesas/estaciones de trabajo, inventario ("Repuestos y Stock"), facturación y caja, turnos, búsqueda por IMEI/serial, atajos de teclado y escaneo, capacidad de planta, garantías.
 
-**Evidencias (válidas):** `evidencias/stitch/exploracion/direccion-b/PUB-01.png` (landing), `PUB-02.png` (dashboard administrativo), `02. Opcion B - Publico - Registrar Reparacion.png` (registro), `ADM-01.png` (listado), `ADM-02.png` (detalle administrativo), `ADM-03.png` (seguimiento público).
+**Evidencias (válidas):** `referencias/stitch/exploracion/direccion-b/PUB-01.png` (landing), `PUB-02.png` (dashboard administrativo), `02. Opcion B - Publico - Registrar Reparacion.png` (registro), `ADM-01.png` (listado), `ADM-02.png` (detalle administrativo), `ADM-03.png` (seguimiento público).
 
 > Los nombres de archivo de Dirección B no corresponden a los identificadores del `STITCH-BRIEF.md`; el contenido real de cada archivo es el indicado arriba.
 
@@ -117,7 +117,7 @@ Como herramienta de exploración UX/UI se utilizó **Google Stitch**. Stitch se 
 
 - También produjo elementos funcionales no autorizados que tuvieron que corregirse: documento de identidad (DNI), número de serie, mapa y dirección del local, garantía, facturación/boleta, "lead time", inventario, SMS y estados con nombres no aprobados (por ejemplo, "Reparado" o "Esperando repuesto" en el Journey del detalle).
 
-**Evidencias (válidas):** `evidencias/stitch/exploracion/direccion-c/PUB-01.png` (landing), `PUB-02.png` (registro), `PUB-03.png` (seguimiento público), `ADM-01.png` (dashboard), `ADM-02.png` (listado), `ADM-03.png` (detalle administrativo con panel de confirmación E11).
+**Evidencias (válidas):** `referencias/stitch/exploracion/direccion-c/PUB-01.png` (landing), `PUB-02.png` (registro), `PUB-03.png` (seguimiento público), `ADM-01.png` (dashboard), `ADM-02.png` (listado), `ADM-03.png` (detalle administrativo con panel de confirmación E11).
 
 ---
 
@@ -447,7 +447,7 @@ Se reconocen como pendientes; **no se resuelven aquí**:
 
 ## 19. Evidencias
 
-Ruta base: `docs/02-diseno/evidencias/stitch/`. Se enumeran **solo archivos existentes**, revisados uno por uno.
+Ruta base: `docs/02-diseno/referencias/stitch/`. Se enumeran **solo archivos existentes**, revisados uno por uno.
 
 ### 19.1 Aclaración sobre los nombres de archivo
 

@@ -76,7 +76,7 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 00 Definición   COMPLETADO
 01 PRD          COMPLETADO
 02 Diseño       COMPLETADO (Exploración UX + sistema visual; DESIGN.md aprobado)
-03 Arquitectura PENDIENTE
+03 Arquitectura CERRADA (área de la Fase 5 — Technical Design / Arquitectura; Technical Design y ADR-001…010 aprobados; cerrada el 2026-10-26)
 04 Backlog      PENDIENTE
 05 Specs        PENDIENTE
 06 Diagramas    PENDIENTE
@@ -85,7 +85,7 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 09 Deploy       PENDIENTE
 ```
 
-Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25. La exploración UX con Google Stitch (parte de 02 Diseño) está completada: existe una **Dirección UX Consolidada aprobada** documentada en `docs/02-diseno/UX-EXPLORATION.md` (con `STITCH-BRIEF.md` y las evidencias en `docs/02-diseno/evidencias/stitch/`). La Fase 4 (Claude Design + sistema visual) está completada: `docs/02-diseno/DESIGN.md` (aprobado el 2026-10-26) consolida PRD → Dirección UX Consolidada → Sistema Visual de Claude Design (`docs/02-diseno/referencias/claude-design/`). La siguiente fase es 03 Arquitectura (Technical Design + ADRs).
+Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25. La exploración UX con Google Stitch (parte de 02 Diseño) está completada: existe una **Dirección UX Consolidada aprobada** documentada en `docs/02-diseno/UX-EXPLORATION.md` (con `STITCH-BRIEF.md` y las capturas de referencia en `docs/02-diseno/referencias/stitch/`). La Fase 4 (Claude Design + sistema visual) está completada: `docs/02-diseno/DESIGN.md` (aprobado el 2026-10-26) consolida PRD → Dirección UX Consolidada → Sistema Visual de Claude Design (`docs/02-diseno/referencias/claude-design/`). La Fase 5 (Technical Design / Arquitectura; área documental `03-arquitectura/`) está cerrada: ver abajo.
 
 - `PRD.md` continúa siendo la **fuente de verdad funcional**.
 - `UX-EXPLORATION.md` es la **fuente de verdad de estructura UX y navegación aprobada** (nueve pantallas, flujos, estados).
@@ -93,16 +93,24 @@ Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25.
 - Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > artefactos y capturas (solo referencia).
 - Cualquier trabajo de UI debe partir de **PRD + UX-EXPLORATION + DESIGN.md**.
 - No introduzcas silenciosamente nuevas pantallas, flujos ni funcionalidades. Las capturas de Stitch son evidencia, no requisitos: contienen contenido fuera del PRD (ver `UX-EXPLORATION.md` §8 y §19.5). Las decisiones técnicas que `DESIGN.md` difiere (§17: formato del código, iconos, fuentes, tokens, breakpoints, paginación técnica, etc.) pertenecen al Technical Design.
+- `docs/03-arquitectura/TECHNICAL-DESIGN.md` es la **fuente de verdad técnica y arquitectónica** (estado: aprobado; Fase 5 cerrada). `docs/03-arquitectura/adrs/ADR-001…ADR-010` (todos Aceptados) registran el razonamiento y las alternativas; no sustituyen al Technical Design y deben permanecer coherentes con él.
+- Specs/OpenSpec vienen **después** de cerrar la Fase 5, que ya está cerrada; OpenSpec **aún no está inicializado** y no existen Specs. El Architecture Validation Gate (AV-1/2/3, TD §29) **no se ha ejecutado**: es el primer gate de la futura implementación.
+
+### Fases del plan maestro
+
+Fases 0–4 cerradas (hasta `DESIGN.md`, incluidas la exploración UX y el sistema visual). **Fase 5 — Technical Design / Arquitectura: ✅ CERRADA el 2026-10-26** (Technical Design aprobado, ADR-001…010 aceptados, revisión adversarial completada con 0 Critical y 0 High, A-5 completado). No es una fase de implementación: no hay código de la arquitectura aprobada. Siguiente etapa: inicializar OpenSpec y comenzar Backlog y Specs; el Architecture Validation Gate sigue pendiente para la implementación.
 
 Mantén esta tabla actualizada (aquí y en `docs/README.md`) cuando una fase cambie de estado.
 
 ## Stack
 
-Next.js (App Router, `src/`), React y Tailwind CSS están instalados.
+**Presente hoy en el repositorio (scaffold):** Next.js 16.4.3 (App Router, `src/`), React 19.3 y Tailwind CSS 4, en JavaScript. Nada más está instalado.
 
-**Restricción de entrega:** FIXORA V1 debe disponer de un despliegue público de demostración en Vercel. Vercel figuraba antes como provisional; se fijó durante el PRD (§4.11, `SUP-10`). El Technical Design decide *cómo* desplegar en Vercel, no *si* se utiliza.
+**Aprobado arquitectónicamente (Technical Design + ADRs), aún NO instalado ni implementado:** TypeScript `strict`; Node 24.x como objetivo; PostgreSQL en Neon; Prisma ORM 7.x estable (nunca RC; no Prisma 8) con `@prisma/adapter-pg` + `pg`; Vitest y Playwright; GitHub Actions; despliegue en Vercel. Autenticación propia mínima con un único administrador. El detalle y las decisiones diferidas están en `docs/03-arquitectura/TECHNICAL-DESIGN.md`. Las dependencias se instalan solo con aprobación explícita en el momento, y no antes de ejecutar el Architecture Validation Gate.
 
-Todo lo demás es **provisional y NO aprobado**: persistencia, base de datos, ORM y proveedor (PostgreSQL, Prisma y Neon son solo direcciones provisionales), autenticación y sesiones, OpenSpec, Playwright y GitHub Actions. Se decidirán en el Technical Design.
+**Restricción de entrega:** FIXORA V1 debe disponer de un despliegue público de demostración en Vercel (PRD §4.11, `SUP-10`).
+
+**Proceso:** OpenSpec se inicializará **ahora que la Fase 5 está cerrada**; hoy aún no está inicializado y no existen Specs.
 
 ## Comandos disponibles hoy
 
@@ -127,8 +135,9 @@ No existen aún scripts de test, typecheck ni base de datos. No inventes ni asum
 
 ## Reglas sobre decisiones arquitectónicas
 
-- No implementes decisiones de arquitectura futuras (base de datos, ORM, autenticación, estructura de API, estrategia de despliegue, etc.) antes de que exista el **TECH-DESIGN** aprobado. **Vercel ya está fijado como destino de despliegue**; lo pendiente es definir cómo se desplegará y operará FIXORA allí. Antes del Technical Design no inventes arquitectura de hosting, integración con persistencia, ambientes, estrategia de variables, CI/CD, funciones/serverless ni decisiones técnicas equivalentes.
-- Toda decisión arquitectónica importante futura debe quedar registrada mediante un **ADR** en `docs/03-arquitectura/`.
+- El **Technical Design está aprobado**: no inventes arquitectura que contradiga `docs/03-arquitectura/TECHNICAL-DESIGN.md` ni sus ADRs. Si una Spec o la implementación necesitan contradecir una decisión, detente y solicita revisión arquitectónica; no la adaptes en silencio.
+- No implementes todavía la arquitectura aprobada (base de datos, ORM, autenticación, API, CI/CD, etc.): la Fase 5 ya está cerrada; falta inicializar OpenSpec, crear Backlog y Specs y se ejecuta el Architecture Validation Gate (TD §29). No instales dependencias ni crees workflows sin aprobación explícita.
+- Toda decisión arquitectónica importante futura debe quedar registrada mediante un **ADR** en `docs/03-arquitectura/adrs/`.
 - Cuando OpenSpec sea incorporado, los cambios de comportamiento deben pasar por una **Spec** antes de implementarse.
 - Cuando la arquitectura quede definida, el **servidor será la fuente de verdad** de las reglas de negocio sensibles (transiciones de estado, separación público/interno, autorización); el cliente nunca es la única barrera.
 
