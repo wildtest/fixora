@@ -6,7 +6,7 @@ Aplicación web responsive para pequeños servicios técnicos de reparación de 
 
 ## Estado del proyecto
 
-**Documentación y diseño aprobados; la aplicación funcional aún no está implementada.** El pipeline documental está completo hasta el Technical Design: el producto (PRD), la experiencia (`DESIGN.md`) y la arquitectura (Technical Design + ADR-001…010) están aprobados. La **Fase 5 — Technical Design / Arquitectura está cerrada (2026-10-26)**. OpenSpec se inicializará a continuación (aún no está inicializado), y el Architecture Validation Gate es el primer gate de la implementación (aún no ejecutado).
+**Documentación y diseño aprobados; la aplicación funcional aún no está implementada.** El pipeline documental está completo hasta el Technical Design: el producto (PRD), la experiencia (`DESIGN.md`) y la arquitectura (Technical Design + ADR-001…010) están aprobados. La **Fase 5 — Technical Design / Arquitectura está cerrada (2026-10-26)**. La **Fase 6 (OpenSpec, Specs y Backlog) está en curso**: OpenSpec está inicializado (6.1), pero aún no hay Specs ni backlog. El Architecture Validation Gate es el primer gate de la implementación (Fase 7) y aún no se ha ejecutado.
 
 ## Stack
 
@@ -37,4 +37,4 @@ El proyecto sigue un pipeline documental AI-First. Punto de entrada: [docs/READM
 
 ## Próxima etapa
 
-Inicialización de OpenSpec y comienzo de Backlog y Specs; después, el Architecture Validation Gate y la implementación.
+Fase 6.2: estrategia de partición de Specs; después backlog maestro, Specs revisadas y, ya en la Fase 7, el Architecture Validation Gate y la implementación.

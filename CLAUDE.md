@@ -49,7 +49,7 @@ Fuente de verdad en `docs/` (ver `docs/README.md`). Cada documento consume el an
 | 02 Diseño | `docs/02-diseno/` |
 | 03 Arquitectura (Technical Design + ADRs) | `docs/03-arquitectura/` |
 | 04 Backlog | `docs/04-backlog/` |
-| 05 Specs / OpenSpec | `docs/05-specs/` |
+| 05 Specs / OpenSpec | `openspec/specs/` (Specs canónicas) y `openspec/changes/` (propuestas); no hay copia paralela en `docs/05-specs/` |
 | 06 Diagramas | `docs/06-diagramas/` |
 | 07 Testing | `docs/07-testing/` |
 | 08 Seguridad | `docs/08-seguridad/` |
@@ -77,8 +77,8 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 01 PRD          COMPLETADO
 02 Diseño       COMPLETADO (Exploración UX + sistema visual; DESIGN.md aprobado)
 03 Arquitectura CERRADA (área de la Fase 5 — Technical Design / Arquitectura; Technical Design y ADR-001…010 aprobados; cerrada el 2026-10-26)
-04 Backlog      PENDIENTE
-05 Specs        PENDIENTE
+04 Backlog      PENDIENTE (Fase 6.3)
+05 Specs        OpenSpec inicializado (Fase 6.1 completada); Specs PENDIENTES (Fase 6.4)
 06 Diagramas    PENDIENTE
 07 Testing      PENDIENTE
 08 Seguridad    PENDIENTE
@@ -94,11 +94,13 @@ Fase 01 aprobada: el PRD (`docs/01-producto/PRD.md`) fue aprobado el 2026-10-25.
 - Cualquier trabajo de UI debe partir de **PRD + UX-EXPLORATION + DESIGN.md**.
 - No introduzcas silenciosamente nuevas pantallas, flujos ni funcionalidades. Las capturas de Stitch son evidencia, no requisitos: contienen contenido fuera del PRD (ver `UX-EXPLORATION.md` §8 y §19.5). Las decisiones técnicas que `DESIGN.md` difiere (§17: formato del código, iconos, fuentes, tokens, breakpoints, paginación técnica, etc.) pertenecen al Technical Design.
 - `docs/03-arquitectura/TECHNICAL-DESIGN.md` es la **fuente de verdad técnica y arquitectónica** (estado: aprobado; Fase 5 cerrada). `docs/03-arquitectura/adrs/ADR-001…ADR-010` (todos Aceptados) registran el razonamiento y las alternativas; no sustituyen al Technical Design y deben permanecer coherentes con él.
-- Specs/OpenSpec vienen **después** de cerrar la Fase 5, que ya está cerrada; OpenSpec **aún no está inicializado** y no existen Specs. El Architecture Validation Gate (AV-1/2/3, TD §29) **no se ha ejecutado**: es el primer gate de la futura implementación.
+- Las Specs/OpenSpec (`openspec/`) convierten esas fuentes de verdad en unidades implementables; **no las reemplazan** ni se copian dentro de `openspec/specs/`. El Architecture Validation Gate (AV-1/2/3, TD §29) **no se ha ejecutado**: es el primer gate de la Fase 7 (implementación).
 
 ### Fases del plan maestro
 
-Fases 0–4 cerradas (hasta `DESIGN.md`, incluidas la exploración UX y el sistema visual). **Fase 5 — Technical Design / Arquitectura: ✅ CERRADA el 2026-10-26** (Technical Design aprobado, ADR-001…010 aceptados, revisión adversarial completada con 0 Critical y 0 High, A-5 completado). No es una fase de implementación: no hay código de la arquitectura aprobada. Siguiente etapa: inicializar OpenSpec y comenzar Backlog y Specs; el Architecture Validation Gate sigue pendiente para la implementación.
+Fases 0–4 cerradas (hasta `DESIGN.md`, incluidas la exploración UX y el sistema visual). **Fase 5 — Technical Design / Arquitectura: ✅ CERRADA el 2026-10-26** (Technical Design aprobado, ADR-001…010 aceptados, revisión adversarial completada con 0 Critical y 0 High, A-5 completado). No es una fase de implementación: no hay código de la arquitectura aprobada.
+
+**Fase 6 — OpenSpec, Specs y Backlog: EN CURSO.** Subfases: 6.1 bootstrap de OpenSpec (**completada**); 6.2 estrategia de partición de Specs y mapa de dependencias; 6.3 backlog maestro priorizado; 6.4 creación y revisión de Specs; 6.5 gate de cobertura (PRD + DESIGN + Technical Design + ADRs → Specs/backlog). **Fase 7 — Implementación: pendiente**; empieza con el Architecture Validation Gate, que **no se ha ejecutado**.
 
 Mantén esta tabla actualizada (aquí y en `docs/README.md`) cuando una fase cambie de estado.
 
@@ -110,7 +112,16 @@ Mantén esta tabla actualizada (aquí y en `docs/README.md`) cuando una fase cam
 
 **Restricción de entrega:** FIXORA V1 debe disponer de un despliegue público de demostración en Vercel (PRD §4.11, `SUP-10`).
 
-**Proceso:** OpenSpec se inicializará **ahora que la Fase 5 está cerrada**; hoy aún no está inicializado y no existen Specs.
+**Proceso:** OpenSpec 1.15.0 (CLI global, herramienta de proceso: **no** es dependencia del proyecto ni va en `package.json`) está inicializado en `openspec/` con integración solo para Claude Code. Aún no existen Specs ni changes.
+
+## Workflow OpenSpec
+
+Comandos de Claude Code generados por OpenSpec 1.15.0 (perfil `core`, esquema `spec-driven`): `/opsx:explore`, `/opsx:propose`, `/opsx:update`, `/opsx:apply`, `/opsx:sync`, `/opsx:archive`. Ciclo: **explore** (pensar, sin crear artefactos) → **propose** (crea el change con `proposal.md`, `specs/<capacidad>/spec.md` como delta, `design.md` y `tasks.md`; solo planificación) → **revisión y aprobación del usuario** (con `/opsx:update` para revisar los artefactos) → **apply** (implementa las tareas) → verificar (pruebas y revisión; el comando `verify` no está en el perfil actual) → **sync/archive** (fusiona los deltas en `openspec/specs/` y archiva).
+
+- **Una propuesta OpenSpec no autoriza implementación automáticamente**, ni siquiera una propuesta aprobada implica permiso para ejecutar `/opsx:apply`: el usuario debe autorizar la implementación. Nunca saltes de una idea a `apply`: explorar si hace falta, proponer, revisar, obtener aprobación y solo entonces, con autorización explícita, aplicar. Las secciones `operations` de `openspec/config.yaml` son guardarraíles de comportamiento para el agente, no un mecanismo de cumplimiento técnico del CLI.
+- OpenSpec es obligatorio para los cambios de implementación planificados desde la Fase 6. PRD, DESIGN, Technical Design y ADRs siguen siendo las fuentes de verdad; no se reabren decisiones cerradas en silencio.
+- `openspec/config.yaml` es configuración del proyecto (editable). `.claude/skills/openspec-*` y `.claude/commands/opsx/` los gestiona OpenSpec (`openspec update`): no se editan a mano.
+- No uses `--force`, no cambies la configuración global de OpenSpec ni añadas otras herramientas sin autorización.
 
 ## Comandos disponibles hoy
 
@@ -136,9 +147,9 @@ No existen aún scripts de test, typecheck ni base de datos. No inventes ni asum
 ## Reglas sobre decisiones arquitectónicas
 
 - El **Technical Design está aprobado**: no inventes arquitectura que contradiga `docs/03-arquitectura/TECHNICAL-DESIGN.md` ni sus ADRs. Si una Spec o la implementación necesitan contradecir una decisión, detente y solicita revisión arquitectónica; no la adaptes en silencio.
-- No implementes todavía la arquitectura aprobada (base de datos, ORM, autenticación, API, CI/CD, etc.): la Fase 5 ya está cerrada; falta inicializar OpenSpec, crear Backlog y Specs y se ejecuta el Architecture Validation Gate (TD §29). No instales dependencias ni crees workflows sin aprobación explícita.
+- No implementes todavía la arquitectura aprobada (base de datos, ORM, autenticación, API, CI/CD, etc.): la Fase 5 ya está cerrada y OpenSpec está inicializado; faltan Backlog y Specs aprobadas, y después se ejecuta el Architecture Validation Gate (TD §29) al inicio de la Fase 7. No instales dependencias ni crees workflows sin aprobación explícita.
 - Toda decisión arquitectónica importante futura debe quedar registrada mediante un **ADR** en `docs/03-arquitectura/adrs/`.
-- Cuando OpenSpec sea incorporado, los cambios de comportamiento deben pasar por una **Spec** antes de implementarse.
+- Los cambios de comportamiento pasan por una **Spec** de OpenSpec, revisada y aprobada, antes de implementarse.
 - Cuando la arquitectura quede definida, el **servidor será la fuente de verdad** de las reglas de negocio sensibles (transiciones de estado, separación público/interno, autorización); el cliente nunca es la única barrera.
 
 ## Reglas de seguridad

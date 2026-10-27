@@ -1,0 +1,57 @@
+schema: spec-driven
+
+context: |
+  Language: Spanish
+  All artifacts must be written in Spanish.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Proyecto: FIXORA ("Tu reparación, siempre bajo control."). Aplicación web
+  responsive para pequeños servicios técnicos de reparación de equipos
+  tecnológicos. Alcance V1: cliente sin cuenta que registra una solicitud y
+  consulta su estado con un código de seguimiento; un único administrador;
+  una orden corresponde a un solo dispositivo; máquina de estados estricta;
+  separación estricta entre información pública y notas internas;
+  PostgreSQL; despliegue público de demostración en Vercel.
+
+  Fuentes de verdad (consultarlas; no reinventar sus decisiones ni copiarlas
+  dentro de las specs, solo referenciarlas):
+  - docs/01-producto/PRD.md: alcance y requisitos funcionales (SC-*, E*, RIE-*, VAL-*).
+  - docs/02-diseno/DESIGN.md: UX/UI y sistema visual (nueve pantallas).
+  - docs/03-arquitectura/TECHNICAL-DESIGN.md: arquitectura técnica.
+  - docs/03-arquitectura/adrs/ (ADR-001 a ADR-010): razonamiento de las decisiones.
+  Precedencia por ámbito: PRD manda en lo funcional, DESIGN en UX/UI y
+  TECHNICAL-DESIGN en lo técnico. PROJECT-BRIEF, STITCH-BRIEF,
+  UX-EXPLORATION y DESIGN-BRIEF son contexto histórico, no autoridad superior.
+
+  Restricciones para toda propuesta:
+  - No ampliar V1 silenciosamente; respetar las exclusiones de V1 del PRD.
+  - No reabrir una decisión de arquitectura aceptada (Technical Design / ADR)
+    sin señalarlo de forma explícita.
+  - Mantener SC-11 (nada interno en lo público) y SC-12 (nada administrativo
+    sin sesión válida) y la máquina de estados aprobada.
+  - Referenciar los criterios del PRD (SC-*, E*) que cubre cada cambio.
+  - Una propuesta no autoriza la implementación: apply requiere revisión,
+    aprobación y autorización explícita previas del usuario.
+  Código, identificadores técnicos y nombres de API siguen las convenciones
+  técnicas del Technical Design (el texto explicativo va en español).
+
+rules:
+  proposal:
+    - Indicar qué documentos fuente (PRD, DESIGN, Technical Design, ADR) respaldan el cambio y qué criterios SC-*/E* cubre.
+    - Declarar explícitamente lo que queda fuera de alcance.
+  specs:
+    - Referenciar las fuentes de verdad en lugar de copiar su contenido.
+    - Si una spec exigiera contradecir el PRD, DESIGN o un ADR, señalarlo como bloqueante en vez de resolverlo en silencio.
+  design:
+    - Respetar las decisiones del Technical Design y de los ADRs; documentar solo lo que éste delega a las Specs.
+  tasks:
+    - Incluir las pruebas que exigen el Technical Design y los criterios cubiertos.
+
+operations:
+  apply:
+    guidance:
+      - No ejecutar apply sin que el usuario haya revisado y aprobado la propuesta y sus artefactos y autorizado explícitamente la implementación (una propuesta aprobada no implica permiso automático).
+      - No ejecutar el Architecture Validation Gate ni instalar dependencias sin aprobación explícita.
+  archive:
+    guidance:
+      - Archivar solo cuando el usuario lo confirme.
