@@ -28,7 +28,7 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 | 01 PRD | `01-producto/` | COMPLETADO |
 | 02 Diseño | `02-diseno/` | COMPLETADO — Exploración UX + sistema visual (`DESIGN.md` aprobado) |
 | 03 Arquitectura | `03-arquitectura/` | Área de la **Fase 5 — Technical Design / Arquitectura**: CERRADA el 2026-10-26 (Technical Design aprobado y ADR-001…010 aceptados) |
-| 04 Backlog | `04-backlog/` | PENDIENTE (Fase 6.3) |
+| 04 Backlog | `04-backlog/` | PENDIENTE (Fase 6.3). La planificación de la Fase 6 vive en `04-planificacion/`; se recomienda consolidar allí también el backlog (decisión en la Fase 6.3) |
 | 05 Specs | `openspec/specs/` | OpenSpec inicializado (Fase 6.1); Specs PENDIENTES. `openspec/specs/` es la ubicación canónica; no se mantiene copia paralela en `docs/05-specs/` |
 | 06 Diagramas | `06-diagramas/` | PENDIENTE |
 | 07 Testing | `07-testing/` | PENDIENTE |
@@ -54,6 +54,8 @@ Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias.
 
 **Fase 5 cerrada el 2026-10-26**: Technical Design aprobado, 10 ADRs aceptados, revisión adversarial completada (0 Critical, 0 High) y A-5 completado. El Architecture Validation Gate (TD §29) **no se ha ejecutado**; es el primer gate de la futura implementación. **Fase 6 — OpenSpec, Specs y Backlog: en curso.** 6.1 bootstrap de OpenSpec 1.15.0 completado (solo Claude Code; `openspec/`); pendientes 6.2 partición de Specs, 6.3 backlog maestro, 6.4 creación y revisión de Specs y 6.5 gate de cobertura. Aún no existen Specs, backlog ni implementación (Fase 7).
 
+**Fase 6 — OpenSpec, Specs y Backlog** (en curso): **6.1 ✅** (bootstrap de OpenSpec 1.15.0) · **6.2 ✅** (estrategia de partición, cerrada el 2026-10-27) · **6.3 siguiente** (backlog maestro priorizado) · 6.4 y 6.5 pendientes. [`04-planificacion/OPENSPEC-STRATEGY.md`](04-planificacion/OPENSPEC-STRATEGY.md) es **planificación del proyecto, no una fuente canónica de Specs**; cuando existan Specs vigentes, `openspec/specs/` seguirá siendo la fuente canónica. `04-planificacion/` es la ubicación canónica de la planificación de la Fase 6.
+
 ## Mapa de documentos y su rol
 
 | Nivel | Documento | Rol |
@@ -67,6 +69,7 @@ Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias.
 | Diseño | `02-diseno/referencias/` | Capturas de Stitch y sistema visual de Claude Design; solo referencia |
 | Arquitectura | `03-arquitectura/TECHNICAL-DESIGN.md` | **Cómo** se construye (fuente de verdad técnica) |
 | Arquitectura | `03-arquitectura/adrs/ADR-001…010` | **Por qué**: razonamiento y alternativas |
+| Planificación | `04-planificacion/OPENSPEC-STRATEGY.md` | Estrategia de partición de Specs y changes (borrador en revisión; no es una Spec) |
 | Specs / OpenSpec | `openspec/specs/` y `openspec/changes/` | Detalle implementable de cambios concretos (inicializado en la Fase 6.1; aún sin Specs). Ubicación canónica: no hay copia en `docs/05-specs/` |
 
 ## Qué consume cada fase
