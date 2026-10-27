@@ -95,8 +95,12 @@ FIXORA SHALL exigir una sesión administrativa válida para entregar cualquier d
 - **THEN** no ve el teléfono, el correo, el nombre ni el historial administrativo
 
 ### Requirement: Read-only baseline detail
-FIXORA SHALL presentar en esta etapa el detalle sin controles que modifiquen la orden: sin edición de datos, cambio de estado, cancelación, diagnóstico, costo ni notas.
+FIXORA SHALL presentar los datos y las regiones del detalle administrativo en solo lectura por defecto, y SHALL ofrecer un control que modifique la orden únicamente cuando otro requisito de esta capacidad lo autorice expresamente y las capacidades vigentes de la orden lo permitan, sin controles deshabilitados que anticipen funciones no autorizadas.
 
-#### Scenario: Sin controles de modificación
-- **WHEN** el administrador revisa el detalle
-- **THEN** no hay controles para editar, cambiar el estado, cancelar ni agregar diagnóstico, costo o notas, ni controles deshabilitados que los anticipen
+#### Scenario: Sin mutación autorizada
+- **WHEN** un dato o una región del detalle no tiene un requisito de modificación aplicable
+- **THEN** se presenta en solo lectura, sin control de edición ni controles deshabilitados que lo anticipen
+
+#### Scenario: Mutación autorizada
+- **WHEN** otro requisito autoriza una modificación y la orden la permite
+- **THEN** el detalle puede ofrecer el control correspondiente

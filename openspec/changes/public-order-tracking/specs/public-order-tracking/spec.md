@@ -62,14 +62,14 @@ FIXORA SHALL, si la protección contra abuso no puede evaluarse de forma fiable,
 - **THEN** el aviso de cada caso es distinto entre sí y del de código no encontrado, sin implicar que el usuario hizo demasiados intentos cuando se trata de indisponibilidad
 
 ### Requirement: Public repair projection
-FIXORA SHALL mostrar en la consulta únicamente el código de seguimiento, el estado actual, el tipo, la marca y el modelo del equipo, la descripción del problema y los eventos públicos de estado persistidos con su fecha y hora, y SHALL NOT mostrar nombre, teléfono ni correo del cliente, identificadores internos, notas internas, datos administrativos ni de seguridad, ni información aún no publicada.
+FIXORA SHALL construir la proyección pública mediante lista positiva: código, estado actual, tipo, marca y modelo, descripción del problema y eventos públicos de estado con su fecha, más lo que otro requisito de esta capacidad autorice expresamente, y SHALL NOT mostrar ningún otro dato, como datos del cliente, identificadores internos, versiones, notas internas ni datos administrativos o de seguridad.
 
-#### Scenario: Información pública mostrada
-- **WHEN** se muestra una orden existente
-- **THEN** aparecen solo los datos públicos aprobados
+#### Scenario: Información pública base
+- **WHEN** se muestra una orden existente bajo los datos públicos base
+- **THEN** aparecen el código, el estado, el equipo, la descripción y los eventos públicos de estado, y ningún dato administrativo o no autorizado
 
-#### Scenario: Datos internos no aparecen
-- **WHEN** la orden contiene nombre, teléfono, correo, notas internas o diagnóstico y costo aún no publicados
+#### Scenario: Dato no autorizado
+- **WHEN** la orden contiene nombre, teléfono, correo, notas internas o cualquier dato que ningún requisito público autoriza
 - **THEN** ninguno de esos datos aparece en lo que recibe o ve el visitante
 
 #### Scenario: Modelo ausente
