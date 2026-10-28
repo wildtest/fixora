@@ -1,0 +1,190 @@
+// Modelo relacional V1 aprobado (TD §7.2, §10, §11, §15, §19, §22; CHG-02 D-4).
+// Solo estructura: ningún comportamiento. Los instantes los aporta la aplicación (sin DEFAULT now()).
+// Las restricciones que Prisma no expresa (CHECK, singleton, GRANT) viven como SQL manual en las migraciones.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/infrastructure/db/generated"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  SOLICITUD_RECIBIDA
+  EQUIPO_RECIBIDO
+  EN_DIAGNOSTICO
+  ESPERANDO_APROBACION
+  EN_REPARACION
+  LISTO_PARA_RECOJO
+  ENTREGADO
+  CANCELADO
+
+  @@map("order_status")
+}
+
+enum DeviceType {
+  CELULAR
+  TABLET
+  LAPTOP
+  PC
+  CONSOLA
+  OTRO
+
+  @@map("device_type")
+}
+
+enum NoteVisibility {
+  PUBLIC
+  INTERNAL
+
+  @@map("note_visibility")
+}
+
+// Superficies del limitador con política de intentos (TD §22). El registro público no tiene limitador (E13).
+enum RateLimitSurface {
+  PUBLIC_TRACKING
+  ADMIN_LOGIN
+
+  @@map("rate_limit_surface")
+}
+
+model RepairOrder {
+  id                 String      @id @db.Uuid
+  trackingCode       String      @unique @map("tracking_code")
+  status             OrderStatus
+  customerName       String      @map("customer_name")
+  customerNameSearch String      @map("customer_name_search")
+  customerPhone      String      @map("customer_phone")
+  customerEmail      String?     @map("customer_email")
+  deviceType         DeviceType  @map("device_type")
+  brand              String
+  model              String?
+  problemDescription String      @map("problem_description")
+  diagnosis          String?
+  estimatedCost      Decimal?    @map("estimated_cost") @db.Decimal
+  version            Int         @default(1)
+  createdAt          DateTime    @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime    @map("updated_at") @db.Timestamptz(3)
+
+  statusHistory    OrderStatusHistory[]
+  diagnosisHistory DiagnosisHistory[]
+  costHistory      CostHistory[]
+  notes            OrderNote[]
+  idempotency      RegistrationIdempotency?
+
+  @@index([createdAt(sort: Desc), id(sort: Desc)])
+  @@index([status, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("repair_orders")
+}
+
+model OrderStatusHistory {
+  id         String       @id @db.Uuid
+  orderId    String       @map("order_id") @db.Uuid
+  fromStatus OrderStatus? @map("from_status")
+  toStatus   OrderStatus  @map("to_status")
+  occurredAt DateTime     @map("occurred_at") @db.Timestamptz(3)
+
+  order RepairOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, toStatus])
+  @@index([orderId, occurredAt(sort: Desc)])
+  @@map("order_status_history")
+}
+
+model DiagnosisHistory {
+  id            String   @id @db.Uuid
+  orderId       String   @map("order_id") @db.Uuid
+  previousValue String?  @map("previous_value")
+  newValue      String?  @map("new_value")
+  occurredAt    DateTime @map("occurred_at") @db.Timestamptz(3)
+
+  order RepairOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, occurredAt(sort: Desc)])
+  @@map("diagnosis_history")
+}
+
+model CostHistory {
+  id            String   @id @db.Uuid
+  orderId       String   @map("order_id") @db.Uuid
+  previousValue Decimal? @map("previous_value") @db.Decimal
+  newValue      Decimal? @map("new_value") @db.Decimal
+  occurredAt    DateTime @map("occurred_at") @db.Timestamptz(3)
+
+  order RepairOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, occurredAt(sort: Desc)])
+  @@map("cost_history")
+}
+
+model OrderNote {
+  id         String         @id @db.Uuid
+  orderId    String         @map("order_id") @db.Uuid
+  visibility NoteVisibility
+  content    String
+  version    Int            @default(1)
+  createdAt  DateTime       @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime       @map("updated_at") @db.Timestamptz(3)
+
+  order RepairOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, visibility, createdAt(sort: Desc)])
+  @@map("order_notes")
+}
+
+model RegistrationIdempotency {
+  keyHash   String   @id @map("key_hash")
+  orderId   String   @unique @map("order_id") @db.Uuid
+  createdAt DateTime @map("created_at") @db.Timestamptz(3)
+
+  order RepairOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@map("registration_idempotency")
+}
+
+// Singleton: la columna `singleton` (UNIQUE + CHECK (singleton)) deja a lo sumo una fila (migración, SQL manual).
+model AdminUser {
+  id           String   @id @db.Uuid
+  singleton    Boolean  @default(true)
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @map("updated_at") @db.Timestamptz(3)
+
+  sessions AdminSession[]
+
+  @@unique([singleton])
+  @@map("admin_users")
+}
+
+model AdminSession {
+  id          String   @id @db.Uuid
+  adminUserId String   @map("admin_user_id") @db.Uuid
+  tokenHash   String   @unique @map("token_hash")
+  createdAt   DateTime @map("created_at") @db.Timestamptz(3)
+  lastSeenAt  DateTime @map("last_seen_at") @db.Timestamptz(3)
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(3)
+
+  adminUser AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
+  @@map("admin_sessions")
+}
+
+// Almacén del limitador (TD §22): separado de las tablas de negocio y sin claves foráneas.
+// `subject_key` = HMAC(secreto dedicado, sujeto canonicalizado); nunca la IP en claro.
+model RateLimitBucket {
+  subjectKey   String           @map("subject_key")
+  surface      RateLimitSurface
+  windowStart  DateTime         @map("window_start") @db.Timestamptz(3)
+  failureCount Int              @map("failure_count")
+  blockedUntil DateTime?        @map("blocked_until") @db.Timestamptz(3)
+  updatedAt    DateTime         @map("updated_at") @db.Timestamptz(3)
+
+  @@id([subjectKey, surface])
+  @@map("rate_limit_buckets")
+}

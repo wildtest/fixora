@@ -46,6 +46,12 @@ const forbiddenImports: [string, string, string][] = [
   ['app → infrastructure', 'src/app/x.tsx', "import { a } from '@/infrastructure/logging/logger';"],
   ['app → @prisma', 'src/app/x.tsx', "import { PrismaClient } from '@prisma/client';"],
   ['app → pg', 'src/app/x.tsx', "import pg from 'pg';"],
+  ['application → cliente generado de Prisma', 'src/application/x.ts', "import { PrismaClient } from '@/infrastructure/db/generated/client.ts';"],
+  ['application → cliente generado (relativa)', 'src/application/x.ts', "import { PrismaClient } from '../infrastructure/db/generated/client';"],
+  ['domain → cliente generado de Prisma', 'src/domain/x.ts', "import { PrismaClient } from '../infrastructure/db/generated/client';"],
+  ['application → configuración de migración (DIRECT_URL)', 'src/application/x.ts', "import { readMigrationConfig } from '@/infrastructure/config/migration';"],
+  ['infrastructure → configuración de migración (DIRECT_URL)', 'src/infrastructure/db/x.ts', "import { readMigrationConfig } from '../config/migration.ts';"],
+  ['app → configuración de migración (DIRECT_URL)', 'src/app/x.tsx', "import { readMigrationConfig } from '@/infrastructure/config/migration';"],
 ];
 
 const allowedImports: [string, string, string][] = [
@@ -58,6 +64,10 @@ const allowedImports: [string, string, string][] = [
   ['infrastructure → domain', 'src/infrastructure/x.ts', "import { a } from '@/domain/validation/validation';"],
   ['infrastructure → server-only', 'src/infrastructure/x.ts', "import 'server-only';"],
   ['domain → mismo módulo (relativa)', 'src/domain/validation/x.ts', "import { a } from './validation';"],
+  ['infrastructure → cliente generado de Prisma', 'src/infrastructure/db/x.ts', "import { PrismaClient } from './generated/client.ts';"],
+  ['infrastructure → @prisma/adapter-pg', 'src/infrastructure/db/x.ts', "import { PrismaPg } from '@prisma/adapter-pg';"],
+  ['infrastructure → pg', 'src/infrastructure/db/x.ts', "import pg from 'pg';"],
+  ['infrastructure → capacidades de configuración', 'src/infrastructure/db/x.ts', "import { readDatabaseConfig } from '../config/capabilities';"],
   ['presentation → domain', 'src/presentation/x.ts', "import { a } from '@/domain/validation/validation';"],
   ['presentation → react', 'src/presentation/x.tsx', "import { useState } from 'react';"],
 ];
@@ -73,6 +83,27 @@ describe('límites de capas (ADR-001)', () => {
 });
 
 describe('reglas de seguridad de lint', () => {
+  it('prohíbe SQL sin parametrizar en cualquier ubicación', async () => {
+    const unsafe = 'export const a = (db: { $queryRawUnsafe(s: string): unknown }) => db.$queryRawUnsafe("select 1");';
+    const unsafeExec = 'export const a = (db: { $executeRawUnsafe(s: string): unknown }) => db.$executeRawUnsafe("select 1");';
+    for (const file of ['src/infrastructure/db/x.ts', 'src/infrastructure/config/x.ts', 'src/application/x.ts', 'tests/integration/x.ts', 'scripts/x.ts']) {
+      expect(await rulesFor(file, unsafe), file).toContain('no-restricted-properties');
+      expect(await rulesFor(file, unsafeExec), file).toContain('no-restricted-properties');
+    }
+  });
+
+  it('permite SQL parametrizado con plantillas etiquetadas', async () => {
+    const safe = 'export const a = (db: { $queryRaw(s: TemplateStringsArray, ...v: unknown[]): unknown }, id: string) => db.$queryRaw`select ${id}`;';
+    expect(await rulesFor('src/infrastructure/db/x.ts', safe)).not.toContain('no-restricted-properties');
+  });
+
+  it('no lintéa el cliente generado de Prisma', async () => {
+    const [result] = await eslint.lintText('const a = 1', {
+      filePath: resolve(root, 'src/infrastructure/db/generated/client.ts'),
+    });
+    expect(result.messages.map((m) => m.message).join()).toContain('File ignored');
+  });
+
   it('prohíbe process.env fuera de infrastructure/config', async () => {
     expect(await rulesFor('src/app/x.ts', 'export const a = process.env.X;')).toContain('no-restricted-properties');
     expect(await rulesFor('src/domain/x.ts', 'export const a = process.env.X;')).toContain('no-restricted-properties');
