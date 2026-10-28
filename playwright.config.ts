@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { defineConfig, devices } from '@playwright/test';
 
 // Base de Playwright (CHG-03, D-3). Siempre contra `next build` + `next start`, nunca `next dev`.
@@ -10,7 +11,8 @@ export default defineConfig({
   testDir: 'tests/e2e',
   outputDir: 'test-results',
   fullyParallel: false,
-  workers: isCI ? 1 : undefined,
+  // Un solo worker siempre: los proyectos comparten la base de pruebas y el limitador (varias pruebas la alteran a propósito).
+  workers: 1,
   retries: 0,
   forbidOnly: isCI,
   reporter: isCI ? [['github'], ['list']] : [['list']],
@@ -35,6 +37,8 @@ export default defineConfig({
       // La aplicación de prueba usa SOLO la base de pruebas; nunca la de desarrollo que cargue `.env.local`.
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? '',
       DIRECT_URL: '',
+      // Secreto del limitador solo para esta ejecución: el de CI viene del Environment `test`; en local es efímero.
+      RATE_LIMIT_HMAC_SECRET: process.env.RATE_LIMIT_HMAC_SECRET || randomBytes(32).toString('hex'),
       NEXT_TELEMETRY_DISABLED: '1',
     },
   },

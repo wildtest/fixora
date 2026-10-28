@@ -15,7 +15,7 @@ export type EntryPointDefinition = {
 
 export const ENTRY_POINTS = {
   register: { href: "/registrar", label: "Registrar reparación", available: true },
-  consult: { href: "/consultar", label: "Consultar estado", available: false },
+  consult: { href: "/consultar", label: "Consultar estado", available: true },
   workshop: { href: "/admin/acceso", label: "Acceso Taller", available: false },
 } as const satisfies Record<string, EntryPointDefinition>;
 

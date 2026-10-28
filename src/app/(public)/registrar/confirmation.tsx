@@ -5,15 +5,25 @@ import type { RegistrationConfirmation } from "@/application/register-repair";
 import { DEVICE_TYPE_LABELS } from "@/domain/repair/device-type";
 import { Alert } from "../../_components/alert";
 import { ButtonLink } from "../../_components/button-link";
-import { EntryPoint } from "../../_components/entry-point";
-import { ENTRY_POINTS } from "../../_components/entry-points";
+import { LookupAlert, type LookupFailureCode } from "../../_components/lookup-alert";
 import { CheckIcon, CopyIcon } from "../../_components/form-icons";
 import { ArrowForwardIcon } from "../../_components/icons";
 
 // PUB-03 — Confirmación (DESIGN.md §6.9): código destacado y seleccionable con un clic, aviso de conservarlo
 // (no hay recuperación de autoservicio, E2), resumen del equipo sin datos personales y acciones. El código
 // nunca va a la URL ni a almacenamiento persistente.
-export function Confirmation({ confirmation }: { confirmation: RegistrationConfirmation }) {
+export function Confirmation({
+  confirmation,
+  onConsult,
+  consulting,
+  lookupFailure,
+}: {
+  confirmation: RegistrationConfirmation;
+  /** Consulta la orden recién creada con el código en memoria (PUB-05 sin cambiar de URL). */
+  onConsult: () => void;
+  consulting: boolean;
+  lookupFailure: LookupFailureCode | null;
+}) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
 
@@ -100,8 +110,22 @@ export function Confirmation({ confirmation }: { confirmation: RegistrationConfi
         ) : null}
       </dl>
 
+      {lookupFailure ? (
+        <div className="mt-6">
+          <LookupAlert code={lookupFailure} onRetry={lookupFailure === "SERVICE_UNAVAILABLE" || lookupFailure === "INTERNAL_ERROR" ? onConsult : undefined} />
+        </div>
+      ) : null}
+
       <div className="mt-6 flex flex-col gap-2 md:flex-row md:items-start">
-        <EntryPoint entry={ENTRY_POINTS.consult} variant="primary" icon={<ArrowForwardIcon size={20} />} />
+        <button
+          type="button"
+          onClick={onConsult}
+          disabled={consulting}
+          className="transition-soft inline-flex h-11 w-full items-center justify-center gap-2 rounded-sm bg-primary px-4 text-button text-white hover:bg-primary-hover active:bg-primary-active disabled:cursor-default disabled:bg-surface-secondary disabled:text-content-disabled md:w-auto lg:h-10"
+        >
+          {consulting ? "Consultando…" : "Consultar estado"}
+          <ArrowForwardIcon size={20} />
+        </button>
         <ButtonLink href="/" variant="secondary">
           Volver al inicio
         </ButtonLink>

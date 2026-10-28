@@ -136,9 +136,8 @@ test.describe('registro exitoso y confirmación PUB-03', () => {
     await expect(page.getByText('No hay recuperación de autoservicio')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Copiar código' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Volver al inicio' })).toBeVisible();
-    // «Consultar estado» aún no tiene destino (CHG-06): deshabilitado con el motivo.
-    await expect(page.getByRole('main').getByRole('button', { name: 'Consultar estado' })).toBeDisabled();
-    await expect(page.getByRole('main').getByText('Disponible próximamente')).toBeVisible();
+    // «Consultar estado» (CHG-06) está activo: abre el seguimiento sin cambiar de URL.
+    await expect(page.getByRole('main').getByRole('button', { name: 'Consultar estado' })).toBeEnabled();
 
     // Resumen del equipo sin datos personales.
     const main = page.getByRole('main');

@@ -9,6 +9,11 @@ import {
 import type { FieldErrors } from "@/domain/validation/validation";
 import { Alert } from "../../_components/alert";
 import { DeviceTypeSelector, TextAreaField, TextField } from "../../_components/form-fields";
+import { ButtonLink } from "../../_components/button-link";
+import type { LookupFailureCode } from "../../_components/lookup-alert";
+import { TrackingResult } from "../../_components/tracking-result";
+import type { PublicOrderView } from "@/domain/repair/public-order-view";
+import { trackOrderAction } from "../consultar/actions";
 import { registerRepairAction } from "./actions";
 import { Confirmation } from "./confirmation";
 import { fieldMessage } from "./messages";
@@ -46,6 +51,9 @@ export function RegisterFlow() {
   const [unexpected, setUnexpected] = useState(false);
   const [pending, setPending] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState<string | null>(null);
+  const [tracked, setTracked] = useState<PublicOrderView | null>(null);
+  const [consulting, setConsulting] = useState(false);
+  const [lookupFailure, setLookupFailure] = useState<LookupFailureCode | null>(null);
   const keyRef = useRef<string | null>(null);
 
   // Alta y reinicio explícito: al montar/mostrar se genera la clave; al desmontar/ocultar se borra todo el estado
@@ -60,6 +68,9 @@ export function RegisterFlow() {
       setTouched(new Set());
       setServerErrors({});
       setConfirmation(null);
+      setTracked(null);
+      setLookupFailure(null);
+      setConsulting(false);
       setUnexpected(false);
       setPending(false);
     };
@@ -118,7 +129,43 @@ export function RegisterFlow() {
     }
   }
 
-  if (confirmation) return <Confirmation confirmation={confirmation} />;
+  async function consult(code: string) {
+    setConsulting(true);
+    setLookupFailure(null);
+    try {
+      const result = await trackOrderAction(code);
+      if (result.ok) setTracked(result.data);
+      else setLookupFailure(result.code);
+    } catch {
+      setLookupFailure("INTERNAL_ERROR");
+    } finally {
+      setConsulting(false);
+    }
+  }
+
+  if (tracked) {
+    // PUB-05 dentro del contenedor de /registrar: el código se usó en memoria y la URL no cambia.
+    return (
+      <TrackingResult
+        order={tracked}
+        actions={
+          <ButtonLink href="/" variant="secondary">
+            Volver al inicio
+          </ButtonLink>
+        }
+      />
+    );
+  }
+  if (confirmation) {
+    return (
+      <Confirmation
+        confirmation={confirmation}
+        consulting={consulting}
+        lookupFailure={lookupFailure}
+        onConsult={() => void consult(confirmation.trackingCode)}
+      />
+    );
+  }
 
   const disabled = pending || !idempotencyKey || hasKnownErrors;
   const reason = !idempotencyKey

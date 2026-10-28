@@ -15,7 +15,7 @@
 | ID | change dueño | nivel | prueba o evidencia | estado |
 |---|---|---|---|---|
 | SC-01 | CHG-05 | E2E; integración | `tests/e2e/register.spec.ts`; `tests/integration/registration.test.ts`; `src/application/register-repair.test.ts` — registro, código y confirmación (primer tramo de E2E-01; lo cierra CHG-11) | verificado |
-| SC-02 | CHG-06 | E2E | E2E de consulta | pendiente |
+| SC-02 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts` — consulta con el código, sin cuenta; estado, equipo, descripción, recorrido e historial | verificado |
 | SC-03 | CHG-09b | E2E | E2E: inicio de sesión → localizar → abrir detalle (soporte: CHG-08, 09a) | pendiente |
 | SC-04 | CHG-11 | E2E | E2E del ciclo completo (soporte: CHG-10) | pendiente |
 | SC-05 | CHG-10 | unitaria | Pruebas de cancelación y estados finales | pendiente |
@@ -24,9 +24,9 @@
 | SC-08 | CHG-11 | unitaria | Las cuatro pruebas de valores no publicados | pendiente |
 | SC-09 | CHG-10 | unitaria | Pruebas de terminalidad por tipo de dato (soporte: CHG-11, 12, 13) | pendiente |
 | SC-10 | CHG-11 | unitaria | Historial público y administrativo (soporte: CHG-09b, 10) | pendiente |
-| SC-11 | CHG-06 | seguridad | Prueba negativa con orden poblada y Security Pass (soporte: todo change que toque lo público; verificación: CHG-14) | pendiente |
+| SC-11 | CHG-06 | seguridad | `tests/integration/tracking.test.ts`; `tests/e2e/track.spec.ts`; `src/app/_components/tracking-result.test.tsx` — prueba negativa sobre una orden poblada (núcleo; la verificación final es del Security Pass, CHG-14) | implementado |
 | SC-12 | CHG-08 | seguridad | Prueba parametrizada de acciones sin sesión y Security Pass (soporte: todo change administrativo; verificación: CHG-14) | pendiente |
-| SC-13 | CHG-06 | unitaria | Prueba de código inexistente | pendiente |
+| SC-13 | CHG-06 | unitaria | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts`; `src/application/track-order.test.ts` — respuesta uniforme para código inexistente y mal formado | verificado |
 | SC-14 | CHG-02 | integración | `tests/integration/schema-and-constraints.test.ts`; `tests/integration/privileges.test.ts`; `tests/integration/transaction-and-lock.test.ts` — integración de persistencia contra PostgreSQL real (soporte: cada slice; cierre: CHG-15) | parcial |
 | SC-15 | CHG-15 | revisión manual | `tests/e2e/public-entry.spec.ts`; `src/app/_components/public-entry.test.tsx`; `src/app/public-error.test.tsx` — evidencia parcial de CHG-04 (entrada pública: landing, navegación en dos etapas, 404, error, responsive sin desbordamiento); Revisión manual estructurada (soporte: CHG-04 y cada pantalla) | parcial |
 | SC-16 | CHG-05 | unitaria | `tests/e2e/register.spec.ts`; `src/domain/repair/repair.test.ts`; `src/application/register-repair.test.ts` — validación por campo con resumen, sin orden | verificado |
@@ -42,9 +42,9 @@
 | E1 | CHG-05 | E2E; integración | `tests/integration/registration.test.ts`; `tests/e2e/register.spec.ts` — idempotencia: replay, envío simultáneo y doble envío en navegador | verificado |
 | E2 | CHG-05 | E2E | `tests/e2e/register.spec.ts` — la confirmación muestra el código y el aviso de conservarlo; no se restaura al salir ni recargar | verificado |
 | E3 | CHG-05 | unitaria | `src/domain/repair/repair.test.ts`; `tests/e2e/register.spec.ts` — validadores puros (soporte: CHG-13 para el administrador) | implementado |
-| E4 | CHG-06 | unitaria | Prueba de código inexistente | pendiente |
+| E4 | CHG-06 | unitaria | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts` — código inexistente: mismo aviso, sin datos de ninguna orden | verificado |
 | E5 | CHG-11 | unitaria | Pruebas de publicación en `CANCELADO` (soporte: CHG-10) | pendiente |
-| E6 | CHG-06 | E2E | E2E de ausencia de datos (completan CHG-11 y CHG-12) | pendiente |
+| E6 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `src/app/_components/tracking-result.test.tsx` — vacío informativo sin secciones rotas (lo completan CHG-11 y CHG-12) | parcial |
 | E7 | CHG-09a | integración | Integración de búsqueda y vacío | pendiente |
 | E8 | CHG-09a | unitaria | Orden y paginación | pendiente |
 | E9 | CHG-10 | unitaria | Pruebas de versión (soporte: CHG-11, 12, 13) | pendiente |
@@ -53,6 +53,6 @@
 | E12 | CHG-12 | E2E; integración | Integración y E2E de notas | pendiente |
 | E13 | CHG-10 | unitaria | Cancelación de una solicitud falsa; ausencia de anti-spam verificada en CHG-05 | pendiente |
 | E14 | CHG-10 | unitaria | Advertencia del diálogo de cancelación (soporte: CHG-12) | pendiente |
-| E15 | CHG-06 | unitaria | Normalización exacta (soporte: CHG-09a) | pendiente |
+| E15 | CHG-06 | unitaria | `src/domain/repair/tracking.test.ts`; `tests/integration/tracking.test.ts`; `tests/e2e/track.spec.ts` — normalización exacta: espacio exterior y mayúsculas/minúsculas ASCII | verificado |
 | E16 | CHG-05 | unitaria | `src/domain/repair/repair.test.ts` — alfabeto, formato y generación sin sesgo del código | verificado |
 | E17 | CHG-05 | unitaria | `tests/integration/registration.test.ts` — unicidad, colisión y código no reemplazable por el rol de aplicación (soporte: CHG-13: no editable) | implementado |

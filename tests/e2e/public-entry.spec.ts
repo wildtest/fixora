@@ -9,10 +9,10 @@ const ENTRY_LABELS = ['Registrar reparación', 'Consultar estado'] as const;
 const WORKSHOP = 'Acceso Taller';
 const REGISTER = 'Registrar reparación';
 
-// CHG-05 activó «Registrar reparación» (enlace a /registrar); «Consultar estado» (CHG-06) y «Acceso Taller»
-// (CHG-08) siguen sin destino y se muestran deshabilitados.
+// CHG-05 activó «Registrar reparación» (/registrar) y CHG-06 «Consultar estado» (/consultar); «Acceso Taller»
+// (CHG-08) sigue sin destino y se muestra deshabilitado.
 const entry = (scope: Pick<Page, 'getByRole'>, label: string) =>
-  scope.getByRole(label === REGISTER ? 'link' : 'button', { name: label });
+  scope.getByRole(label === WORKSHOP ? 'button' : 'link', { name: label });
 const UNAVAILABLE = 'Disponible próximamente';
 
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
@@ -53,10 +53,10 @@ test.describe('landing PUB-01', () => {
     // Activo (CHG-05): enlace a la ruta aprobada.
     await expect(main.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
     await expect(main.getByRole('button', { name: REGISTER })).toHaveCount(0);
-    // Sin destino todavía (CHG-06): deshabilitado, sin enlace y con el motivo visible.
-    await expect(main.getByRole('button', { name: 'Consultar estado' })).toBeDisabled();
-    await expect(main.getByRole('link', { name: 'Consultar estado' })).toHaveCount(0);
-    await expect(main.getByText(UNAVAILABLE)).toHaveCount(1);
+    // CHG-06 activó la consulta: también es un enlace a su ruta aprobada y ya no hay motivo de indisponibilidad.
+    await expect(main.getByRole('link', { name: 'Consultar estado' })).toHaveAttribute('href', '/consultar');
+    await expect(main.getByRole('button', { name: 'Consultar estado' })).toHaveCount(0);
+    await expect(main.getByText(UNAVAILABLE)).toHaveCount(0);
     await page.keyboard.press('Tab');
     for (let i = 0; i < 12; i += 1) {
       const focusedDisabled = await page.evaluate(() => (document.activeElement as HTMLButtonElement | null)?.disabled === true);
@@ -103,7 +103,8 @@ test.describe('navegación pública', () => {
     await nav.getByRole('link', { name: 'Inicio' }).focus();
     await expect(nav.getByRole('link', { name: 'Inicio' })).toBeFocused();
     await expect(nav.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
-    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(2);
+    await expect(nav.getByRole('link', { name: 'Consultar estado' })).toHaveAttribute('href', '/consultar');
+    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(1); // solo «Acceso Taller» (CHG-08)
   });
 
   test('móvil: botón «Menú» rotulado, panel con los mismos puntos de entrada, teclado y cierre', async ({ page }) => {
@@ -118,9 +119,8 @@ test.describe('navegación pública', () => {
     await expect(panel).toBeVisible();
     await expect(panel.getByRole('link', { name: 'Inicio' })).toBeVisible();
     await expect(panel.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
-    for (const label of ['Consultar estado', WORKSHOP]) {
-      await expect(panel.getByRole('button', { name: label })).toBeDisabled();
-    }
+    await expect(panel.getByRole('link', { name: 'Consultar estado' })).toHaveAttribute('href', '/consultar');
+    await expect(panel.getByRole('button', { name: WORKSHOP })).toBeDisabled();
     await noHorizontalOverflow(page);
     await page.keyboard.press('Escape');
     await expect(button).toHaveAttribute('aria-expanded', 'false');
