@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Tokens del sistema visual «Trusted Tech» (DESIGN.md §5). Solo tema claro.
+ * Los nombres son de implementación; los valores son los aprobados.
+ * El espaciado usa la escala base 4 de Tailwind (4, 8, 12, 16, 24, 32, 48, 64 = 1, 2, 3, 4, 6, 8, 12, 16).
+ */
+@theme {
+  /* Marca */
+  --color-primary: #0f5fa8;
+  --color-primary-hover: #0c4f8c;
+  --color-primary-active: #093f70;
+  --color-primary-subtle: #e8f0fa;
+  --color-secondary-hover: #d6e4f5;
+
+  /* Neutrales */
+  --color-page: #f6f8fb;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #eef2f7;
+  --color-line: #d6dde6;
+  --color-line-strong: #7d8999;
+  --color-content: #121a26;
+  --color-content-secondary: #3f4b5b;
+  --color-content-muted: #677385;
+  --color-content-disabled: #8f99a8;
+
+  /* Semánticos: sólido · suave · borde · texto */
+  --color-success: #1e7a4c;
+  --color-success-soft: #e6f3ec;
+  --color-success-line: #b7dcc6;
+  --color-warning: #a15c00;
+  --color-warning-soft: #fdf2e1;
+  --color-warning-line: #f0d3a6;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+  --color-danger-line: #f3c1bc;
+  --color-danger-text: #8f1b12;
+  --color-info: #0f5fa8;
+  --color-info-soft: #e8f0fa;
+  --color-info-line: #c5d7ee;
+  --color-info-text: #093f70;
+
+  /* Radios: xs 4 · sm 6 · md 8 · lg 12 (el pill es exclusivo de los chips, fuera de este change) */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Sombras: el layout se sostiene con borde y espacio; la sombra solo indica elevación */
+  --shadow-level-1: 0 1px 2px rgb(18 26 38 / 0.06);
+  --shadow-level-2: 0 12px 32px rgb(18 26 38 / 0.14), 0 2px 6px rgb(18 26 38 / 0.08);
+
+  /* Escala tipográfica (DESIGN.md §5.2): tamaño / interlínea · peso · tracking */
+  --text-display: 2.5rem;
+  --text-display--line-height: 3rem;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.02em;
+  --text-display-mobile: 2rem;
+  --text-display-mobile--line-height: 2.5rem;
+  --text-display-mobile--font-weight: 600;
+  --text-display-mobile--letter-spacing: -0.02em;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 2rem;
+  --text-h2--font-weight: 600;
+  --text-h2--letter-spacing: -0.01em;
+  --text-card-title: 1.375rem;
+  --text-card-title--line-height: 1.75rem;
+  --text-card-title--font-weight: 600;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.625rem;
+  --text-h3--font-weight: 600;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-body-lg--font-weight: 400;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-body--font-weight: 400;
+  --text-button: 0.9375rem;
+  --text-button--line-height: 1.5rem;
+  --text-button--font-weight: 600;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.25rem;
+  --text-small--font-weight: 400;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.25rem;
+  --text-label--font-weight: 500;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 500;
+  --text-caption--letter-spacing: 0.01em;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-page);
+  color: var(--color-content);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Anillo de foco (DESIGN.md §5.5 y §15): 2 px Primary con separación blanca, solo con teclado. */
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px var(--color-primary);
+}
+
+/* Transiciones de 150–200 ms solo de color y opacidad; se anulan con movimiento reducido. */
+.transition-soft {
+  transition-property: color, background-color, border-color, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

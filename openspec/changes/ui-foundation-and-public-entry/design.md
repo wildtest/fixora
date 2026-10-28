@@ -4,9 +4,9 @@
 
 Motivación y alcance: ver `proposal.md`; requisitos observables: `specs/public-site-entry/spec.md`. Fuentes: `DESIGN.md` (PUB-01, §4.1–§4.3, §5, §6.1, §6.6, §6.11, §6.14, §13.8, §14, §15, Apéndice A.2–A.4); PRD §4.1, §4.10; Technical Design (TD) §6, §21.3, §21.7, §28, §30; ADR-002, ADR-007; backlog `CHG-04`.
 
-**Premisa de orden:** se aplica **después de CHG-01** (TypeScript, capas, lint, Vitest) y se apoya en la base de Playwright de CHG-03 para sus pruebas (dependencia blanda). No depende de la base de datos.
+**Premisa de orden:** se aplica **después de CHG-01** (✅ completado y archivado, commit `fbde0c8`: TypeScript, capas, lint, Vitest) y se apoya en la base de Playwright de CHG-03 para sus pruebas (dependencia blanda; CHG-03 **no** está aplicado). No depende de la base de datos. **Prioridad temporal de ejecución:** se adelanta su parte visual para un *Presentation Preview 0* (ver la sección homónima); el orden normal (CHG-02 → CHG-03 → cierre de CHG-04) se retoma después.
 
-**Estado actual observado (solo lectura):** `src/app/layout.js` con `lang="en"`, Geist y Geist Mono cargadas con `next/font/google`, y metadatos de FIXORA; `src/app/globals.css` (26 líneas) con modo oscuro automático y la fuente Arial como respaldo; `src/app/page.js` con un marcador «Proyecto en construcción»; Tailwind 4 por regla de Turbopack; `next.config.mjs` con `cacheComponents` y `partialPrefetching` y sin cabeceras ni `poweredByHeader`. No existen `not-found`, `error` ni `global-error`.
+**Estado actual observado (revisión previa, solo lectura):** `src/app/layout.tsx` (TypeScript) con `lang="en"`, Geist y Geist Mono cargadas con `next/font/google`, y metadatos de FIXORA; `src/app/globals.css` (26 líneas) con modo oscuro automático y la fuente Arial como respaldo; `src/app/page.tsx` con un marcador «Proyecto en construcción»; Tailwind 4 por regla de Turbopack; `next.config.mjs` con `cacheComponents` y `partialPrefetching` y sin cabeceras ni `poweredByHeader`. No existen `not-found`, `error` ni `global-error`. Ya existen de CHG-01 (y no se tocan): `src/instrumentation.ts`, el logger, `ActionResult`/`runAction`, las reglas de lint por capa (`src/app/**` no importa `infrastructure`) y Vitest 5. **AV-1 ✅ PASS** (`docs/03-arquitectura/validation/AV-1-FRAMEWORK-SECURITY.md`).
 
 ## Goals / Non-Goals
 
@@ -70,7 +70,7 @@ Franja de ancho completo bajo la cabecera, variante Info (fondo Primary subtle, 
 
 ### D-9. No encontrado y error público (`DESIGN.md` Apéndice A)
 - **404:** `not-found` raíz que **renderiza el shell público** (cabecera, navegación y franja) con el patrón de estado vacío: tarjeta centrada, icono `search_off` en un cuadro de 48, título «Página no encontrada», texto «La página que buscas no existe o ya no está disponible.» y acción primaria «Volver al inicio» (a `/`). **No** ofrece «Reintentar». Las rutas `/admin/**` inexistentes se tratan en CHG-08.
-- **Error inesperado:** `error` del grupo público (el layout, con su cabecera, permanece) con alerta de Error: título «Ocurrió un problema inesperado.», texto «Inténtalo nuevamente.» y «Reintentar» (secundario) que invoca el `reset` del límite cuando tiene sentido; en móvil el botón ocupa el ancho completo (44).
+- **Error inesperado:** `error` del grupo público (el layout, con su cabecera, permanece) con alerta de Error: título «Ocurrió un problema inesperado.», texto «Inténtalo nuevamente.» y «Reintentar» (secundario) que invoca `retry` del límite (estable desde Next 16.3; `reset` solo si se quisiera limpiar el estado sin volver a pedir contenido) cuando tiene sentido; en móvil el botón ocupa el ancho completo (44).
 - **Fallo global:** `global-error` (reemplaza al layout raíz, por lo que declara su propio `html`/`body` y estilos) con la misma alerta centrada sobre el fondo y «Reintentar», sin depender de la navegación. Corresponde porque `DESIGN.md` A.3 define explícitamente este caso.
 - **Referencia — no se muestra el `digest` de Next.** El `digest` del *framework* **no** se usa como identificador visible de soporte: puede mantenerse solo donde el TD lo permite para registro y correlación interna, nunca como contrato de interfaz. Si `DESIGN.md` A.3 exige mostrar una «Referencia», esta debe provenir de la **infraestructura propia de FIXORA** (CHG-01: una referencia o `requestId` opaco y seguro, no sensible, no derivado del mensaje, la pila, la ruta, la *query*, un *token* o datos personales). Como CHG-01 no garantiza hoy que esa referencia llegue a `error.tsx`, **este change no inventa el mecanismo**: la línea «Referencia: {valor}» se muestra solo si existe una referencia segura disponible, la interfaz funciona igual sin ella y AV-1 valida el *wiring*. No es un requisito funcional de la capability. `error.tsx` recibe `error` y `reset`, pero la interfaz no muestra información interna solo porque esté disponible.
 - **Registro:** los errores del servidor los registra CHG-01 (`instrumentation.ts`, `onRequestError`, logger); estos componentes **no** registran ni duplican esa lógica.
@@ -81,7 +81,7 @@ Las rutas públicas de este change son contenido **estático**: el *shell* públ
 
 ### D-11. Cabeceras y CSP pública (TD §21.3, §21.7)
 - Cabeceras de toda la aplicación: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `Permissions-Policy` restrictiva, `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy: same-origin`, y `poweredByHeader: false`. HSTS lo publica Vercel (no se duplica); sin `X-XSS-Protection`.
-- **CSP pública estática sin nonce** para las rutas públicas: `default-src 'self'`, sin orígenes de terceros, `object-src 'none'`, `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`. `unsafe-inline` **solo** en las directivas donde el *shell* estático de Next lo exija técnicamente, determinado empíricamente en AV-1; se parte de lo más estricto y no se amplía por conveniencia. `unsafe-eval` solo en desarrollo.
+- **CSP pública estática sin nonce** para las rutas públicas: `default-src 'self'`, sin orígenes de terceros, `object-src 'none'`, `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`. `unsafe-inline` **solo** en las directivas donde el *shell* estático de Next lo exija técnicamente. **Insumo de AV-1 (PASS):** con `script-src 'self'` a secas la página estática **no se hidrata** (los scripts en línea del *shell* se bloquean); con `script-src 'self' 'unsafe-inline'` y `style-src 'self'` (sin `unsafe-inline` en estilos) la hidratación fue correcta con 0 violaciones. Por tanto la base es `script-src 'self' 'unsafe-inline'` y `style-src 'self'`; se confirma con el *shell* real y `next/font`. Consecuencia: **sin atributos `style={{…}}` ni etiquetas `<style>` en línea** en los componentes de este change (incluido `global-error`, que debe ser autocontenido con clases, no con estilos en línea). `unsafe-eval` solo en desarrollo. **`unsafe-inline` no se extiende a `/admin/**`**, que tendrá su CSP estricta con nonce en CHG-08.
 - La CSP pública **no debe aplicarse a `/admin/**`** (CHG-08 genera allí una CSP con nonce por petición; dos CSP simultáneas se intersectan): el patrón de ruta de la cabecera la excluye. El patrón exacto se confirma en AV-1.
 - **Robots:** solo la landing es indexable; el valor por defecto del layout raíz es *noindex*, y la landing lo sobrescribe (`/registrar`, `/consultar` y `/admin/**` lo mantienen).
 
@@ -100,12 +100,29 @@ Anillo de foco Primary de 2 px con separación blanca en todo elemento interacti
 ### D-15. Dependencias
 Ninguna nueva. Tailwind 4 y `next/font` ya existen; los iconos son SVG locales. Una librería de iconos, una fuente de iconos o un paquete de accesibilidad requerirían aprobación nueva.
 
-## Pre-implementation validations — AV-1 (no se ejecutan ahora)
-1. El *shell* público estático bajo la estrategia de Cache Components con estos componentes (incluido el control de menú de cliente).
-2. Si la CSP pública base necesita `unsafe-inline` y en qué directivas; que funcione sin orígenes de terceros y con la fuente de `next/font`.
-3. Que la cabecera de CSP pública no se aplique a `/admin/**` y no entre en conflicto con la CSP con nonce de CHG-08.
-4. El comportamiento de `not-found` raíz que renderiza el shell público, y de `error` y `global-error` bajo Cache Components.
-5. Que el `reset` del límite de error funcione tras un fallo de renderizado.
+## Pre-implementation validations — AV-1 (estado tras la ejecución del gate)
+**AV-1 ✅ PASS.** Estado de lo que este change esperaba de él:
+1. *Shell* público estático bajo Cache Components: ✅ demostrado con un *shell* representativo (la ruta pública permaneció estática); con los componentes reales (incluido el menú de cliente) se confirma al implementar.
+2. CSP pública base: ✅ demostrado (`script-src 'self' 'unsafe-inline'`, `style-src 'self'`; ver D-11). Con `next/font` real se confirma al implementar.
+3. Coexistencia con `/admin/**`: ✅ demostrada (la ruta pública no recibe nonce y `/admin/**` sí, con su CSP estricta); el patrón exacto de la cabecera pública que excluye `/admin/**` se confirma al implementar.
+4. Comportamiento de `not-found` raíz con el *shell* público y de `error`/`global-error` bajo Cache Components: ⚠️ **no cubierto por AV-1** (AV-1 verificó solo que `redirect()` fuera de `try/catch` no activa `error.tsx`). Se verifica durante la implementación.
+5. `reset` del límite de error tras un fallo de renderizado: ⚠️ **no cubierto por AV-1**; se verifica durante la implementación.
+
+Si 4 o 5 contradijeran el diseño aprobado de forma que exija cambiar una decisión, se detiene la aplicación y se solicita revisión arquitectónica.
+
+## Presentation Preview 0 — prioridad temporal de ejecución (propuesta, pendiente de aprobación del usuario)
+
+**Contexto.** Se quiere una versión visual desplegable (Vercel) para compartir como avance, **sin base de datos, sin autenticación, sin registro ni consulta funcionales**. Es una reordenación temporal compatible con el DAG: CHG-04 solo tiene CHG-01 como dependencia dura (cumplida) y CHG-03 como blanda. No sustituye al backlog: tras el despliegue se retoma CHG-02 → CHG-03 → cierre formal de CHG-04. **Clasificación del despliegue futuro: PRESENTATION PREVIEW**, no línea base formal de Production (CHG-07), ni AV-3, ni `SC-20`.
+
+**Alcance visual del Preview 0** (todo ya está en CHG-04): tokens, tipografía Geist, shell público responsive, iconos SVG locales, landing PUB-01, navegación, «Acceso Taller» discreto, aviso demostrativo (copy canónico de D-8), 404, error público y cabeceras/CSP públicas. Debe construirse con `npm run build` **sin ninguna variable de entorno** y sin dependencias nuevas (ni Prisma/`pg`/Neon).
+
+**Decisiones propuestas (cada una requiere aprobación; ninguna modifica la Spec):**
+- **P-1. Puntos de entrada aún sin destino (`/registrar`, `/consultar`).** D-2 y OQ-1 (aprobadas) dicen que los accesos apuntan a las rutas aprobadas sin crear páginas de relleno; en un despliegue público esas rutas mostrarían el 404, lo que parece roto. Propuesta: una constante de disponibilidad por punto de entrada (`available`) en un módulo de presentación bajo `src/app/`; con `available: true` es un enlace a la ruta aprobada (comportamiento de la Spec, rama `main`); con `available: false` se muestra el mismo componente **sin `href`**, con `aria-disabled="true"` y la etiqueta visible «Disponible próximamente», sin simular ninguna operación ni formulario. El *Preview* se despliega desde una rama que fija `available: false` (un único *commit* de vista previa); CHG-05, CHG-06 y CHG-08 activan sus puntos de entrada al implementarse. Alternativas descartadas: enlaces reales a rutas inexistentes (404 en la demo) y páginas «Próximamente» (contradice OQ-1).
+- **P-2. «Acceso Taller».** Mismo mecanismo que P-1 (`/admin/acceso` aún no existe; CHG-08). Visible y discreto como en DESIGN §4.3, no navegable en el Preview y sin formulario de login.
+- **P-3. Contenido adicional de la landing.** `DESIGN.md` PUB-01 define solo: lema, descripción breve, dos accesos de igual jerarquía y aviso demostrativo. El pedido de presentar «qué hace FIXORA», el beneficio para el cliente y el flujo/*Repair Journey* explicado visualmente **excede PUB-01** y D-7 («sin secciones de marketing nuevas»). Opciones: (a) solo PUB-01 (sobrio, 100 % aprobado); (b) añadir una sección estática «Cómo funciona» con las etapas del proceso tomadas del PRD/DESIGN (los siete estados del flujo y la existencia de «Cancelado»), sin estado actual resaltado, sin código de ejemplo, sin datos ficticios, solo texto e iconos del sistema, **como adición explícita y trazable a PUB-01** (no una pantalla nueva). Recomendación: (b) solo si el usuario la aprueba expresamente; no se añade sin esa aprobación. El Journey funcional real es de CHG-06.
+- **P-4. Indexación — RESUELTA: sin `noindex` en el código del producto.** D-11 mantiene la landing indexable (comportamiento aprobado). El *Presentation Preview* se desplegará como *Vercel Preview Deployment* y la protección frente a la indexación se verificará en la infraestructura de Vercel (cabecera `X-Robots-Tag: noindex` en la respuesta real); si no apareciera, se detiene la revisión del despliegue y se decide una corrección específica del preview. No es un cambio funcional de FIXORA.
+
+**Verificación del Preview 0 sin Playwright.** Las tareas cuyo criterio de verificación exige Playwright (ver la lista en `tasks.md`) quedan **pendientes de CHG-03**: se implementan, pero no se marcan completas sin esa evidencia. Para el Preview se exige `lint`, `typecheck`, `test:unit` y `build` en verde bajo Node 24, una comprobación de producción local (`next build` + `next start`: `/` y una ruta inexistente, cabeceras con `curl`) y una revisión visual y responsive manual (escritorio, tablet, móvil, sin desplazamiento horizontal). Una comprobación visual con capturas puede hacerse con un *spike* temporal fuera del repositorio, solo con aprobación y sin instalar nada en el proyecto.
 
 ## Risks / Trade-offs
 
@@ -133,13 +150,14 @@ Ninguna nueva. Tailwind 4 y `next/font` ya existen; los iconos son SVG locales. 
 | # | Pregunta | Clasificación |
 |---|---|---|
 | OQ-1 | Verificación de la navegación en dos etapas: CHG-04 demuestra que existen los puntos de entrada correctos y sus destinos aprobados (`/registrar`, `/consultar`, `/admin/acceso`); no demuestra que esas rutas contengan su funcionalidad. CHG-05, CHG-06 y CHG-08 demuestran el funcionamiento real de registro, consulta y login. No se crean páginas de relleno ni formularios simulados | **RESUELTA** (aprobada) |
-| OQ-2 | Valor exacto de `unsafe-inline` en la CSP pública y patrón de ruta que excluye `/admin/**` | PRE-IMPLEMENTATION AV-1 |
-| OQ-3 | Comportamiento de `not-found`, `error` y `global-error` bajo Cache Components; necesidad real de `global-error` | PRE-IMPLEMENTATION AV-1 |
+| OQ-2 | Valor exacto de `unsafe-inline` en la CSP pública y patrón de ruta que excluye `/admin/**` | **RESUELTA en lo esencial** — AV-1: `script-src 'self' 'unsafe-inline'`, `style-src 'self'`; el patrón de ruta se confirma al implementar |
+| OQ-3 | Comportamiento de `not-found`, `error` y `global-error` bajo Cache Components; necesidad real de `global-error` | **ABIERTA** — AV-1 no lo cubrió; se verifica en la implementación (ver «Pre-implementation validations») |
 | OQ-4 | Variante visual (primaria/secundaria/otra) de cada punto de entrada, iconos concretos de tarjetas y logotipo, y *copy* editorial de apoyo, confirmados contra `DESIGN.md` al implementar | IMPLEMENTATION DETAIL |
 | OQ-5 | Ubicación de los componentes de interfaz, forma exacta de los tokens en Tailwind 4 y *breakpoints* estándar | IMPLEMENTATION DETAIL |
 | OQ-6 | Verificación de contraste de la paleta | IMPLEMENTATION DETAIL (revisión manual) |
 | OQ-7 | Wiring de una referencia opaca propia de FIXORA hacia `error.tsx` (el `digest` de Next no se muestra) | PRE-IMPLEMENTATION AV-1 / IMPLEMENTATION DETAIL |
 | OQ-8 | 404 del área administrativa y shell administrativo | DEFERRED a CHG-08 |
 | OQ-9 | Pruebas y superficies de registro, consulta y administración | DEFERRED a CHG-05, CHG-06 y CHG-08 |
+| OQ-10 | Presentation Preview 0: comportamiento temporal de los puntos de entrada (P-1, P-2), contenido adicional de la landing (P-3) e indexación (P-4) | **RESUELTA** — P-1/P-2 aprobadas (`available = false`, sin lógica por rama); P-3 rechazada; P-4: sin `noindex` en el código (se verifica en Vercel); sin pie de página (DESIGN no lo define) |
 
-Ninguna pregunta bloquea la aprobación documental de CHG-04.
+Ninguna pregunta bloquea la aprobación documental de CHG-04; OQ-10 quedó resuelta.

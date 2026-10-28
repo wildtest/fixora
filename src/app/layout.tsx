@@ -1,20 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { geistMono, geistSans } from "./fonts";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+// Metadatos estáticos. El valor por defecto es noindex; solo la landing lo sobrescribe (TD §28).
 export const metadata: Metadata = {
-  title: "FIXORA",
+  title: { default: "FIXORA", template: "%s · FIXORA" },
   description: "Gestión y seguimiento de reparaciones de equipos tecnológicos.",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
@@ -23,11 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="min-h-dvh">{children}</body>
     </html>
   );
 }
