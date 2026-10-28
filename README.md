@@ -6,13 +6,13 @@ Aplicación web responsive para pequeños servicios técnicos de reparación de 
 
 ## Estado del proyecto
 
-**Documentación y diseño aprobados; la aplicación funcional aún no está implementada.** El pipeline documental está completo hasta el Technical Design: el producto (PRD), la experiencia (`DESIGN.md`) y la arquitectura (Technical Design + ADR-001…010) están aprobados. La **Fase 5 — Technical Design / Arquitectura está cerrada (2026-10-26)**. La **Fase 6 (OpenSpec, Specs y Backlog) está completada**: OpenSpec está inicializado (6.1), la estrategia de partición (6.2) y el backlog maestro (6.3) están aprobados, y los 16 changes de OpenSpec están materializados y aprobados (Fase 6.4 completada) y el gate de cobertura y consistencia (6.5) está aprobado; aún sin implementar ni archivar, sin Specs principales. El Architecture Validation Gate es el primer gate de la implementación (Fase 7) y aún no se ha ejecutado.
+**Documentación y diseño aprobados; la aplicación funcional aún no está implementada.** El pipeline documental está completo hasta el Technical Design: el producto (PRD), la experiencia (`DESIGN.md`) y la arquitectura (Technical Design + ADR-001…010) están aprobados. La **Fase 5 — Technical Design / Arquitectura está cerrada (2026-10-26)**. La **Fase 6 (OpenSpec, Specs y Backlog) está completada**: OpenSpec está inicializado (6.1), la estrategia de partición (6.2) y el backlog maestro (6.3) están aprobados, y los 16 changes de OpenSpec están materializados y aprobados (Fase 6.4 completada) y el gate de cobertura y consistencia (6.5) está aprobado; aún sin implementar ni archivar, sin Specs principales. La **Fase 7 (implementación) está en curso**: los Architecture Validation Gates locales (AV-1 y AV-2) están completados (AV-3 queda diferido hasta CHG-07) y CHG-01 (`application-skeleton`: TypeScript, capas, logger, pruebas) está implementado y archivado; el producto funcional aún no está implementado.
 
 ## Stack
 
 **Presente hoy (scaffold):** Next.js 16.4.3 (App Router), React 19.3 y Tailwind CSS 4, en JavaScript.
 
-**Aprobado para implementación (aún no instalado):** TypeScript `strict`, Node 24.x, PostgreSQL en Neon, Prisma ORM 7.x estable con `@prisma/adapter-pg` + `pg`, Vitest, Playwright, GitHub Actions y despliegue en Vercel.
+**Ya instalado (CHG-01):** TypeScript `strict`, Node 24.x y Vitest. **Aprobado para implementación (aún no instalado):** PostgreSQL en Neon, Prisma ORM 7.x estable con `@prisma/adapter-pg` + `pg`, Playwright, GitHub Actions y despliegue en Vercel.
 
 ## Arquitectura (alto nivel)
 
@@ -37,4 +37,4 @@ El proyecto sigue un pipeline documental AI-First. Punto de entrada: [docs/READM
 
 ## Próxima etapa
 
-Fase 6 completada (incluido el gate de cobertura y consistencia 6.5). Próximo paso: Fase 7 — Architecture Validation Gate e implementación incremental (no iniciada).
+Fase 6 completada (incluido el gate de cobertura y consistencia 6.5). Próximo paso: CHG-02 `persistence-foundation` (revisión previa a la aplicación); Fase 7 en curso, con CHG-01 archivado.
