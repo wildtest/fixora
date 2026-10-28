@@ -46,6 +46,7 @@ admin-credentials.local
 # cobertura y artefactos de pruebas
 /coverage
 /test-results/
+/test-results-smoke/
 /playwright-report/
 
 # vercel
