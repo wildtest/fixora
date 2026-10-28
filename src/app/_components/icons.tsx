@@ -4,9 +4,9 @@ import type { ReactNode, SVGProps } from "react";
 // Material Symbols Outlined es solo referencia visual; no hay librería ni fuente de iconos.
 // Son decorativos junto a texto, por lo que se ocultan a tecnologías de apoyo.
 
-type IconProps = Omit<SVGProps<SVGSVGElement>, "children"> & { size?: number };
+export type IconProps = Omit<SVGProps<SVGSVGElement>, "children"> & { size?: number };
 
-function Icon({ size = 20, children, ...props }: IconProps & { children: ReactNode }) {
+export function Icon({ size = 20, children, ...props }: IconProps & { children: ReactNode }) {
   return (
     <svg
       width={size}
