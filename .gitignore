@@ -35,6 +35,18 @@ yarn-error.log*
 !.env.example
 admin-credentials.local
 *.local
+.env
+.env.local
+.env.test
+.env*.local
+
+# cliente de Prisma generado (db:generate)
+/src/infrastructure/db/generated/
+
+# cobertura y artefactos de pruebas
+/coverage
+/test-results/
+/playwright-report/
 
 # vercel
 .vercel

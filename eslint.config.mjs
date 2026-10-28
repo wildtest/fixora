@@ -20,17 +20,41 @@ const frameworks = [
   { name: "pg", message: "pg solo se usa desde infrastructure." },
 ];
 
+// `DIRECT_URL` es del propietario/migrador: el código de aplicación no importa la configuración de migración.
+const noMigrationConfig = {
+  regex: "(^|/)config/migration(\.ts)?$",
+  message: "La configuración de migración (DIRECT_URL) no es accesible desde el código de aplicación.",
+};
+
+// El cliente generado de Prisma solo se importa dentro de infrastructure/.
+const noGeneratedClient = {
+  regex: "(^|/)db/generated(/|$)",
+  message: "El cliente generado de Prisma solo se importa dentro de infrastructure.",
+};
+
 // `name` (módulo exacto) se expresa como regex para unificar todo en `patterns`.
 const restrictImports = (...entries) => ({
   "no-restricted-imports": [
     "error",
     {
-      patterns: entries.map(({ name, ...rest }) =>
+      patterns: [...entries, noMigrationConfig].map(({ name, ...rest }) =>
         name ? { ...rest, regex: "^" + name + "$" } : rest,
       ),
     },
   ],
 });
+
+const PROCESS_ENV = {
+  object: "process",
+  property: "env",
+  message: "Las variables de entorno se leen solo en src/infrastructure/config.",
+};
+
+// SQL sin parametrizar: prohibido en todo el código (CHG-02).
+const UNSAFE_SQL = ["$queryRawUnsafe", "$executeRawUnsafe"].map((property) => ({
+  property,
+  message: "SQL sin parametrizar prohibido: usa $queryRaw/$executeRaw con plantillas etiquetadas.",
+}));
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -43,14 +67,7 @@ const eslintConfig = defineConfig([
       "no-console": "error",
       "no-eval": "error",
       "no-new-func": "error",
-      "no-restricted-properties": [
-        "error",
-        {
-          object: "process",
-          property: "env",
-          message: "Las variables de entorno se leen solo en src/infrastructure/config.",
-        },
-      ],
+      "no-restricted-properties": ["error", PROCESS_ENV, ...UNSAFE_SQL],
       "no-restricted-syntax": [
         "error",
         {
@@ -68,7 +85,11 @@ const eslintConfig = defineConfig([
   // Excepciones mínimas y explícitas.
   {
     files: ["src/infrastructure/config/**/*.{ts,mjs,js}"],
-    rules: { "no-restricted-properties": "off" },
+    rules: { "no-restricted-properties": ["error", ...UNSAFE_SQL] },
+  },
+  {
+    files: ["tests/**/*.{ts,mts}", "scripts/**/*.{ts,mts}", "prisma.config.ts"],
+    rules: { "no-restricted-properties": ["error", ...UNSAFE_SQL] },
   },
   {
     files: ["src/infrastructure/logging/console-sink.ts"],
@@ -84,13 +105,14 @@ const eslintConfig = defineConfig([
       fromLayer("app"),
       fromLayer("presentation"),
       ...frameworks,
+      noGeneratedClient,
       { name: "server-only", message: "domain es puro e isomórfico." },
       { regex: "^node:", message: "domain es puro e isomórfico." },
     ),
   },
   {
     files: [layer("application")],
-    rules: restrictImports(fromLayer("app"), fromLayer("presentation"), ...frameworks),
+    rules: restrictImports(fromLayer("app"), fromLayer("presentation"), noGeneratedClient, ...frameworks),
   },
   {
     files: [layer("infrastructure")],
@@ -98,12 +120,13 @@ const eslintConfig = defineConfig([
   },
   {
     files: [layer("presentation")],
-    rules: restrictImports(fromLayer("application"), fromLayer("infrastructure"), fromLayer("app")),
+    rules: restrictImports(fromLayer("application"), fromLayer("infrastructure"), fromLayer("app"), noGeneratedClient),
   },
   {
     files: [layer("app")],
     rules: restrictImports(
       fromLayer("infrastructure"),
+      noGeneratedClient,
       { regex: "^@prisma/", message: "app no accede a Prisma." },
       { name: "pg", message: "app no accede a pg." },
     ),
@@ -116,6 +139,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Cliente de Prisma generado (db:generate): código generado, no se lintéa.
+    "src/infrastructure/db/generated/**",
   ]),
 ]);
 
