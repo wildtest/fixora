@@ -43,6 +43,11 @@ admin-credentials.local
 # cliente de Prisma generado (db:generate)
 /src/infrastructure/db/generated/
 
+# cobertura y artefactos de pruebas
+/coverage
+/test-results/
+/playwright-report/
+
 # vercel
 .vercel
 

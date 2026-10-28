@@ -1,0 +1,85 @@
+# CI de FIXORA (CHG-03, D-4…D-8). Dos jobs INDEPENDIENTES y obligatorios para fusionar a `main`:
+#   static   → sin base de datos ni credenciales PostgreSQL; varios en paralelo.
+#   db-tests → entorno de pruebas (Neon `test`); serializado con cola; integración y E2E en el mismo job.
+# Nombres estables: son los checks requeridos de la protección de `main`. Sin filtros por ruta.
+# Nunca `pull_request_target`. V1 no soporta forks: los secretos no se exponen a código de un fork.
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Generar el cliente de Prisma (sin conexión)
+        run: npm run db:generate
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Pruebas unitarias con cobertura selectiva
+        run: npm run test:coverage
+      - name: Trazabilidad
+        run: npm run test:trace
+      - name: Higiene de secretos (la detección principal es el secret scanning nativo de GitHub)
+        run: npm run ci:secrets
+      - name: npm audit (bloquean críticos y altos)
+        run: npm run ci:audit
+      - name: Build (sin base de datos, sin migraciones)
+        run: npm run build
+
+  db-tests:
+    name: db-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: test
+    # Solo este job se serializa: la base de pruebas es única. Con cola y SIN cancelar la ejecución en curso.
+    concurrency:
+      group: fixora-db-tests
+      queue: max
+    env:
+      TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      TEST_DIRECT_URL: ${{ secrets.TEST_DIRECT_URL }}
+      RATE_LIMIT_HMAC_SECRET: ${{ secrets.RATE_LIMIT_HMAC_SECRET }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Generar el cliente de Prisma
+        run: npm run db:generate
+      - name: Calentar Neon test
+        run: npm run ci:warm
+      - name: Integración (guardia anti-desastre, esquema vacío → migraciones, pruebas)
+        run: npm run test:integration
+      - name: Navegador de Playwright
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - name: E2E (build de producción + next start)
+        run: npm run test:e2e
+      - name: Subir trazas solo ante fallo
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 3
+          if-no-files-found: ignore

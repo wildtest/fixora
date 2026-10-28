@@ -24,7 +24,7 @@ beforeEach(async () => {
   await resetTestDatabase();
 });
 
-describe('migración inicial (base vacía → esquema actual solo con migraciones)', () => {
+describe('[SC-14] migración inicial (base vacía → esquema actual solo con migraciones)', () => {
   it('crea las tablas y los enums del modelo V1', async () => {
     const tables = await db.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY 1");
     expect(tables.rows.map((r) => r.tablename)).toEqual([
