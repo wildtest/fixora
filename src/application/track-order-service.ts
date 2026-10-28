@@ -28,11 +28,12 @@ function productionLimiter(): Pick<Limiter, 'isBlocked' | 'recordFailure'> {
 
 export function productionDependencies(): TrackOrderDependencies {
   const limiter = productionLimiter();
-  const store = createPublicOrderStore();
   return {
     isBlocked: (subject) => limiter.isBlocked(subject, 'PUBLIC_TRACKING'),
     recordFailure: (subject) => limiter.recordFailure(subject, 'PUBLIC_TRACKING', LOOKUP_POLICY),
-    findByTrackingCode: (code) => store.findByTrackingCode(code),
+    // El repositorio se crea al usarse, solo si el limitador permitió la consulta: sin configuración de base de datos
+    // el limitador ya habrá fallado cerrado y nunca se llega aquí.
+    findByTrackingCode: (code) => createPublicOrderStore().findByTrackingCode(code),
     onEvent: (event) => {
       try {
         getLogger().warn({ event, requestId: newUuid(), surface: 'public' });

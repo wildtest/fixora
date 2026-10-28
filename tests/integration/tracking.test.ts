@@ -263,8 +263,14 @@ describe('falla cerrada si la protección no está disponible', () => {
 
   it('sin configuración del limitador la composición de producción también falla cerrado', async () => {
     await insertPopulatedOrder();
-    const result = await trackOrderFromRequest(CODE, SUBJECT);
-    // En este proceso no hay DATABASE_URL de runtime ni RATE_LIMIT_HMAC_SECRET: el limitador no puede construirse.
-    expect(result).toEqual({ ok: false, code: 'SERVICE_UNAVAILABLE' });
+    // Sin DATABASE_URL de runtime ni RATE_LIMIT_HMAC_SECRET el limitador no puede construirse (se fuerza el entorno
+    // para que el resultado no dependa de los archivos locales ni del CI).
+    vi.stubEnv('DATABASE_URL', '');
+    vi.stubEnv('RATE_LIMIT_HMAC_SECRET', '');
+    try {
+      expect(await trackOrderFromRequest(CODE, SUBJECT)).toEqual({ ok: false, code: 'SERVICE_UNAVAILABLE' });
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
