@@ -1,0 +1,128 @@
+# migrate-production (CHG-07 D5): aplica las migraciones versionadas a Neon Production. SUPERFICIE ALTAMENTE PRIVILEGIADA.
+#
+#  - Solo manual (`workflow_dispatch`); nunca por `push`. La definición del workflow que recibe `DIRECT_URL` procede
+#    SIEMPRE de `refs/heads/main`: una PR no puede modificar su propio workflow privilegiado.
+#  - Entrada: SHA completo del commit cuyas migraciones se aplican (no rama, ni `HEAD`) y la identidad SHA-256 del
+#    contenido de `prisma/migrations/` autorizada en la PR. La invariante es el CONTENIDO, no el SHA (un squash puede
+#    producir otro SHA). Cualquier cambio posterior de migraciones invalida la autorización: se vuelve a ejecutar.
+#  - `DIRECT_URL` (rol migrador) existe solo en el Environment `production` y se entrega únicamente al paso que
+#    conecta (`migrate deploy` / `migrate status`). El job `verify` no recibe ningún secreto.
+#  - Frontera de comandos: checkout exacto → Node 24 → `npm ci --ignore-scripts` → `prisma migrate deploy` →
+#    `prisma migrate status`. NO ejecuta la aplicación, `next build`, pruebas, seed ni scripts de la revisión;
+#    `migrate deploy` no crea ni usa base de sombra.
+#  - Nunca se migra desde `next build`, `next start`, Vercel, Preview ni el runtime.
+name: migrate-production
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: SHA completo (40 hexadecimales) del commit de la PR aprobada cuyas migraciones se aplican
+        required: true
+        type: string
+      migrations_identity:
+        description: Identidad SHA-256 de prisma/migrations autorizada (node scripts/migration-identity.ts)
+        required: true
+        type: string
+      recovery_branch_confirmed:
+        description: Confirmo que existe la rama Neon de recuperación pre-release-… (prepaso manual)
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+
+# Un solo tren de migración de Production en curso; nunca se cancela una migración en ejecución.
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      pull_request: ${{ steps.pr.outputs.number }}
+    steps:
+      - name: Validar las entradas
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          IDENTITY: ${{ inputs.migrations_identity }}
+          CONFIRMED: ${{ inputs.recovery_branch_confirmed }}
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "source_sha debe ser un commit completo de 40 hexadecimales"; exit 1; }
+          [[ "$IDENTITY" =~ ^[0-9a-f]{64}$ ]] || { echo "migrations_identity debe ser un SHA-256 en hexadecimal"; exit 1; }
+          [ "$CONFIRMED" = "true" ] || { echo "Falta confirmar la rama Neon de recuperación (prepaso manual)"; exit 1; }
+      - name: El commit debe pertenecer a una PR de este repositorio (no a un fork)
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          number=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/pulls" \
+            --jq "[.[] | select(.head.repo.full_name == \"${GITHUB_REPOSITORY}\")][0].number // empty")
+          [ -n "$number" ] || { echo "El commit no está asociado a ninguna PR de este repositorio"; exit 1; }
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.x
+      - name: La identidad del contenido de migraciones debe coincidir con la autorizada
+        env:
+          IDENTITY: ${{ inputs.migrations_identity }}
+        run: node scripts/migration-identity.ts prisma/migrations --expect "$IDENTITY"
+
+  migrate:
+    name: migrate
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Aprobación humana, restricción a `main` y secretos de migración aislados (Environment `production`).
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.x
+      - name: Instalación segura (sin scripts de ciclo de vida)
+        run: npm ci --ignore-scripts
+      - name: Identidad del contenido de migraciones (defensa en profundidad)
+        env:
+          IDENTITY: ${{ inputs.migrations_identity }}
+        run: node scripts/migration-identity.ts prisma/migrations --expect "$IDENTITY"
+      - name: prisma migrate deploy
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: node node_modules/prisma/build/index.js migrate deploy
+      - name: prisma migrate status (verificación mínima)
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: node node_modules/prisma/build/index.js migrate status
+      - name: Evidencia de la migración (sin credenciales)
+        if: always()
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          IDENTITY: ${{ inputs.migrations_identity }}
+          PULL_REQUEST: ${{ needs.verify.outputs.pull_request }}
+          RESULT: ${{ job.status }}
+        run: |
+          {
+            echo "### migrate-production"
+            echo "- SHA fuente: \`${SOURCE_SHA}\`"
+            echo "- PR: #${PULL_REQUEST}"
+            echo "- Identidad de prisma/migrations: \`${IDENTITY}\`"
+            echo "- Fecha (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- Resultado: ${RESULT}"
+          } >> "$GITHUB_STEP_SUMMARY"
