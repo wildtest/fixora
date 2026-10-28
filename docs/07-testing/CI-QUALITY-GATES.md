@@ -39,12 +39,32 @@ La **cobertura** y la **trazabilidad** son compuertas distintas: ninguna sustitu
 |---|---|---|
 | Repositorio | Público, `main` por defecto, permiso de administración | — |
 | Secret scanning y push protection | **Disponibles y activados** | Detección principal de secretos (tarea 9.2). `ci:secrets` es un complemento propio, no un escáner de terceros |
-| Rulesets / protección de rama | Disponibles; `main` **sin proteger** hoy | Configuración pendiente de aprobación (tarea 10.2) |
-| Environments | Disponibles; **ninguno** creado | `test` pendiente de aprobación y de los secretos (tarea 10.3) |
+| Rulesets / protección de rama | Disponibles; `main` **protegida** el 2026-10-28 | PR obligatoria y `static` + `db-tests` requeridos (tarea 10.2) |
+| Environments | Disponibles; `test` **creado** el 2026-10-28 | Sin aprobación manual; secretos de test (tarea 10.3) |
 | Dependabot (alertas y actualizaciones de seguridad) | Disponible; **desactivado** | Opcional y no es una puerta de CI (tarea 9.3). No se activa sin aprobación |
 | `npm ci --ignore-scripts` | **Compatible**: en una copia limpia sin archivos de entorno, `npm ci --ignore-scripts` + `db:generate` + lint + typecheck + cobertura + trazabilidad + secretos + audit + build pasaron | Se **evaluó y no se impone**: el workflow usa `npm ci` (la toolchain no lo exige) |
 | Versiones | `@vitest/coverage-v8` 5.0.5 (igual que Vitest); `@playwright/test` 1.64.1; Playwright `latest` estable, sin prerelease | Fijadas con versión exacta |
 
-## Evidencia planificada de `SC-19` (inspección del pipeline)
+## Evidencia de `SC-19` (inspección del pipeline)
 
-Estado: **en verificación en la PR #1 (2026-10-28).** Lo que existe: workflow versionado y revisado (disparadores, permisos, SHA, ausencia de credenciales de Production; verificado por `tests/tooling/ci-scripts.test.ts`), simulación local del job `static` en una copia limpia, informe de `test:trace` y ejecución local de integración y E2E. Lo que falta y solo puede hacerse en GitHub: ejecución verde de una PR real con `static` y `db-tests` arrancando a la vez, prueba de cola de `db-tests`, protección de `main` y el Environment `test` con sus secretos.
+Registrada el 2026-10-28 sobre la PR de verificación #1 (`chg-03-ci-verification` → `main`, **sin fusionar**). Sin secretos ni URL de conexión.
+
+**Configuración efectiva en GitHub**
+- Environment `test`: creado, sin reglas de aprobación; secretos `TEST_DATABASE_URL`, `TEST_DIRECT_URL` y `RATE_LIMIT_HMAC_SECRET` (aleatorio, solo existe como secreto). Sin secretos a nivel de repositorio y sin ninguna credencial de Production.
+- Protección de `main`: PR obligatoria (0 aprobaciones, proyecto de una persona), checks requeridos `static` y `db-tests`, sin *force-push* ni borrado. El administrador conserva la posibilidad de saltarla (`enforce_admins: false`); la política de no hacer *push* directo rutinario es de proceso. Secret scanning y push protection siguen activados.
+
+**Ejecuciones reales**
+| Ejecución | Resultado | Observación |
+|---|---|---|
+| Run 1, intento 1 (`84fe762`) | `static` ✅ · `db-tests` ✅ | Ambos jobs arrancaron en el mismo segundo (independientes) |
+| Run 1, intento 2 (re-ejecución) | `static` ✅ · `db-tests` ✅ | Segunda ejecución consecutiva de `db-tests` |
+| Run 2 (`3741732`, lanzada mientras corría el intento 2) | `static` ✅ · `db-tests` ✅ | El `db-tests` de la run 2 quedó **pendiente** hasta que terminó el del intento 2 (cola `queue: max`), sin cancelar a la primera; su `static` corrió en paralelo |
+| Commit con trazabilidad rota (temporal, revertido) | `static` ❌ | PR en estado `BLOCKED` |
+| Commit con un E2E rojo (temporal, revertido) | `static` ✅ · `db-tests` ❌ | PR `BLOCKED`; se subió el artefacto `playwright-traces` (retención de 3 días); en las ejecuciones verdes no se sube ningún artefacto |
+| Run final (`49eae6b`) | `static` ✅ · `db-tests` ✅ | PR `CLEAN` |
+
+**Registros.** Se revisaron los registros completos: 0 apariciones de URL de conexión, `npg_` o `channel_binding`; las variables `TEST_*` y `RATE_LIMIT_HMAC_SECRET` aparecen solo enmascaradas (`***`). Los jobs no reciben `DATABASE_URL` ni `DIRECT_URL`, no usan development ni `main` de Neon. Pruebas con valores canario sobre los scripts propios: `tests/tooling/ci-scripts.test.ts`.
+
+**Dentro de `db-tests`:** guardia anti-desastre → esquema `public` vacío → migraciones versionadas → 67 pruebas de integración → build de producción → 6 pruebas E2E (`chromium-desktop` y `chromium-mobile`). Dentro de `static`: lint, typecheck, 169 pruebas unitarias con cobertura selectiva, trazabilidad (37/37), higiene de secretos, `npm audit` y build.
+
+**Limitación conocida.** La plantilla de PR (`.github/pull_request_template.md`) solo se ofrece automáticamente en la web cuando está en la rama por defecto; la PR #1 se abrió con `gh` usando su contenido. Aparecerá sola tras la fusión.

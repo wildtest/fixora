@@ -39,34 +39,34 @@
 
 ## 7. Workflow `static`
 
-- [ ] 7.1 Crear el job `static` con los pasos en orden: *checkout* → Node 24 desde `.nvmrc` → `npm ci` → generación del cliente de Prisma → `lint` → `typecheck` → `test:coverage` → `test:trace` → detección de secretos → `npm audit` → `build`; disparadores `pull_request` hacia `main` y `push` a `main`, sin `pull_request_target`, sin filtros por ruta en los *checks* obligatorios y permisos `contents: read`; se verifica con una ejecución verde en una PR de prueba.
+- [x] 7.1 Crear el job `static` con los pasos en orden: *checkout* → Node 24 desde `.nvmrc` → `npm ci` → generación del cliente de Prisma → `lint` → `typecheck` → `test:coverage` → `test:trace` → detección de secretos → `npm audit` → `build`; disparadores `pull_request` hacia `main` y `push` a `main`, sin `pull_request_target`, sin filtros por ruta en los *checks* obligatorios y permisos `contents: read`; se verifica con una ejecución verde en una PR de prueba.
 - [x] 7.2 Comprobar que `static` no recibe ninguna credencial PostgreSQL (`DATABASE_URL`, `DIRECT_URL`, `TEST_*`) ni usa el Environment `test`, y que el *build* no se conecta a la base de datos ni migra; se verifica con la revisión del workflow y una ejecución sin esas variables.
 - [x] 7.3 Fijar cada acción externa por SHA completo verificado contra su repositorio oficial, con el *tag* como comentario, usando solo acciones oficiales de GitHub imprescindibles; se verifica con una comprobación de que ninguna acción usa un *tag* flotante.
 
 ## 8. Workflow `db-tests`
 
-- [ ] 8.1 Crear el job `db-tests`, **independiente de `static` (sin `needs`)** y autocontenido, con los pasos: *checkout* → Node 24 → `npm ci` → generación del cliente → calentamiento de Neon `test` con un *script* propio → guardia y preparación de migraciones → integración → su propio `build` → `next start` → navegador de Playwright → E2E → subida de *traces* solo ante fallo; se verifica con una ejecución verde en una PR de prueba y con que `static` y `db-tests` arrancan a la vez.
-- [ ] 8.2 Serializar únicamente `db-tests` con `concurrency: { group: fixora-db-tests, queue: max }` en el nivel mínimo apropiado, sin `cancel-in-progress`, volviendo a comprobar la sintaxis contra la documentación vigente de GitHub; `static` no usa ese grupo; se verifica lanzando dos ejecuciones y comprobando que la segunda de `db-tests` espera, que la primera no se cancela y que los `static` de ambas corren en paralelo.
-- [ ] 8.3 Incluir la comprobación de que una base vacía llega al esquema actual solo con migraciones (prueba de CHG-02), con el mecanismo aislado disponible; se verifica con su ejecución en el job.
-- [ ] 8.4 Configurar el uso exclusivo de credenciales de prueba (`TEST_DATABASE_URL`, `TEST_DIRECT_URL`, `RATE_LIMIT_HMAC_SECRET` de test y, cuando CHG-08 las necesite, credenciales ficticias de administrador de test) desde el Environment `test` o el mecanismo que 1.3 apruebe, sin Production; se verifica con la revisión del workflow y con que ninguna credencial de Production existe en el repositorio de GitHub.
+- [x] 8.1 Crear el job `db-tests`, **independiente de `static` (sin `needs`)** y autocontenido, con los pasos: *checkout* → Node 24 → `npm ci` → generación del cliente → calentamiento de Neon `test` con un *script* propio → guardia y preparación de migraciones → integración → su propio `build` → `next start` → navegador de Playwright → E2E → subida de *traces* solo ante fallo; se verifica con una ejecución verde en una PR de prueba y con que `static` y `db-tests` arrancan a la vez.
+- [x] 8.2 Serializar únicamente `db-tests` con `concurrency: { group: fixora-db-tests, queue: max }` en el nivel mínimo apropiado, sin `cancel-in-progress`, volviendo a comprobar la sintaxis contra la documentación vigente de GitHub; `static` no usa ese grupo; se verifica lanzando dos ejecuciones y comprobando que la segunda de `db-tests` espera, que la primera no se cancela y que los `static` de ambas corren en paralelo.
+- [x] 8.3 Incluir la comprobación de que una base vacía llega al esquema actual solo con migraciones (prueba de CHG-02), con el mecanismo aislado disponible; se verifica con su ejecución en el job.
+- [x] 8.4 Configurar el uso exclusivo de credenciales de prueba (`TEST_DATABASE_URL`, `TEST_DIRECT_URL`, `RATE_LIMIT_HMAC_SECRET` de test y, cuando CHG-08 las necesite, credenciales ficticias de administrador de test) desde el Environment `test` o el mecanismo que 1.3 apruebe, sin Production; se verifica con la revisión del workflow y con que ninguna credencial de Production existe en el repositorio de GitHub.
 
 ## 9. Seguridad y cadena de suministro
 
 - [x] 9.1 Configurar `npm audit` con la política de V1: bloquean CI los hallazgos críticos y altos; los moderados y bajos se reportan sin bloquear; nunca `npm audit fix --force` ni actualizaciones de *major* automáticas; el estado por defecto ante un hallazgo alto o crítico es CI en rojo y solo cabe una excepción temporal documentada (advisory, paquete, exposición real, mitigación, fecha de revisión) y aprobada por el usuario; se verifica con una ejecución que bloquea un hallazgo simulado de severidad alta y la lectura de la política escrita.
 - [x] 9.2 Habilitar la detección de secretos con la capacidad nativa de GitHub si 1.3 la confirma; si no está disponible, **detenerse y solicitar aprobación** de herramienta, acción, permisos y flujo de datos antes de añadir otra; se verifica con la nota de decisión y una prueba controlada con un valor ficticio.
 - [x] 9.3 Evaluar Dependabot o equivalente (capacidad de plataforma opcional, no una puerta obligatoria) y `npm ci --ignore-scripts` frente a Prisma; se verifica con la nota de decisión y, si se adopta, una ejecución del *build*.
-- [ ] 9.4 Verificar que los registros de CI no imprimen entorno completo, URL con credenciales, contraseñas, *tokens*, el secreto HMAC, códigos de seguimiento ni datos personales; se verifica con la revisión de los registros de una ejecución y pruebas con valores canario sobre los *scripts* propios.
+- [x] 9.4 Verificar que los registros de CI no imprimen entorno completo, URL con credenciales, contraseñas, *tokens*, el secreto HMAC, códigos de seguimiento ni datos personales; se verifica con la revisión de los registros de una ejecución y pruebas con valores canario sobre los *scripts* propios.
 
 ## 10. Protección del repositorio y plataforma
 
-- [ ] 10.1 Crear la plantilla de PR con la declaración de compatibilidad hacia atrás de las migraciones, la actualización de `TRACEABILITY.md` y las pruebas añadidas; se verifica con su aparición al abrir una PR.
-- [ ] 10.2 Con aprobación, configurar la protección de `main` con el mecanismo que 1.3 confirme: PR obligatoria, `static` y `db-tests` ambos requeridos, sin *force-push* y sin *push* directo rutinario; se verifica con una PR de prueba que no puede fusionarse con cualquiera de los dos *checks* en rojo y con el registro de la configuración efectiva.
-- [ ] 10.3 Con aprobación, crear el Environment `test` (si 1.3 lo confirma) sin aprobación manual y los secretos de prueba; se verifica con una ejecución de `db-tests` que los recibe y con que `static` no.
+- [x] 10.1 Crear la plantilla de PR con la declaración de compatibilidad hacia atrás de las migraciones, la actualización de `TRACEABILITY.md` y las pruebas añadidas; se verifica con su aparición al abrir una PR.
+- [x] 10.2 Con aprobación, configurar la protección de `main` con el mecanismo que 1.3 confirme: PR obligatoria, `static` y `db-tests` ambos requeridos, sin *force-push* y sin *push* directo rutinario; se verifica con una PR de prueba que no puede fusionarse con cualquiera de los dos *checks* en rojo y con el registro de la configuración efectiva.
+- [x] 10.3 Con aprobación, crear el Environment `test` (si 1.3 lo confirma) sin aprobación manual y los secretos de prueba; se verifica con una ejecución de `db-tests` que los recibe y con que `static` no.
 
 ## 11. Verificación final del change
 
 - [x] 11.1 Ejecutar `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run test:integration`, `npm run test:e2e`, `npm run test:trace` y `npm run build` localmente y registrar el resultado; se verifica con las siete ejecuciones en verde.
-- [ ] 11.2 Recopilar la evidencia de `SC-19` (ejecución verde de una PR real con ambos jobs, workflow revisado, configuración de `main`, serialización de `db-tests`, independencia de ambos jobs, informe de `test:trace`); se verifica con la nota de evidencia registrada en `docs/07-testing/`.
+- [x] 11.2 Recopilar la evidencia de `SC-19` (ejecución verde de una PR real con ambos jobs, workflow revisado, configuración de `main`, serialización de `db-tests`, independencia de ambos jobs, informe de `test:trace`); se verifica con la nota de evidencia registrada en `docs/07-testing/`.
 - [x] 11.3 Revisar el alcance del diff: no hay Production, `migrate-production`, Vercel, Security Pass, E2E-01, lógica funcional, migraciones nuevas ni credenciales de Production; se verifica con el `git diff` y que `openspec validate ci-quality-gates --strict` sigue pasando.
 
 ## Notas de implementación (2026-10-28)
@@ -84,10 +84,18 @@
 - **Defecto hallado y corregido:** en la simulación, `ci:secrets` marcó las propias pruebas con valores ficticios; se excluyen por nombre exacto (`tests/tooling/ci-scripts.test.ts`, `tests/trace/`).
 - **Estabilidad.** Una ejecución de `test:unit` falló una vez por superar los 5 s por defecto en pruebas que lanzan procesos; el proyecto `unit` fija `testTimeout: 30 s` (4 ejecuciones posteriores en verde).
 
-### Pendiente real: requiere acciones en GitHub que solo puede aprobar o realizar el usuario
+### Cierre de las 10 tareas con evidencia real de GitHub (2026-10-28)
 
-- **7.1, 8.1, 8.2, 8.3, 8.4, 9.4, 10.1, 11.2:** exigen una ejecución real de los workflows (una PR de prueba y dos ejecuciones para comprobar la cola de `db-tests`), por tanto *push* de una rama, el Environment `test` con sus secretos y la lectura de los registros de CI.
-- **10.2, 10.3:** protección de `main` (PR obligatoria, `static` y `db-tests` requeridos, sin *force-push*) y creación del Environment `test` (sin aprobación manual) con `TEST_DATABASE_URL`, `TEST_DIRECT_URL` y `RATE_LIMIT_HMAC_SECRET` de test.
+Registro completo en `docs/07-testing/CI-QUALITY-GATES.md` (PR #1, sin fusionar).
+
+- **10.3 / 8.4.** Environment `test` sin aprobación manual con `TEST_DATABASE_URL`, `TEST_DIRECT_URL` y `RATE_LIMIT_HMAC_SECRET` (aleatorio). Sin secretos de repositorio ni de Production. `db-tests` los recibe (enmascarados en los registros); `static` no usa Environment ni secretos.
+- **10.2.** `main` protegida: PR obligatoria, checks requeridos `static` y `db-tests`, sin *force-push*. Comprobado en vivo: con `static` rojo (trazabilidad rota) y con `db-tests` rojo (E2E fallido), por separado, la PR queda `BLOCKED`; con ambos verdes, `CLEAN`.
+- **7.1 / 8.1.** Ejecución verde de `static` y `db-tests`; ambos arrancaron en el mismo segundo (sin `needs`).
+- **8.2.** Con una re-ejecución en curso se lanzó otra por un nuevo commit: su `db-tests` quedó pendiente hasta que terminó el primero (no se canceló) y su `static` corrió en paralelo.
+- **8.3.** La guardia, el esquema vacío y las migraciones de CHG-02 se ejecutan en el job (`db-tests` parte de `public` vacío) y las 67 pruebas de integración pasan. Dos o más ejecuciones consecutivas de `db-tests` en verde.
+- **9.4.** Registros revisados: sin URL de conexión, `npg_` ni `channel_binding`; solo valores enmascarados.
+- **10.1.** La plantilla existe en `.github/pull_request_template.md` y la PR #1 se abrió con su contenido (con `gh`). **Limitación:** GitHub solo la ofrece sola desde la rama por defecto, así que su aparición automática se verá tras la fusión de la PR (no autorizada en esta ronda).
+- **11.2.** Evidencia de `SC-19` registrada; `TRACEABILITY.md` pasa a `verificado` para `SC-19`.
 
 ## Workflow follow-up
 

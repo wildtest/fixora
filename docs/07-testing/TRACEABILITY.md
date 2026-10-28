@@ -32,7 +32,7 @@
 | SC-16 | CHG-05 | unitaria | Validación por campo | pendiente |
 | SC-17 | CHG-11 | E2E | E2E-01 | pendiente |
 | SC-18 | CHG-14 | seguridad | Informe del Security Pass | pendiente |
-| SC-19 | CHG-03 | inspección | Inspección del pipeline | pendiente |
+| SC-19 | CHG-03 | inspección | `.github/workflows/ci.yml`; `docs/07-testing/CI-QUALITY-GATES.md` — PR #1 con static y db-tests en verde, cola de db-tests, protección de main | verificado |
 | SC-20 | CHG-07 | smoke | Smoke de Production (cierre: CHG-15) | pendiente |
 
 ## Casos borde
