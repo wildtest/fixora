@@ -1,12 +1,15 @@
 import type { ReactNode } from "react";
+import { CheckIcon, WarningIcon } from "./form-icons";
 import { ErrorIcon, ScienceIcon } from "./icons";
 
 // Alerta / banner (DESIGN.md §6.11): fondo suave + borde 1 px del semántico + icono 20 + título 15/600 + texto 14;
-// radio 8, padding 12/16, sin bordes laterales gruesos. Solo las variantes que usa este change: Info y Error.
+// radio 8, padding 12/16, sin bordes laterales gruesos. Variantes en uso: Info, Error, Warning y Success.
 
 const VARIANTS = {
   info: { box: "border-info-line bg-info-soft", title: "text-info-text", text: "text-info-text", Icon: ScienceIcon },
   error: { box: "border-danger-line bg-danger-soft", title: "text-danger-text", text: "text-content-secondary", Icon: ErrorIcon },
+  warning: { box: "border-warning-line bg-warning-soft", title: "text-warning", text: "text-content-secondary", Icon: WarningIcon },
+  success: { box: "border-success-line bg-success-soft", title: "text-success", text: "text-content-secondary", Icon: CheckIcon },
 } as const;
 
 export function Alert({

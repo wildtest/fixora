@@ -7,6 +7,12 @@ import { expect, test, type Page } from '@playwright/test';
 
 const ENTRY_LABELS = ['Registrar reparación', 'Consultar estado'] as const;
 const WORKSHOP = 'Acceso Taller';
+const REGISTER = 'Registrar reparación';
+
+// CHG-05 activó «Registrar reparación» (enlace a /registrar); «Consultar estado» (CHG-06) y «Acceso Taller»
+// (CHG-08) siguen sin destino y se muestran deshabilitados.
+const entry = (scope: Pick<Page, 'getByRole'>, label: string) =>
+  scope.getByRole(label === REGISTER ? 'link' : 'button', { name: label });
 const UNAVAILABLE = 'Disponible próximamente';
 
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
@@ -33,7 +39,7 @@ test.describe('landing PUB-01', () => {
     const cards = main.getByRole('listitem');
     await expect(cards).toHaveCount(2);
     for (const label of ENTRY_LABELS) {
-      await expect(main.getByRole('button', { name: label })).toBeVisible();
+      await expect(entry(main, label)).toBeVisible();
     }
     // Igual jerarquía: ambas tarjetas tienen el mismo ancho.
     const widths = await cards.evaluateAll((items) => items.map((item) => Math.round(item.getBoundingClientRect().width)));
@@ -44,12 +50,13 @@ test.describe('landing PUB-01', () => {
   test('los puntos de entrada no disponibles no navegan, no son enfocables y explican el motivo', async ({ page }) => {
     await page.goto('/');
     const main = page.getByRole('main');
-    for (const label of ENTRY_LABELS) {
-      const control = main.getByRole('button', { name: label });
-      await expect(control).toBeDisabled();
-      await expect(main.getByRole('link', { name: label })).toHaveCount(0);
-    }
-    await expect(main.getByText(UNAVAILABLE)).toHaveCount(2);
+    // Activo (CHG-05): enlace a la ruta aprobada.
+    await expect(main.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
+    await expect(main.getByRole('button', { name: REGISTER })).toHaveCount(0);
+    // Sin destino todavía (CHG-06): deshabilitado, sin enlace y con el motivo visible.
+    await expect(main.getByRole('button', { name: 'Consultar estado' })).toBeDisabled();
+    await expect(main.getByRole('link', { name: 'Consultar estado' })).toHaveCount(0);
+    await expect(main.getByText(UNAVAILABLE)).toHaveCount(1);
     await page.keyboard.press('Tab');
     for (let i = 0; i < 12; i += 1) {
       const focusedDisabled = await page.evaluate(() => (document.activeElement as HTMLButtonElement | null)?.disabled === true);
@@ -57,6 +64,13 @@ test.describe('landing PUB-01', () => {
       await page.keyboard.press('Tab');
     }
     expect(new URL(page.url()).pathname).toBe('/');
+  });
+
+  test('«Registrar reparación» lleva al formulario', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('main').getByRole('link', { name: REGISTER }).click();
+    await expect(page).toHaveURL(/\/registrar$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Registrar reparación' })).toBeVisible();
   });
 
   test('la landing es la única ruta indexable', async ({ page, request }) => {
@@ -76,11 +90,11 @@ test.describe('navegación pública', () => {
     const nav = page.getByRole('navigation', { name: 'Principal' });
     await expect(nav.getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/');
     for (const label of [...ENTRY_LABELS, WORKSHOP]) {
-      await expect(nav.getByRole('button', { name: label })).toBeVisible();
+      await expect(entry(nav, label)).toBeVisible();
     }
     // «Acceso Taller» va a la derecha de las acciones del cliente y no tiene el estilo de acción principal.
     const boxes = await Promise.all(
-      [...ENTRY_LABELS, WORKSHOP].map((label) => nav.getByRole('button', { name: label }).boundingBox()),
+      [...ENTRY_LABELS, WORKSHOP].map((label) => entry(nav, label).boundingBox()),
     );
     expect(boxes[2]!.x).toBeGreaterThan(boxes[1]!.x + boxes[1]!.width);
     const background = await nav.getByRole('button', { name: WORKSHOP }).evaluate((node) => getComputedStyle(node).backgroundColor);
@@ -88,7 +102,8 @@ test.describe('navegación pública', () => {
     // Teclado: el enlace «Inicio» es operable y los controles no disponibles no reciben foco.
     await nav.getByRole('link', { name: 'Inicio' }).focus();
     await expect(nav.getByRole('link', { name: 'Inicio' })).toBeFocused();
-    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(3);
+    await expect(nav.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
+    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(2);
   });
 
   test('móvil: botón «Menú» rotulado, panel con los mismos puntos de entrada, teclado y cierre', async ({ page }) => {
@@ -102,7 +117,8 @@ test.describe('navegación pública', () => {
     const panel = page.locator(`#${await button.getAttribute('aria-controls')}`);
     await expect(panel).toBeVisible();
     await expect(panel.getByRole('link', { name: 'Inicio' })).toBeVisible();
-    for (const label of [...ENTRY_LABELS, WORKSHOP]) {
+    await expect(panel.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
+    for (const label of ['Consultar estado', WORKSHOP]) {
       await expect(panel.getByRole('button', { name: label })).toBeDisabled();
     }
     await noHorizontalOverflow(page);
@@ -239,7 +255,7 @@ test.describe('responsive sin desbordamiento horizontal', () => {
     const menu = await page.getByRole('button', { name: /^Menú/ }).boundingBox();
     expect(menu!.height).toBeGreaterThanOrEqual(44);
     for (const label of ENTRY_LABELS) {
-      const box = await page.getByRole('main').getByRole('button', { name: label }).boundingBox();
+      const box = await entry(page.getByRole('main'), label).boundingBox();
       expect(box!.height, label).toBeGreaterThanOrEqual(44);
     }
   });

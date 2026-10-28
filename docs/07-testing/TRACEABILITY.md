@@ -14,7 +14,7 @@
 
 | ID | change dueño | nivel | prueba o evidencia | estado |
 |---|---|---|---|---|
-| SC-01 | CHG-05 | E2E; integración | E2E de registro e integración del caso de uso | pendiente |
+| SC-01 | CHG-05 | E2E; integración | `tests/e2e/register.spec.ts`; `tests/integration/registration.test.ts`; `src/application/register-repair.test.ts` — registro, código y confirmación (primer tramo de E2E-01; lo cierra CHG-11) | verificado |
 | SC-02 | CHG-06 | E2E | E2E de consulta | pendiente |
 | SC-03 | CHG-09b | E2E | E2E: inicio de sesión → localizar → abrir detalle (soporte: CHG-08, 09a) | pendiente |
 | SC-04 | CHG-11 | E2E | E2E del ciclo completo (soporte: CHG-10) | pendiente |
@@ -29,7 +29,7 @@
 | SC-13 | CHG-06 | unitaria | Prueba de código inexistente | pendiente |
 | SC-14 | CHG-02 | integración | `tests/integration/schema-and-constraints.test.ts`; `tests/integration/privileges.test.ts`; `tests/integration/transaction-and-lock.test.ts` — integración de persistencia contra PostgreSQL real (soporte: cada slice; cierre: CHG-15) | parcial |
 | SC-15 | CHG-15 | revisión manual | `tests/e2e/public-entry.spec.ts`; `src/app/_components/public-entry.test.tsx`; `src/app/public-error.test.tsx` — evidencia parcial de CHG-04 (entrada pública: landing, navegación en dos etapas, 404, error, responsive sin desbordamiento); Revisión manual estructurada (soporte: CHG-04 y cada pantalla) | parcial |
-| SC-16 | CHG-05 | unitaria | Validación por campo | pendiente |
+| SC-16 | CHG-05 | unitaria | `tests/e2e/register.spec.ts`; `src/domain/repair/repair.test.ts`; `src/application/register-repair.test.ts` — validación por campo con resumen, sin orden | verificado |
 | SC-17 | CHG-11 | E2E | E2E-01 | pendiente |
 | SC-18 | CHG-14 | seguridad | Informe del Security Pass | pendiente |
 | SC-19 | CHG-03 | inspección | `.github/workflows/ci.yml`; `docs/07-testing/CI-QUALITY-GATES.md` — PR #1 con static y db-tests en verde, cola de db-tests, protección de main | verificado |
@@ -39,9 +39,9 @@
 
 | ID | change dueño | nivel | prueba o evidencia | estado |
 |---|---|---|---|---|
-| E1 | CHG-05 | E2E; integración | Integración de idempotencia y E2E de doble envío | pendiente |
-| E2 | CHG-05 | E2E | E2E de confirmación | pendiente |
-| E3 | CHG-05 | unitaria | Validadores (soporte: CHG-13 para el administrador) | pendiente |
+| E1 | CHG-05 | E2E; integración | `tests/integration/registration.test.ts`; `tests/e2e/register.spec.ts` — idempotencia: replay, envío simultáneo y doble envío en navegador | verificado |
+| E2 | CHG-05 | E2E | `tests/e2e/register.spec.ts` — la confirmación muestra el código y el aviso de conservarlo; no se restaura al salir ni recargar | verificado |
+| E3 | CHG-05 | unitaria | `src/domain/repair/repair.test.ts`; `tests/e2e/register.spec.ts` — validadores puros (soporte: CHG-13 para el administrador) | implementado |
 | E4 | CHG-06 | unitaria | Prueba de código inexistente | pendiente |
 | E5 | CHG-11 | unitaria | Pruebas de publicación en `CANCELADO` (soporte: CHG-10) | pendiente |
 | E6 | CHG-06 | E2E | E2E de ausencia de datos (completan CHG-11 y CHG-12) | pendiente |
@@ -54,5 +54,5 @@
 | E13 | CHG-10 | unitaria | Cancelación de una solicitud falsa; ausencia de anti-spam verificada en CHG-05 | pendiente |
 | E14 | CHG-10 | unitaria | Advertencia del diálogo de cancelación (soporte: CHG-12) | pendiente |
 | E15 | CHG-06 | unitaria | Normalización exacta (soporte: CHG-09a) | pendiente |
-| E16 | CHG-05 | unitaria | Pruebas del alfabeto y del formato | pendiente |
-| E17 | CHG-05 | unitaria | Inmutabilidad del código (soporte: CHG-13: no editable) | pendiente |
+| E16 | CHG-05 | unitaria | `src/domain/repair/repair.test.ts` — alfabeto, formato y generación sin sesgo del código | verificado |
+| E17 | CHG-05 | unitaria | `tests/integration/registration.test.ts` — unicidad, colisión y código no reemplazable por el rol de aplicación (soporte: CHG-13: no editable) | implementado |
