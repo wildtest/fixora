@@ -372,7 +372,9 @@ test.describe('estado sensible y navegación', () => {
     await page.goto('/consultar');
     await page.getByLabel('Código de seguimiento').fill('ABC');
     await page.getByRole('link', { name: 'FIXORA, inicio' }).click();
+    await expect(page).toHaveURL(/\/$/); // esperar a que la navegación termine antes de volver
     await page.goBack();
+    await expect(page).toHaveURL(/\/consultar$/);
     await expect(page.getByLabel('Código de seguimiento')).toHaveValue('');
   });
 });
