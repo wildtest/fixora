@@ -1,0 +1,246 @@
+import { expect, test, type Page } from '@playwright/test';
+
+// E2E de CHG-04 (`public-site-entry`) sobre la base de CHG-03. Consultas por rol y test id; no fija el texto de
+// marketing. Verificación en dos etapas (design.md OQ-1): CHG-04 demuestra que los puntos de entrada existen y
+// que, mientras CHG-05/06/08 no los activen, NO navegan ni simulan operaciones (P-1/P-2 aprobadas). Los destinos
+// aprobados se prueban en `src/app/_components/public-entry.test.tsx`. [SC-15]
+
+const ENTRY_LABELS = ['Registrar reparación', 'Consultar estado'] as const;
+const WORKSHOP = 'Acceso Taller';
+const UNAVAILABLE = 'Disponible próximamente';
+
+const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
+
+async function noHorizontalOverflow(page: Page) {
+  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+}
+
+async function openMenuIfMobile(page: Page) {
+  if (isMobile(page)) {
+    await page.getByRole('button', { name: /^Menú/ }).click();
+  }
+}
+
+test.describe('landing PUB-01', () => {
+  test('muestra el lema, la descripción y los dos puntos de entrada del cliente con igual jerarquía', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    const main = page.getByRole('main');
+    const cards = main.getByRole('listitem');
+    await expect(cards).toHaveCount(2);
+    for (const label of ENTRY_LABELS) {
+      await expect(main.getByRole('button', { name: label })).toBeVisible();
+    }
+    // Igual jerarquía: ambas tarjetas tienen el mismo ancho.
+    const widths = await cards.evaluateAll((items) => items.map((item) => Math.round(item.getBoundingClientRect().width)));
+    if (!isMobile(page)) expect(widths[0]).toBe(widths[1]);
+    await noHorizontalOverflow(page);
+  });
+
+  test('los puntos de entrada no disponibles no navegan, no son enfocables y explican el motivo', async ({ page }) => {
+    await page.goto('/');
+    const main = page.getByRole('main');
+    for (const label of ENTRY_LABELS) {
+      const control = main.getByRole('button', { name: label });
+      await expect(control).toBeDisabled();
+      await expect(main.getByRole('link', { name: label })).toHaveCount(0);
+    }
+    await expect(main.getByText(UNAVAILABLE)).toHaveCount(2);
+    await page.keyboard.press('Tab');
+    for (let i = 0; i < 12; i += 1) {
+      const focusedDisabled = await page.evaluate(() => (document.activeElement as HTMLButtonElement | null)?.disabled === true);
+      expect(focusedDisabled).toBe(false);
+      await page.keyboard.press('Tab');
+    }
+    expect(new URL(page.url()).pathname).toBe('/');
+  });
+
+  test('la landing es la única ruta indexable', async ({ page, request }) => {
+    await page.goto('/');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index/);
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).not.toContain('noindex');
+    const notFound = await request.get('/ruta-que-no-existe');
+    expect(notFound.status()).toBe(404);
+    expect(await notFound.text()).toContain('noindex');
+  });
+});
+
+test.describe('navegación pública', () => {
+  test('escritorio: Inicio, Registrar y Consultar, y «Acceso Taller» separado y secundario', async ({ page }) => {
+    test.skip(isMobile(page), 'solo escritorio');
+    await page.goto('/');
+    const nav = page.getByRole('navigation', { name: 'Principal' });
+    await expect(nav.getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/');
+    for (const label of [...ENTRY_LABELS, WORKSHOP]) {
+      await expect(nav.getByRole('button', { name: label })).toBeVisible();
+    }
+    // «Acceso Taller» va a la derecha de las acciones del cliente y no tiene el estilo de acción principal.
+    const boxes = await Promise.all(
+      [...ENTRY_LABELS, WORKSHOP].map((label) => nav.getByRole('button', { name: label }).boundingBox()),
+    );
+    expect(boxes[2]!.x).toBeGreaterThan(boxes[1]!.x + boxes[1]!.width);
+    const background = await nav.getByRole('button', { name: WORKSHOP }).evaluate((node) => getComputedStyle(node).backgroundColor);
+    expect(background).not.toBe('rgb(15, 95, 168)');
+    // Teclado: el enlace «Inicio» es operable y los controles no disponibles no reciben foco.
+    await nav.getByRole('link', { name: 'Inicio' }).focus();
+    await expect(nav.getByRole('link', { name: 'Inicio' })).toBeFocused();
+    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(3);
+  });
+
+  test('móvil: botón «Menú» rotulado, panel con los mismos puntos de entrada, teclado y cierre', async ({ page }) => {
+    test.skip(!isMobile(page), 'solo móvil');
+    await page.goto('/');
+    const button = page.getByRole('button', { name: /^Menú/ });
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await button.focus();
+    await page.keyboard.press('Enter');
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    const panel = page.locator(`#${await button.getAttribute('aria-controls')}`);
+    await expect(panel).toBeVisible();
+    await expect(panel.getByRole('link', { name: 'Inicio' })).toBeVisible();
+    for (const label of [...ENTRY_LABELS, WORKSHOP]) {
+      await expect(panel.getByRole('button', { name: label })).toBeDisabled();
+    }
+    await noHorizontalOverflow(page);
+    await page.keyboard.press('Escape');
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toBeHidden();
+    await expect(button).toBeFocused();
+  });
+
+  test('móvil: el menú se cierra al navegar', async ({ page }) => {
+    test.skip(!isMobile(page), 'solo móvil');
+    await page.goto('/ruta-que-no-existe');
+    const button = page.getByRole('button', { name: /^Menú/ });
+    await button.click();
+    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Inicio' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('button', { name: /^Menú/ })).toHaveAttribute('aria-expanded', 'false');
+  });
+});
+
+test.describe('aviso de entorno de demostración', () => {
+  for (const path of ['/', '/ruta-que-no-existe']) {
+    test(`está presente en ${path} y no impide navegar`, async ({ page }) => {
+      await page.goto(path);
+      const notice = page.getByTestId('demo-notice');
+      await expect(notice).toBeVisible();
+      await expect(notice).toContainText('Entorno de demostración');
+      await expect(notice).toContainText('No ingreses datos personales reales ni información sensible');
+      // Sin casilla, modal ni botón de cierre.
+      await expect(notice.getByRole('checkbox')).toHaveCount(0);
+      await expect(notice.getByRole('button')).toHaveCount(0);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      // No obstruye: el contenido principal sigue visible y se puede navegar.
+      await expect(page.getByRole('main')).toBeVisible();
+      await openMenuIfMobile(page);
+      await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Inicio' }).click();
+      await expect(page).toHaveURL(/\/$/);
+    });
+  }
+});
+
+test.describe('404 público', () => {
+  test('una ruta inexistente muestra el estado, ofrece volver al inicio y no revela detalles técnicos', async ({ page }) => {
+    const response = await page.goto('/ruta-que-no-existe');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole('heading', { name: 'Página no encontrada' })).toBeVisible();
+    await expect(page.getByText('La página que buscas no existe o ya no está disponible.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
+    const body = await page.locator('body').innerText();
+    for (const leak of ['node_modules', '/src/', 'at ', 'Error:', 'digest']) expect(body).not.toContain(leak);
+    // El shell público permanece.
+    await expect(page.getByTestId('demo-notice')).toBeVisible();
+    await noHorizontalOverflow(page);
+    await page.getByRole('main').getByRole('link', { name: 'Volver al inicio' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  });
+
+  test('las rutas /admin/** inexistentes tampoco revelan detalles (el 404 administrativo es de CHG-08)', async ({ request }) => {
+    const response = await request.get('/admin/no-existe');
+    expect(response.status()).toBe(404);
+    expect(await response.text()).not.toMatch(/node_modules|digest/);
+  });
+});
+
+test.describe('cabeceras y CSP públicas', () => {
+  test('la respuesta de / trae las cabeceras de seguridad y no X-Powered-By', async ({ request }) => {
+    const headers = (await request.get('/')).headers();
+    expect(headers['x-content-type-options']).toBe('nosniff');
+    expect(headers['x-frame-options']).toBe('DENY');
+    expect(headers['referrer-policy']).toBe('no-referrer');
+    expect(headers['permissions-policy']).toContain('camera=()');
+    expect(headers['cross-origin-opener-policy']).toBe('same-origin');
+    expect(headers['cross-origin-resource-policy']).toBe('same-origin');
+    expect(headers['x-powered-by']).toBeUndefined();
+  });
+
+  test('CSP pública: sin orígenes de terceros y NO se envía en /admin/**', async ({ request }) => {
+    const csp = (await request.get('/')).headers()['content-security-policy'];
+    expect(csp).toContain("default-src 'self'");
+    expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+    expect(csp).toContain("style-src 'self'");
+    expect(csp).not.toMatch(/https?:\/\//);
+    expect(csp).toContain("frame-ancestors 'none'");
+    for (const path of ['/admin', '/admin/acceso', '/admin/ordenes/x']) {
+      const response = await request.get(path);
+      expect(response.headers()['content-security-policy'], path).toBeUndefined();
+      expect(response.headers()['x-content-type-options'], path).toBe('nosniff');
+    }
+  });
+
+  test('navegar la landing no produce violaciones de CSP ni peticiones a terceros', async ({ page }) => {
+    const violations: string[] = [];
+    const external: string[] = [];
+    await page.addInitScript(() => {
+      document.addEventListener('securitypolicyviolation', (event) => {
+        (window as unknown as { __csp: string[] }).__csp = [
+          ...((window as unknown as { __csp?: string[] }).__csp ?? []),
+          `${event.violatedDirective}`,
+        ];
+      });
+    });
+    page.on('console', (message) => {
+      if (/content security policy/i.test(message.text())) violations.push(message.text().slice(0, 120));
+    });
+    page.on('request', (request) => {
+      if (new URL(request.url()).origin !== new URL(page.url() === 'about:blank' ? request.url() : page.url()).origin) {
+        external.push(new URL(request.url()).origin);
+      }
+    });
+    await page.goto('/');
+    await openMenuIfMobile(page);
+    await page.waitForLoadState('networkidle');
+    const fromDocument = await page.evaluate(() => (window as unknown as { __csp?: string[] }).__csp ?? []);
+    expect(violations).toEqual([]);
+    expect(fromDocument).toEqual([]);
+    expect(external).toEqual([]);
+  });
+});
+
+test.describe('responsive sin desbordamiento horizontal', () => {
+  for (const [name, path] of [['landing', '/'], ['404', '/ruta-que-no-existe']] as const) {
+    test(`${name}: scrollWidth <= clientWidth, también con el menú abierto en móvil`, async ({ page }) => {
+      await page.goto(path);
+      await noHorizontalOverflow(page);
+      await openMenuIfMobile(page);
+      await noHorizontalOverflow(page);
+    });
+  }
+
+  test('los controles táctiles miden al menos 44 px de alto en móvil', async ({ page }) => {
+    test.skip(!isMobile(page), 'solo móvil');
+    await page.goto('/');
+    const menu = await page.getByRole('button', { name: /^Menú/ }).boundingBox();
+    expect(menu!.height).toBeGreaterThanOrEqual(44);
+    for (const label of ENTRY_LABELS) {
+      const box = await page.getByRole('main').getByRole('button', { name: label }).boundingBox();
+      expect(box!.height, label).toBeGreaterThanOrEqual(44);
+    }
+  });
+});

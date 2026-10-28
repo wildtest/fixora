@@ -28,7 +28,7 @@
 | SC-12 | CHG-08 | seguridad | Prueba parametrizada de acciones sin sesión y Security Pass (soporte: todo change administrativo; verificación: CHG-14) | pendiente |
 | SC-13 | CHG-06 | unitaria | Prueba de código inexistente | pendiente |
 | SC-14 | CHG-02 | integración | `tests/integration/schema-and-constraints.test.ts`; `tests/integration/privileges.test.ts`; `tests/integration/transaction-and-lock.test.ts` — integración de persistencia contra PostgreSQL real (soporte: cada slice; cierre: CHG-15) | parcial |
-| SC-15 | CHG-15 | revisión manual | Revisión manual estructurada (soporte: CHG-04 y cada pantalla) | pendiente |
+| SC-15 | CHG-15 | revisión manual | `tests/e2e/public-entry.spec.ts`; `src/app/_components/public-entry.test.tsx`; `src/app/public-error.test.tsx` — evidencia parcial de CHG-04 (entrada pública: landing, navegación en dos etapas, 404, error, responsive sin desbordamiento); Revisión manual estructurada (soporte: CHG-04 y cada pantalla) | parcial |
 | SC-16 | CHG-05 | unitaria | Validación por campo | pendiente |
 | SC-17 | CHG-11 | E2E | E2E-01 | pendiente |
 | SC-18 | CHG-14 | seguridad | Informe del Security Pass | pendiente |

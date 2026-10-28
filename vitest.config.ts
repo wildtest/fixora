@@ -21,7 +21,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'node',
-          include: ['src/**/*.test.ts', 'tests/tooling/**/*.test.ts', 'tests/trace/**/*.test.ts'],
+          include: ['src/**/*.test.{ts,tsx}', 'tests/tooling/**/*.test.ts', 'tests/trace/**/*.test.ts'],
           // Las pruebas de herramientas lanzan procesos (CLI de Prisma, scripts de CI) que, bajo carga, pueden
           // superar los 5 s por defecto sin que haya un fallo real.
           testTimeout: 30_000,
