@@ -13,7 +13,7 @@
 ## 2. Proyecto de Vercel
 
 - [x] 2.1 Con aprobación (Production pública, sin cuenta ni contraseña para acceder), conectar el proyecto de Vercel a `main` como Production Branch, con Node 24.x alineado con `engines.node` e Install Command `npm ci`; se verifica con la configuración efectiva y un despliegue sin variables de BD.
-- [ ] 2.2 Configurar Preview sin credenciales de BD, sin migraciones, sin clones de Production y sin ramas de BD por Preview (la autenticación de Preview es un endurecimiento opcional a evaluar en AV-3 y no condiciona el change; Production permanece pública); se verifica con un Preview de PR que compila, renderiza el *shell* y falla de forma controlada donde se requiere BD.
+- [x] 2.2 Configurar Preview sin credenciales de BD, sin migraciones, sin clones de Production y sin ramas de BD por Preview (la autenticación de Preview es un endurecimiento opcional a evaluar en AV-3 y no condiciona el change; Production permanece pública); se verifica con un Preview de PR que compila, renderiza el *shell* y falla de forma controlada donde se requiere BD.
 - [x] 2.3 Confirmar que no existe `VERCEL_TOKEN` en GitHub ni otro workflow de despliegue; se verifica con la revisión de secretos y workflows.
 
 ## 3. Neon Production
@@ -56,7 +56,7 @@
 
 ## Notas de implementación (2026-10-28)
 
-**Estado: 25/28 tareas completas (2026-10-28). Pendientes por datos que solo ve el propietario: 1.3 y 7.3 (plan de Neon y ventana de restauración, no reportados) y 2.2 (comprobar un Preview de PR sin variables de BD). Evidencia de Production en `docs/09-deploy/PRODUCTION-ENVIRONMENT.md`.**
+**Estado: 26/28 tareas completas (2026-10-28). Pendientes por datos que solo ve el propietario: 1.3 y 7.3 (plan de Neon y ventana de restauración, no reportados). Evidencia de Production en `docs/09-deploy/PRODUCTION-ENVIRONMENT.md`.**
 
 **Hecho en el repositorio y verificado**
 - **1.1 DoR.** CHG-01…06 archivados (`main` 665bd64). El usuario autorizó la ejecución autónoma de CHG-07.
@@ -92,3 +92,4 @@
 - **GitHub (1.4, 4.2).** Environment `production` restringido a `main`, `DIRECT_URL` solo allí. Autorrevisión aceptada por el propietario como riesgo residual (repositorio de una sola persona).
 - **AV-3 (6.3).** La aplicación desplegada conecta con Neon `main` como `fixora_app` (pooled): una consulta de un código inexistente devuelve «No encontramos una reparación con ese código», no el error genérico, lo que implica que el limitador escribió y la lectura de `repair_orders` funcionó. Variables inyectadas: las únicas de BD son las dos esperadas. La fuente de IP (`x-vercel-forwarded-for`) no se verificó con un valor real: requeriría leer buckets del limitador en Production; queda como residuo para CHG-14.
 - **Auditoría posterior (8.2).** `npm run ops:migration-identity` sobre `main` (0c381c6) = `2f3a34b7…83b8`, igual a lo migrado.
+- **Preview (2.2).** El Preview de la PR #6 compila, es público, renderiza `/consultar` y, al consultar un código, muestra «Servicio no disponible temporalmente» (fallo controlado sin base de datos).
