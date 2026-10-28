@@ -47,7 +47,7 @@
 | E6 | CHG-06 | E2E | E2E de ausencia de datos (completan CHG-11 y CHG-12) | pendiente |
 | E7 | CHG-09a | integración | Integración de búsqueda y vacío | pendiente |
 | E8 | CHG-09a | unitaria | Orden y paginación | pendiente |
-| E9 | CHG-10 | unitaria | Pruebas de versión (soporte: CHG-11, 12, 13) | hecho |
+| E9 | CHG-10 | unitaria | Pruebas de versión (soporte: CHG-11, 12, 13) | pendiente |
 | E10 | CHG-08 | unitaria | Sesión inválida sin estado parcial (soporte: cada mutación) | pendiente |
 | E11 | CHG-10 | E2E | E2E de los cuatro diálogos y comprobación en servidor | pendiente |
 | E12 | CHG-12 | E2E; integración | Integración y E2E de notas | pendiente |
