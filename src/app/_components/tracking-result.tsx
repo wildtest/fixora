@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { DEVICE_TYPE_LABELS } from "@/domain/repair/device-type";
 import { formatLimaDateTime } from "@/domain/repair/format-date";
+import { formatSoles } from "@/domain/repair/money";
 import { buildJourney } from "@/domain/repair/journey";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/domain/repair/order-status";
 import type { PublicOrderView } from "@/domain/repair/public-order-view";
@@ -103,14 +104,32 @@ export function TrackingResult({ order, actions }: { order: PublicOrderView; act
         </ol>
       </section>
 
-      <section aria-labelledby="mas-info-title" className="rounded-md bg-surface-secondary p-4">
-        <h2 id="mas-info-title" className="text-label text-content">
-          Diagnóstico, costo y notas
-        </h2>
-        <p data-testid="more-info-empty" className="mt-1 text-small text-content-secondary">
-          Todavía no hay información adicional disponible. Cuando el taller la publique, aparecerá aquí.
-        </p>
-      </section>
+      {order.repairDetails ? (
+        // Diagnóstico y costo públicos (CHG-11, DESIGN §11.3): tarjeta propia con el costo destacado (24/32, 600, Primary
+        // active, `S/` + dos decimales) y el diagnóstico como texto de lectura, distinta de las notas públicas (CHG-12).
+        <section aria-labelledby="diagnostico-title" data-testid="repair-details" className="rounded-md border border-line bg-surface p-6">
+          <h2 id="diagnostico-title" className="text-h3 text-content">
+            Diagnóstico y costo estimado
+          </h2>
+          <p className="mt-4 text-label text-content-secondary">Costo estimado</p>
+          <p data-testid="public-cost" className="text-[1.5rem] font-semibold leading-8 tabular-nums text-primary-active md:text-[2rem] md:leading-10">
+            {formatSoles(order.repairDetails.estimatedCost)}
+          </p>
+          <h3 className="mt-6 text-label text-content-secondary">Diagnóstico</h3>
+          <p data-testid="public-diagnosis" className="mt-1 whitespace-pre-wrap break-words text-body text-content [overflow-wrap:anywhere]">
+            {order.repairDetails.diagnosis}
+          </p>
+        </section>
+      ) : (
+        <section aria-labelledby="mas-info-title" className="rounded-md bg-surface-secondary p-4">
+          <h2 id="mas-info-title" className="text-label text-content">
+            Diagnóstico, costo y notas
+          </h2>
+          <p data-testid="more-info-empty" className="mt-1 text-small text-content-secondary">
+            Todavía no hay información adicional disponible. Cuando el taller la publique, aparecerá aquí.
+          </p>
+        </section>
+      )}
 
       {actions ? <div className="flex flex-col gap-2 md:flex-row">{actions}</div> : null}
     </div>

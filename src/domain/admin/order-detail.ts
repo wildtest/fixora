@@ -6,8 +6,9 @@ import type { PublicStatusEvent } from '../repair/public-order-view';
 // Detalle administrativo de una orden en SOLO LECTURA (CHG-09b D3): DTO con LISTA POSITIVA (TD §17), construido
 // propiedad por propiedad con lo que esta pantalla presenta. Es distinto y NO asignable al `PublicOrderView`.
 // CHG-10 añade `version` (no se muestra: solo alimenta `expectedVersion`) y `allowedTransitions` (indicación de
-// presentación, nunca autoridad). Excluidos a propósito: diagnóstico y costo (CHG-11), notas (CHG-12), historiales de
-// diagnóstico y costo, `capabilities` de funciones futuras y `updatedAt`. Puro e isomórfico.
+// presentación, nunca autoridad). CHG-11 añade el diagnóstico, el costo, el historial combinado y las indicaciones de
+// edición/publicación. Excluidos a propósito: notas (CHG-12), capacidades de datos básicos (CHG-13) y `updatedAt`.
+// Puro e isomórfico.
 
 export type AdminStatusEvent = {
   /** `null` solo en el registro inicial (interno: no se presenta). */
@@ -17,6 +18,13 @@ export type AdminStatusEvent = {
   readonly occurredAt: string;
 };
 
+/** Historial administrativo combinado (TD §17): unión discriminada; sin autor. El diagnóstico del historial es SOLO administrativo. */
+export type AdminHistoryEvent =
+  | { readonly type: 'STATUS'; readonly fromStatus: OrderStatus | null; readonly toStatus: OrderStatus; readonly occurredAt: string }
+  | { readonly type: 'DIAGNOSIS'; readonly previous: string | null; readonly next: string | null; readonly occurredAt: string }
+  /** Montos como cadena decimal canónica de dos decimales (nunca `number`). */
+  | { readonly type: 'COST'; readonly previous: string | null; readonly next: string | null; readonly occurredAt: string };
+
 export type AdminOrderDetailDTO = {
   readonly id: string;
   readonly trackingCode: string;
@@ -25,16 +33,29 @@ export type AdminOrderDetailDTO = {
   readonly customer: { readonly name: string; readonly phone: string; readonly email: string | null };
   readonly device: { readonly type: DeviceType; readonly brand: string; readonly model: string | null };
   readonly problemDescription: string;
-  /** Del más reciente al más antiguo. */
+  /** Diagnóstico vigente (texto) o `null`. */
+  readonly diagnosis: string | null;
+  /** Costo estimado vigente como cadena decimal canónica de dos decimales, o `null`. */
+  readonly estimatedCost: string | null;
+  /** Solo los eventos de estado, del más reciente al más antiguo (los consume el Repair Journey). */
   readonly statusHistory: readonly AdminStatusEvent[];
+  /** Historial combinado de estado, diagnóstico y costo, del más reciente al más antiguo con orden estable. */
+  readonly history: readonly AdminHistoryEvent[];
   /** Versión de la orden revisada: el cambio de estado debe devolverla como `expectedVersion`. */
   readonly version: number;
   /** Qué puede ofrecer la interfaz para el estado actual; el servidor lo recalcula en cada acción. */
   readonly allowedTransitions: readonly AllowedTransition[];
+  /** Indicación (el servidor lo recalcula): diagnóstico y costo editables solo en los tres primeros estados. */
+  readonly canEditDiagnosisAndCost: boolean;
+  /** Orden cancelada que nunca alcanzó Esperando aprobación: sus valores nunca se publicaron al cliente. */
+  readonly neverPublished: boolean;
 };
 
 /** Claves permitidas del DTO (lista positiva); las pruebas las comparan con lo que realmente sale. */
-export const DETAIL_KEYS = ['allowedTransitions', 'createdAt', 'customer', 'device', 'id', 'problemDescription', 'status', 'statusHistory', 'trackingCode', 'version'] as const;
+export const DETAIL_KEYS = [
+  'allowedTransitions', 'canEditDiagnosisAndCost', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history', 'id',
+  'neverPublished', 'problemDescription', 'status', 'statusHistory', 'trackingCode', 'version',
+] as const;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

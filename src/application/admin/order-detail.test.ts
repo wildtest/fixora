@@ -5,7 +5,7 @@ import { getAdminOrderDetail } from './order-detail';
 
 const admin = issueAdminContext('admin-1');
 const ID = '0f8fad5b-d9cb-469f-a165-70867728950e';
-const record = { id: ID, status: 'EN_DIAGNOSTICO', version: 3, hasDiagnosisAndCost: false } as AdminOrderDetailRecord;
+const record = { id: ID, status: 'EN_DIAGNOSTICO', version: 3, diagnosis: null, estimatedCost: null, reachedApproval: false } as unknown as AdminOrderDetailRecord;
 
 describe('getAdminOrderDetail', () => {
   it('un identificador mal formado se resuelve como no encontrada SIN consultar la base de datos', async () => {
@@ -20,7 +20,8 @@ describe('getAdminOrderDetail', () => {
     const findById = vi.fn(async (id: string) => (id === ID ? record : null));
     const detail = await getAdminOrderDetail(admin, ID.toUpperCase(), { findById });
     expect(detail).toMatchObject({ id: ID, version: 3 });
-    expect(detail).not.toHaveProperty('hasDiagnosisAndCost'); // dato interno: solo se usa para decidir las transiciones
+    expect(detail).not.toHaveProperty('reachedApproval'); // dato interno: solo decide la indicación «nunca se publicó»
+    expect(detail).toMatchObject({ canEditDiagnosisAndCost: true, neverPublished: false });
     expect(detail?.allowedTransitions).toEqual([
       { targetStatus: 'ESPERANDO_APROBACION', requiresConfirmation: true, blockedReason: 'DIAGNOSIS_AND_COST_REQUIRED' },
       { targetStatus: 'CANCELADO', requiresConfirmation: true },

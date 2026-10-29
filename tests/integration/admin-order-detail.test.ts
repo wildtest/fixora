@@ -77,7 +77,7 @@ describe('detalle de una orden existente', () => {
     });
   });
 
-  it('sin sobrecarga: no devuelve diagnóstico, costo, notas, versión ni historiales de otras funciones', async () => {
+  it('sin sobrecarga: no devuelve notas ni nada de funciones futuras; el diagnóstico, el costo y sus historiales son administrativos', async () => {
     const id = await insertOrder();
     await owner.query(
       `INSERT INTO order_notes (id, order_id, visibility, content, version, created_at, updated_at)
@@ -87,21 +87,21 @@ describe('detalle de una orden existente', () => {
     await owner.query("INSERT INTO diagnosis_history (id, order_id, previous_value, new_value, occurred_at) VALUES ($1, $2, NULL, 'CANARY-HIST-DIAGNOSTICO', now())", [randomUUID(), id]);
     await owner.query('INSERT INTO cost_history (id, order_id, previous_value, new_value, occurred_at) VALUES ($1, $2, NULL, 777.77, now())', [randomUUID(), id]);
     const json = JSON.stringify(await getAdminOrderDetail(admin, id, store()));
-    expect(json).not.toMatch(/CANARY-DIAGNOSTICO|CANARY-NOTA|CANARY-HIST|321|777|"diagnosis"|"estimatedCost"|"notes"|"capabilities"|hasDiagnosisAndCost/);
+    expect(json).not.toMatch(/CANARY-NOTA|"notes"|"publicNotes"|"capabilities"|hasDiagnosisAndCost|reachedApproval|"published"/);
+    // CHG-11: el diagnóstico, el costo (exacto, dos decimales) y sus historiales sí forman parte de la lectura administrativa.
+    expect(json).toContain('CANARY-DIAGNOSTICO');
+    expect(json).toContain('"estimatedCost":"321.50"');
+    expect(json).toContain('CANARY-HIST-DIAGNOSTICO');
+    expect(json).toContain('"next":"777.77"');
   });
 
-  it('el repositorio no menciona columnas ni tablas de funciones futuras en sus consultas', () => {
+  it('el repositorio no menciona notas, columnas de otras funciones ni SQL sin parametrizar', () => {
     const source = readFileSync('src/infrastructure/admin/admin-order-detail-store.ts', 'utf8')
       .split('\n')
       .filter((line) => !line.trim().startsWith('//'))
       .join('\n');
-    // Solo se admite la PRESENCIA de diagnóstico y costo (para decidir la transición), nunca sus valores.
-    const withoutPresence = source
-      .replaceAll('o."diagnosis" IS NOT NULL', '')
-      .replaceAll('btrim(o."diagnosis")', '')
-      .replaceAll('o."estimated_cost" IS NOT NULL', '');
-    for (const forbidden of ['"diagnosis"', 'estimated_cost', 'updated_at', 'order_notes', 'diagnosis_history', 'cost_history', 'queryRawUnsafe']) {
-      expect(withoutPresence, forbidden).not.toContain(forbidden);
+    for (const forbidden of ['updated_at', 'order_notes', 'queryRawUnsafe']) {
+      expect(source, forbidden).not.toContain(forbidden);
     }
   });
 
@@ -185,7 +185,8 @@ describe('regresión de SC-11: lo administrativo no llega a la consulta pública
     expect(publicView).not.toBeNull();
     const json = JSON.stringify(publicView);
     expect(json).not.toMatch(/CANARY|canary|Quispe|id"|statusHistory|customer|phone|email|fromStatus|321|"version"/);
-    expect(Object.keys(publicView!).sort()).toEqual(['device', 'problemDescription', 'status', 'statusTimeline', 'trackingCode']);
+    expect(Object.keys(publicView!).sort()).toEqual(['device', 'problemDescription', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
+    expect(publicView!.repairDetails).toBeNull(); // la orden no llegó a Esperando aprobación
   });
 
   it('el módulo público no importa nada administrativo', () => {

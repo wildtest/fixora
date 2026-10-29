@@ -28,6 +28,10 @@ export async function cleanupSeeded(): Promise<void> {
   await withOwner(async (db) => {
     for (const tag of pending) {
       await db.query('DELETE FROM order_status_history WHERE order_id IN (SELECT id FROM repair_orders WHERE customer_name LIKE $1)', [`${tag}%`]);
+      await db.query('DELETE FROM diagnosis_history WHERE order_id IN (SELECT id FROM repair_orders WHERE customer_name LIKE $1)', [`${tag}%`]);
+      await db.query('DELETE FROM cost_history WHERE order_id IN (SELECT id FROM repair_orders WHERE customer_name LIKE $1)', [`${tag}%`]);
+      await db.query('DELETE FROM order_notes WHERE order_id IN (SELECT id FROM repair_orders WHERE customer_name LIKE $1)', [`${tag}%`]);
+      await db.query('DELETE FROM registration_idempotency WHERE order_id IN (SELECT id FROM repair_orders WHERE customer_name LIKE $1)', [`${tag}%`]);
       await db.query('DELETE FROM repair_orders WHERE customer_name LIKE $1', [`${tag}%`]);
     }
   });

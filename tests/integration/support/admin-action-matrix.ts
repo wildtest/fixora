@@ -3,8 +3,10 @@ import { guardAdminAction } from '../../../src/application/admin/admin-action';
 import type { AdminContext } from '../../../src/application/admin/admin-context';
 import type { SessionService } from '../../../src/application/admin/session-service';
 import type { ActionResult } from '../../../src/application/action-result';
+import { saveDiagnosis, saveEstimatedCost } from '../../../src/application/admin/edit-diagnosis-cost';
 import { transitionOrder } from '../../../src/application/admin/transition-order';
 import type { PrismaClient } from '../../../src/infrastructure/db/generated/client.ts';
+import { createOrderEditStore } from '../../../src/infrastructure/admin/order-edit-store';
 import { createOrderTransitionStore } from '../../../src/infrastructure/admin/order-transition-store';
 
 // Matriz de autorización de acciones administrativas (CHG-08, tarea 5.4). EXCLUSIVAMENTE infraestructura de pruebas:
@@ -79,7 +81,38 @@ export function transitionAction(context: MatrixContext): MatrixAction {
   };
 }
 
+/** CHG-11: `saveDiagnosis` y `saveEstimatedCost` (dos operaciones independientes). Sin sesión válida no leen ni escriben nada. */
+function editAction(context: MatrixContext, kind: 'diagnosis' | 'cost'): MatrixAction {
+  const { prisma, owner, sessions, orderId } = context;
+  const run = kind === 'diagnosis' ? saveDiagnosis : saveEstimatedCost;
+  return {
+    name: kind === 'diagnosis' ? 'saveDiagnosis (CHG-11)' : 'saveEstimatedCost (CHG-11)',
+    invoke: async (token) => {
+      // La versión vigente: un rechazo SIN sesión debe deberse a la sesión, nunca a una versión desfasada.
+      const version = Number((await owner.query('SELECT version FROM repair_orders WHERE id = $1', [orderId])).rows[0]!.version);
+      return guardAdminAction(
+        () => sessions.authenticate(token),
+        (admin: AdminContext) =>
+          run(
+            admin,
+            kind === 'diagnosis'
+              ? { orderId, diagnosis: 'Diagnóstico de la matriz', expectedVersion: version }
+              : { orderId, estimatedCost: '123.45', expectedVersion: version },
+            { store: createOrderEditStore(prisma), now: () => new Date() },
+          ),
+      );
+    },
+    snapshot: async () => {
+      const orders = await owner.query('SELECT status::text AS status, version, diagnosis, estimated_cost::text AS cost FROM repair_orders WHERE id = $1', [orderId]);
+      const diagnosis = await owner.query('SELECT count(*)::int AS n FROM diagnosis_history WHERE order_id = $1', [orderId]);
+      const cost = await owner.query('SELECT count(*)::int AS n FROM cost_history WHERE order_id = $1', [orderId]);
+      return JSON.stringify({ orders: orders.rows, diagnosisEvents: diagnosis.rows, costEvents: cost.rows });
+    },
+    succeeded: (result) => result.ok && (result.data as { changed?: boolean } | undefined)?.changed === true,
+  };
+}
+
 /** Todas las acciones administrativas registradas. Los changes posteriores añaden aquí las suyas. */
 export function registeredActions(context: MatrixContext): readonly MatrixAction[] {
-  return [exampleAdminAction(context), transitionAction(context)];
+  return [exampleAdminAction(context), transitionAction(context), editAction(context, 'diagnosis'), editAction(context, 'cost')];
 }

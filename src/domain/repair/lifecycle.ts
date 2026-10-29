@@ -94,3 +94,21 @@ export function presentTransitions(status: OrderStatus, hasDiagnosisAndCost: boo
 export const ALL_STATUS_PAIRS: readonly (readonly [OrderStatus, OrderStatus])[] = ORDER_STATUSES.flatMap((from) =>
   ORDER_STATUSES.map((to) => [from, to] as const),
 );
+
+/**
+ * Diagnóstico y costo son editables SOLO en los tres primeros estados (CHG-11 D4). Desde Esperando aprobación quedan
+ * congelados y en Entregado/Cancelado son de solo lectura. La interfaz lo usa como indicación; el servidor lo recalcula.
+ */
+export function canEditDiagnosisAndCost(status: OrderStatus): boolean {
+  return status === 'SOLICITUD_RECIBIDA' || status === 'EQUIPO_RECIBIDO' || status === 'EN_DIAGNOSTICO';
+}
+
+/**
+ * ¿Se publican al cliente el diagnóstico y el costo? (CHG-11 D6): se derivan del ESTADO, nunca de que los valores
+ * existan. Públicos en Esperando aprobación, En reparación, Listo para recojo y Entregado; en Cancelado solo si la orden
+ * llegó alguna vez a Esperando aprobación (`reachedApproval`, decidido por el recorrido real de la orden).
+ */
+export function isDiagnosisAndCostPublic(status: OrderStatus, reachedApproval: boolean): boolean {
+  if (status === 'CANCELADO') return reachedApproval;
+  return status === 'ESPERANDO_APROBACION' || status === 'EN_REPARACION' || status === 'LISTO_PARA_RECOJO' || status === 'ENTREGADO';
+}

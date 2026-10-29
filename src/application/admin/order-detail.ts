@@ -1,6 +1,6 @@
 import 'server-only';
 import { parseOrderId, type AdminOrderDetailDTO } from '../../domain/admin/order-detail';
-import { presentTransitions } from '../../domain/repair/lifecycle';
+import { canEditDiagnosisAndCost, presentTransitions } from '../../domain/repair/lifecycle';
 import { createAdminOrderDetailStore, type AdminOrderDetailStore } from '../../infrastructure/admin/admin-order-detail-store';
 import type { AdminContext } from './admin-context';
 
@@ -20,6 +20,12 @@ export async function getAdminOrderDetail(
   if (id === null) return null;
   const record = await store.findById(id);
   if (record === null) return null;
-  const { hasDiagnosisAndCost, ...detail } = record;
-  return { ...detail, allowedTransitions: presentTransitions(record.status, hasDiagnosisAndCost) };
+  const { reachedApproval, ...detail } = record;
+  const hasDiagnosisAndCost = record.diagnosis !== null && record.diagnosis.trim() !== '' && record.estimatedCost !== null;
+  return {
+    ...detail,
+    allowedTransitions: presentTransitions(record.status, hasDiagnosisAndCost),
+    canEditDiagnosisAndCost: canEditDiagnosisAndCost(record.status),
+    neverPublished: record.status === 'CANCELADO' && !reachedApproval,
+  };
 }
