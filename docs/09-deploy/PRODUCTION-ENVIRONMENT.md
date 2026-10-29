@@ -58,6 +58,7 @@ Cada despliegue deja identificables, en los registros de plataforma y en la tabl
 | Fecha (UTC) | SHA | Despliegue | Migración (PR, identidad) | Smoke | Resultado |
 |---|---|---|---|---|---|
 | 2026-10-28 | `665bd64` (línea base previa) | Production por integración Git (sin base de datos configurada) | — | 12/12 contra la URL pública, solo lectura | `/consultar` y `/registrar` cargan; las acciones fallan de forma segura sin base de datos |
+| 2026-10-28 | `0c381c6` | Production por integración Git (verificada con rollback y Promote) | PR #5, identidad `2f3a34b7…83b8` | 12/12 | Migración aplicada; privilegios OK |
 
 ## Observabilidad y riesgos
 
@@ -65,3 +66,19 @@ Cada despliegue deja identificables, en los registros de plataforma y en la tabl
 - La demo pública puede recibir datos reales: no se afirma que Production contenga solo datos ficticios; el aviso y las protecciones de PII siguen vigentes.
 - Sin respaldo independiente fuera de Neon (riesgo 15 del TD, aceptado; CHG-15 verifica que siga explícito). Sin SLA, alta disponibilidad, RPO ni RTO.
 - Fallo cerrado del limitador y arranque en frío de Neon pueden reducir la disponibilidad de la demo (riesgos 7 y 13).
+
+## Evidencia de la línea base (2026-10-28)
+
+| Comprobación | Resultado |
+|---|---|
+| Migración `20261028062222_init` | Aplicada por `migrate-production` (run 40757447307, aprobado en el Environment `production`); esquema al día. SHA fuente `7aa4bc1c4c52b203e72dfc5f5cea4d4ea982ea39`, identidad `2f3a34b7ea4fcf84f35de5eb1200c93c39ef1b205bec71d33fde018b7c3a83b8` |
+| Auditoría posterior | `ops:migration-identity` sobre `main` (`0c381c6`) = identidad migrada |
+| Entradas inválidas | Identidad errónea, SHA corto y rama de recuperación sin confirmar fallan en `verify`; `migrate` se omite |
+| Privilegios del runtime | `ops:privileges` OK contra Production (ejecutado por el propietario) |
+| Smoke | 12/12 tras la migración y tras el rollback + *Promote* |
+| Rollback de aplicación | *Instant Rollback* y *Promote* realizados por el propietario; Production restaurada a `0c381c6` |
+| Vercel | Node 24.x, rama `main`, sin autenticación de plataforma, región `gru1`; variables solo en Production |
+| Neon | Rama `pre-release-2026-10-28` desde `main`, sin conexiones de Preview. Plan Free; ventana de restauración de 6 horas; sin respaldo independiente fuera de Neon (riesgo aceptado) |
+| AV-3 | Variables inyectadas y conexión como `fixora_app` verificadas con una consulta real de solo lectura. Fuente de IP real **no verificada** (residuo para CHG-14) |
+
+Estado de despliegue: Production es la demo pública; puede recibir datos reales. Sin seeds ni datos ficticios.
