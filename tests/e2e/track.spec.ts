@@ -35,7 +35,7 @@ const PRIVATE = {
 type Event = { from: string | null; to: string; at: string };
 
 /** Crea una orden poblada con datos privados y devuelve su código. */
-async function createOrder(status: string, events: Event[], model: string | null = 'A54'): Promise<string> {
+async function createOrder(status: string, events: Event[], model: string | null = 'A54', withPublicNote = false): Promise<string> {
   const code = randomCode();
   await withOwner(async (db) => {
     const id = randomUUID();
@@ -52,11 +52,18 @@ async function createOrder(status: string, events: Event[], model: string | null
         [randomUUID(), id, event.from, event.to, event.at],
       );
     }
+    // La nota INTERNA siempre existe (nunca debe salir). La PÚBLICA (CHG-12) solo cuando la prueba la espera.
     await db.query(
       `INSERT INTO order_notes (id, order_id, visibility, content, version, created_at, updated_at)
-       VALUES ($1, $3, 'INTERNAL', $4, 1, now(), now()), ($2, $3, 'PUBLIC', $5, 1, now(), now())`,
-      [randomUUID(), randomUUID(), id, PRIVATE.internalNote, PRIVATE.publicNote],
+       VALUES ($1, $2, 'INTERNAL', $3, 1, now(), now())`,
+      [randomUUID(), id, PRIVATE.internalNote],
     );
+    if (withPublicNote) {
+      await db.query(
+        `INSERT INTO order_notes (id, order_id, visibility, content, version, created_at, updated_at) VALUES ($1, $2, 'PUBLIC', $3, 1, now(), now())`,
+        [randomUUID(), id, PRIVATE.publicNote],
+      );
+    }
   });
   return code;
 }
@@ -160,7 +167,7 @@ test.describe('PUB-05 resultado', () => {
       ...FLOW,
       { from: 'EQUIPO_RECIBIDO', to: 'EN_DIAGNOSTICO', at: '2026-10-22T15:00:00Z' },
       { from: 'EN_DIAGNOSTICO', to: 'ESPERANDO_APROBACION', at: '2026-10-23T15:00:00Z' },
-    ]);
+    ], 'A54', true);
     await isolate(page);
     const bodies: string[] = [];
     page.on('response', async (response: Response) => {
@@ -173,13 +180,15 @@ test.describe('PUB-05 resultado', () => {
 
     const everything = [await page.content(), await page.locator('body').innerText(), ...bodies].join('\n');
     expect(bodies.length).toBeGreaterThan(0);
-    for (const secret of ['CANARY-NOMBRE', 'Ana Quispe', 'CANARY-TELEFONO', 'canary-correo', 'CANARY-NOTA-INTERNA', 'CANARY-NOTA-PUBLICA']) {
+    for (const secret of ['CANARY-NOMBRE', 'Ana Quispe', 'CANARY-TELEFONO', 'canary-correo', 'CANARY-NOTA-INTERNA']) {
       expect(everything, secret).not.toContain(secret);
     }
     // Desde Esperando aprobación el diagnóstico y el costo SÍ son públicos (CHG-11): solo sus valores vigentes.
     await expect(page.getByTestId('repair-details')).toBeVisible();
     await expect(page.getByTestId('public-cost')).toHaveText('S/ 321.50');
     await expect(page.getByTestId('public-diagnosis')).toHaveText('CANARY-DIAGNOSTICO pantalla');
+    // CHG-12: la nota PÚBLICA sí es visible (solo contenido y fecha); la interna nunca.
+    await expect(page.getByTestId('public-note-content')).toHaveText('CANARY-NOTA-PUBLICA');
     await expect(page.getByTestId('more-info-empty')).toHaveCount(0);
   });
 

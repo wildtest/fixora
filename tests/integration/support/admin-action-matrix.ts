@@ -4,8 +4,10 @@ import type { AdminContext } from '../../../src/application/admin/admin-context'
 import type { SessionService } from '../../../src/application/admin/session-service';
 import type { ActionResult } from '../../../src/application/action-result';
 import { saveDiagnosis, saveEstimatedCost } from '../../../src/application/admin/edit-diagnosis-cost';
+import { createNote, deleteNote, editNote } from '../../../src/application/admin/order-notes';
 import { transitionOrder } from '../../../src/application/admin/transition-order';
 import type { PrismaClient } from '../../../src/infrastructure/db/generated/client.ts';
+import { createOrderNotesStore } from '../../../src/infrastructure/admin/order-notes-store';
 import { createOrderEditStore } from '../../../src/infrastructure/admin/order-edit-store';
 import { createOrderTransitionStore } from '../../../src/infrastructure/admin/order-transition-store';
 
@@ -112,7 +114,38 @@ function editAction(context: MatrixContext, kind: 'diagnosis' | 'cost'): MatrixA
   };
 }
 
+/** CHG-12: `createNote`, `editNote` y `deleteNote`. Sin sesión válida no leen ni escriben nada (ni siquiera bloquean la orden). */
+function noteAction(context: MatrixContext, kind: 'create' | 'edit' | 'delete'): MatrixAction {
+  const { prisma, owner, sessions, orderId } = context;
+  const deps = () => ({ store: createOrderNotesStore(prisma), now: () => new Date() });
+  return {
+    name: `${kind}Note (CHG-12)`,
+    invoke: async (token) => {
+      // Una nota existente con su versión vigente: un rechazo SIN sesión debe deberse a la sesión, nunca a una versión desfasada.
+      const note = (await owner.query('SELECT id::text AS id, version FROM order_notes WHERE order_id = $1 ORDER BY created_at, id LIMIT 1', [orderId])).rows[0];
+      const noteId = (note?.id as string | undefined) ?? '00000000-0000-4000-8000-000000000000';
+      const expectedNoteVersion = Number(note?.version ?? 1);
+      return guardAdminAction(
+        () => sessions.authenticate(token),
+        (admin: AdminContext) =>
+          (kind === 'create'
+            ? createNote(admin, { orderId, visibility: 'INTERNAL', content: 'Nota de la matriz' }, deps())
+            : kind === 'edit'
+              ? editNote(admin, { orderId, noteId, expectedNoteVersion, content: `Editada por la matriz ${Date.now()}` }, deps())
+              : deleteNote(admin, { orderId, noteId, expectedNoteVersion }, deps())) as unknown as Promise<ActionResult<unknown, never>>,
+      );
+    },
+    snapshot: async () => {
+      const orders = await owner.query('SELECT status::text AS status, version, updated_at FROM repair_orders WHERE id = $1', [orderId]);
+      const notes = await owner.query('SELECT id::text AS id, visibility::text AS v, content, version, updated_at FROM order_notes WHERE order_id = $1 ORDER BY id', [orderId]);
+      return JSON.stringify({ orders: orders.rows, notes: notes.rows });
+    },
+    succeeded: (result) => result.ok,
+  };
+}
+
 /** Todas las acciones administrativas registradas. Los changes posteriores añaden aquí las suyas. */
 export function registeredActions(context: MatrixContext): readonly MatrixAction[] {
-  return [exampleAdminAction(context), transitionAction(context), editAction(context, 'diagnosis'), editAction(context, 'cost')];
+  return [exampleAdminAction(context), transitionAction(context), editAction(context, 'diagnosis'), editAction(context, 'cost'),
+    noteAction(context, 'create'), noteAction(context, 'edit'), noteAction(context, 'delete')];
 }

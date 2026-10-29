@@ -1,4 +1,5 @@
 import type { DeviceType } from '../repair/device-type';
+import type { AdminNote } from '../repair/note';
 import type { AllowedTransition } from '../repair/lifecycle';
 import type { OrderStatus } from '../repair/order-status';
 import type { PublicStatusEvent } from '../repair/public-order-view';
@@ -7,7 +8,7 @@ import type { PublicStatusEvent } from '../repair/public-order-view';
 // propiedad por propiedad con lo que esta pantalla presenta. Es distinto y NO asignable al `PublicOrderView`.
 // CHG-10 añade `version` (no se muestra: solo alimenta `expectedVersion`) y `allowedTransitions` (indicación de
 // presentación, nunca autoridad). CHG-11 añade el diagnóstico, el costo, el historial combinado y las indicaciones de
-// edición/publicación. Excluidos a propósito: notas (CHG-12), capacidades de datos básicos (CHG-13) y `updatedAt`.
+// edición/publicación. CHG-12 añade las notas. Excluidos a propósito: capacidades de datos básicos (CHG-13) y `updatedAt`.
 // Puro e isomórfico.
 
 export type AdminStatusEvent = {
@@ -41,6 +42,9 @@ export type AdminOrderDetailDTO = {
   readonly statusHistory: readonly AdminStatusEvent[];
   /** Historial combinado de estado, diagnóstico y costo, del más reciente al más antiguo con orden estable. */
   readonly history: readonly AdminHistoryEvent[];
+  /** Notas públicas e internas (CHG-12), la más reciente primero. Sin autor ni «editada». */
+  readonly publicNotes: readonly AdminNote[];
+  readonly internalNotes: readonly AdminNote[];
   /** Versión de la orden revisada: el cambio de estado debe devolverla como `expectedVersion`. */
   readonly version: number;
   /** Qué puede ofrecer la interfaz para el estado actual; el servidor lo recalcula en cada acción. */
@@ -49,12 +53,14 @@ export type AdminOrderDetailDTO = {
   readonly canEditDiagnosisAndCost: boolean;
   /** Orden cancelada que nunca alcanzó Esperando aprobación: sus valores nunca se publicaron al cliente. */
   readonly neverPublished: boolean;
+  /** Indicación (el servidor lo recalcula): notas gestionables en los seis estados no finales. */
+  readonly canManageNotes: boolean;
 };
 
 /** Claves permitidas del DTO (lista positiva); las pruebas las comparan con lo que realmente sale. */
 export const DETAIL_KEYS = [
-  'allowedTransitions', 'canEditDiagnosisAndCost', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history', 'id',
-  'neverPublished', 'problemDescription', 'status', 'statusHistory', 'trackingCode', 'version',
+  'allowedTransitions', 'canEditDiagnosisAndCost', 'canManageNotes', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history',
+  'id', 'internalNotes', 'neverPublished', 'problemDescription', 'publicNotes', 'status', 'statusHistory', 'trackingCode', 'version',
 ] as const;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

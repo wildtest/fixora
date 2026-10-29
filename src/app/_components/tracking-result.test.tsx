@@ -14,6 +14,7 @@ const VIEW: PublicOrderView = {
     { status: 'SOLICITUD_RECIBIDA', occurredAt: '2026-10-20T15:05:00.000Z' },
   ],
   repairDetails: null,
+  publicNotes: [],
 };
 
 describe('TrackingResult (PUB-05) [SC-02] [SC-11]', () => {
@@ -100,5 +101,29 @@ describe('LookupAlert (DESIGN.md §13.2 y A.5)', () => {
     for (const html of [notFound, limited, unavailable]) {
       expect(html).not.toMatch(/RATE_LIMITED|SERVICE_UNAVAILABLE|TRACKING_NOT_FOUND|casi/);
     }
+  });
+});
+
+describe('TrackingResult — notas públicas (CHG-12) [SC-11]', () => {
+  const withNotes = (notes: PublicOrderView['publicNotes'], repairDetails: PublicOrderView['repairDetails'] = null) =>
+    renderToStaticMarkup(<TrackingResult order={{ ...VIEW, publicNotes: notes, repairDetails }} />);
+
+  it('muestra las notas como texto escapado, en el orden recibido (más reciente primero), en una sección propia', () => {
+    const html = withNotes([
+      { content: 'Segunda <b>nota</b>', createdAt: '2026-10-22T15:00:00.000Z' },
+      { content: 'Primera', createdAt: '2026-10-21T15:00:00.000Z' },
+    ]);
+    expect(html).toContain('data-testid="public-notes"');
+    expect(html).toContain('Segunda &lt;b&gt;nota&lt;/b&gt;');
+    expect(html.indexOf('Segunda')).toBeLessThan(html.indexOf('Primera'));
+    expect(html).not.toContain('more-info-empty');
+  });
+
+  it('sin notas ni diagnóstico: vacío informativo (E6); con diagnóstico y sin notas no hay sección de notas', () => {
+    expect(withNotes([])).toContain('more-info-empty');
+    const details = withNotes([], { diagnosis: 'Placa', estimatedCost: '10.00' });
+    expect(details).toContain('data-testid="repair-details"');
+    expect(details).not.toContain('public-notes');
+    expect(details).not.toContain('more-info-empty');
   });
 });

@@ -77,7 +77,7 @@ describe('detalle de una orden existente', () => {
     });
   });
 
-  it('sin sobrecarga: no devuelve notas ni nada de funciones futuras; el diagnóstico, el costo y sus historiales son administrativos', async () => {
+  it('sin sobrecarga: ni capacidades de funciones futuras ni indicadores internos; las notas (CHG-12), el diagnóstico, el costo y sus historiales son administrativos', async () => {
     const id = await insertOrder();
     await owner.query(
       `INSERT INTO order_notes (id, order_id, visibility, content, version, created_at, updated_at)
@@ -87,7 +87,11 @@ describe('detalle de una orden existente', () => {
     await owner.query("INSERT INTO diagnosis_history (id, order_id, previous_value, new_value, occurred_at) VALUES ($1, $2, NULL, 'CANARY-HIST-DIAGNOSTICO', now())", [randomUUID(), id]);
     await owner.query('INSERT INTO cost_history (id, order_id, previous_value, new_value, occurred_at) VALUES ($1, $2, NULL, 777.77, now())', [randomUUID(), id]);
     const json = JSON.stringify(await getAdminOrderDetail(admin, id, store()));
-    expect(json).not.toMatch(/CANARY-NOTA|"notes"|"publicNotes"|"capabilities"|hasDiagnosisAndCost|reachedApproval|"published"/);
+    expect(json).not.toMatch(/"notes"|"capabilities"|hasDiagnosisAndCost|reachedApproval|"published"/);
+    // CHG-12: cada nota va en SU lista según la visibilidad.
+    const detail = JSON.parse(json) as { publicNotes: { content: string }[]; internalNotes: { content: string }[] };
+    expect(detail.publicNotes.map((n) => n.content)).toEqual(['CANARY-NOTA-PUBLICA']);
+    expect(detail.internalNotes.map((n) => n.content)).toEqual(['CANARY-NOTA-INTERNA']);
     // CHG-11: el diagnóstico, el costo (exacto, dos decimales) y sus historiales sí forman parte de la lectura administrativa.
     expect(json).toContain('CANARY-DIAGNOSTICO');
     expect(json).toContain('"estimatedCost":"321.50"');
@@ -95,12 +99,12 @@ describe('detalle de una orden existente', () => {
     expect(json).toContain('"next":"777.77"');
   });
 
-  it('el repositorio no menciona notas, columnas de otras funciones ni SQL sin parametrizar', () => {
+  it('el repositorio solo lee las notas de la orden y no menciona columnas de otras funciones ni SQL sin parametrizar', () => {
     const source = readFileSync('src/infrastructure/admin/admin-order-detail-store.ts', 'utf8')
       .split('\n')
       .filter((line) => !line.trim().startsWith('//'))
       .join('\n');
-    for (const forbidden of ['updated_at', 'order_notes', 'queryRawUnsafe']) {
+    for (const forbidden of ['updated_at', 'queryRawUnsafe']) {
       expect(source, forbidden).not.toContain(forbidden);
     }
   });
@@ -185,7 +189,7 @@ describe('regresión de SC-11: lo administrativo no llega a la consulta pública
     expect(publicView).not.toBeNull();
     const json = JSON.stringify(publicView);
     expect(json).not.toMatch(/CANARY|canary|Quispe|id"|statusHistory|customer|phone|email|fromStatus|321|"version"/);
-    expect(Object.keys(publicView!).sort()).toEqual(['device', 'problemDescription', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
+    expect(Object.keys(publicView!).sort()).toEqual(['device', 'problemDescription', 'publicNotes', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
     expect(publicView!.repairDetails).toBeNull(); // la orden no llegó a Esperando aprobación
   });
 

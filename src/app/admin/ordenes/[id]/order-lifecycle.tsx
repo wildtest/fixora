@@ -49,6 +49,7 @@ const DIALOGS: Partial<Record<OrderStatus, DialogSpec>> = {
   CANCELADO: {
     variant: "destructive",
     title: (code) => `¿Cancelar la orden ${code}?`,
+    description: "Si quieres dejar una explicación pública o interna, regístrala antes de confirmar.",
     alert: { variant: "error", title: "Acción irreversible.", text: "La orden quedará cerrada y no podrá reabrirse." },
   },
   ENTREGADO: {

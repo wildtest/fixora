@@ -178,7 +178,8 @@ test.describe('diálogos E11 irreversibles', () => {
     await expect(d.getByTestId('confirm-chip')).toHaveText('Equipo recibido → Cancelado');
     await expect(d).toContainText('Acción irreversible.');
     await expect(d).toContainText('La orden quedará cerrada y no podrá reabrirse.');
-    await expect(d).not.toContainText(/regístrala antes de confirmar|motivo|Agregar nota/i);
+    await expect(d).toContainText('Si quieres dejar una explicación pública o interna, regístrala antes de confirmar.'); // E14: nota opcional, sin campo en el diálogo
+    await expect(d).not.toContainText(/motivo|Agregar nota/i);
     await expect(d.locator('textarea, input')).toHaveCount(0);
     await expect(d.getByRole('button', { name: 'Volver' })).toBeFocused();
     await d.getByRole('button', { name: 'Volver' }).click();
