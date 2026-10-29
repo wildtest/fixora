@@ -6,7 +6,7 @@
 
 - [x] 1.1 Confirmar el DoR (CHG-02 y CHG-03 archivados, AV-2 aprobado, cuentas y aprobaciones de Vercel, Neon y GitHub); se verifica con una nota de aprobación en el change.
 - [x] 1.2 Preflight de Vercel: Node 24, Production Branch, acceso del recurso solo a Production, comportamiento de Preview, elegibilidad de Instant Rollback y región; se verifica con una nota que registra cada capacidad como disponible, no disponible o con alternativa.
-- [ ] 1.3 Preflight de Neon: modo de integración de Marketplace, conexiones *pooled* y directa, creación de roles, plan, retención y capacidades de recuperación; se verifica con una nota equivalente.
+- [x] 1.3 Preflight de Neon: modo de integración de Marketplace, conexiones *pooled* y directa, creación de roles, plan, retención y capacidades de recuperación; se verifica con una nota equivalente.
 - [x] 1.4 Preflight de GitHub: entorno `production`, restricción a `main`, aprobación requerida según el plan, permisos del workflow y mecanismo para validar el SHA exacto; se verifica con una nota equivalente. Si la restricción, la aprobación humana o la prevención de autorevisión no están disponibles, **detener esta parte y solicitar decisión**; no se sustituye por un secreto global, `DIRECT_URL` en Vercel ni una aprobación informal.
 - [x] 1.5 Preflight de toolchain: `prisma migrate deploy` con Prisma 7, `npm ci --ignore-scripts` y carga de configuración (consume la solución de CHG-02/AV-2); se verifica con una nota de decisión.
 
@@ -47,7 +47,7 @@
 
 - [x] 7.1 Redactar en `docs/09-deploy/` los runbooks de migración, de recuperación y *break-glass* (aplicación frente a BD separados); se verifica con la revisión de que no confunden rollback con recuperación.
 - [x] 7.2 Probar el rollback de aplicación en un entorno seguro y verificar el estado de la asignación automática de Production; se verifica con el registro de la prueba.
-- [ ] 7.3 Registrar las capacidades reales de recuperación de Neon y el riesgo residual de ausencia de respaldo independiente; se verifica con la nota en `docs/09-deploy/`.
+- [x] 7.3 Registrar las capacidades reales de recuperación de Neon y el riesgo residual de ausencia de respaldo independiente; se verifica con la nota en `docs/09-deploy/`.
 
 ## 8. Verificación final
 
@@ -56,7 +56,7 @@
 
 ## Notas de implementación (2026-10-28)
 
-**Estado: 26/28 tareas completas (2026-10-28). Pendientes por datos que solo ve el propietario: 1.3 y 7.3 (plan de Neon y ventana de restauración, no reportados). Evidencia de Production en `docs/09-deploy/PRODUCTION-ENVIRONMENT.md`.**
+**Estado: 28/28 tareas completas (2026-10-28). Evidencia de Production en `docs/09-deploy/PRODUCTION-ENVIRONMENT.md`.**
 
 **Hecho en el repositorio y verificado**
 - **1.1 DoR.** CHG-01…06 archivados (`main` 665bd64). El usuario autorizó la ejecución autónoma de CHG-07.
@@ -93,3 +93,4 @@
 - **AV-3 (6.3).** La aplicación desplegada conecta con Neon `main` como `fixora_app` (pooled): una consulta de un código inexistente devuelve «No encontramos una reparación con ese código», no el error genérico, lo que implica que el limitador escribió y la lectura de `repair_orders` funcionó. Variables inyectadas: las únicas de BD son las dos esperadas. La fuente de IP (`x-vercel-forwarded-for`) no se verificó con un valor real: requeriría leer buckets del limitador en Production; queda como residuo para CHG-14.
 - **Auditoría posterior (8.2).** `npm run ops:migration-identity` sobre `main` (0c381c6) = `2f3a34b7…83b8`, igual a lo migrado.
 - **Preview (2.2).** El Preview de la PR #6 compila, es público, renderiza `/consultar` y, al consultar un código, muestra «Servicio no disponible temporalmente» (fallo controlado sin base de datos).
+- **Neon (1.3, 7.3).** Plan Free; ventana de restauración de 6 horas; rama `pre-release-2026-10-28` creada desde `main`, sin conexiones de Preview. Conexiones pooled (runtime) y directa (migrador) verificadas por uso real. Riesgo residual: 6 horas de historial y ningún respaldo independiente fuera de Neon (riesgo 15 del TD, aceptado); la recuperación de la BD es excepcional y manual (RUNBOOKS §2.3).

@@ -58,6 +58,7 @@ Cada despliegue deja identificables, en los registros de plataforma y en la tabl
 | Fecha (UTC) | SHA | Despliegue | Migración (PR, identidad) | Smoke | Resultado |
 |---|---|---|---|---|---|
 | 2026-10-28 | `665bd64` (línea base previa) | Production por integración Git (sin base de datos configurada) | — | 12/12 contra la URL pública, solo lectura | `/consultar` y `/registrar` cargan; las acciones fallan de forma segura sin base de datos |
+| 2026-10-28 | `0c381c6` | Production por integración Git (verificada con rollback y Promote) | PR #5, identidad `2f3a34b7…83b8` | 12/12 | Migración aplicada; privilegios OK |
 
 ## Observabilidad y riesgos
 
@@ -77,7 +78,7 @@ Cada despliegue deja identificables, en los registros de plataforma y en la tabl
 | Smoke | 12/12 tras la migración y tras el rollback + *Promote* |
 | Rollback de aplicación | *Instant Rollback* y *Promote* realizados por el propietario; Production restaurada a `0c381c6` |
 | Vercel | Node 24.x, rama `main`, sin autenticación de plataforma, región `gru1`; variables solo en Production |
-| Neon | Rama `pre-release-2026-10-28` desde `main`, sin conexiones de Preview. **Plan y ventana de restauración: no reportados** |
+| Neon | Rama `pre-release-2026-10-28` desde `main`, sin conexiones de Preview. Plan Free; ventana de restauración de 6 horas; sin respaldo independiente fuera de Neon (riesgo aceptado) |
 | AV-3 | Variables inyectadas y conexión como `fixora_app` verificadas con una consulta real de solo lectura. Fuente de IP real **no verificada** (residuo para CHG-14) |
 
 Estado de despliegue: Production es la demo pública; puede recibir datos reales. Sin seeds ni datos ficticios.
