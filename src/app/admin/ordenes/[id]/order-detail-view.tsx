@@ -1,6 +1,4 @@
-import type { ReactNode } from "react";
-import { ABSENT_TEXT, journeyTimeline, type AdminHistoryEvent, type AdminOrderDetailDTO } from "@/domain/admin/order-detail";
-import { DEVICE_TYPE_LABELS } from "@/domain/repair/device-type";
+import { journeyTimeline, type AdminHistoryEvent, type AdminOrderDetailDTO } from "@/domain/admin/order-detail";
 import { formatLimaDateTime } from "@/domain/repair/format-date";
 import { buildJourney } from "@/domain/repair/journey";
 import { formatSoles } from "@/domain/repair/money";
@@ -9,6 +7,7 @@ import { DescriptionIcon, LockIcon, PaymentsIcon, SyncAltIcon, VisibilityIcon } 
 import { RepairJourney } from "../../../_components/repair-journey";
 import { StatusBadge } from "../../../_components/tracking-result";
 import { DiagnosisCostPanel } from "./diagnosis-cost-panel";
+import { BasicDataBar, BasicDataProvider, InternalBasicData, PublicBasicData } from "./basic-data";
 import { NotesPanel } from "./notes-panel";
 import { OrderLifecycle } from "./order-lifecycle";
 
@@ -17,19 +16,6 @@ import { OrderLifecycle } from "./order-lifecycle";
 // Público e Interno (DESIGN §9, cinco señales: etiqueta textual, icono, encabezado, tipo de borde y posición). Las
 // notas (CHG-12) viven en cada bloque según su visibilidad; sin marcadores vacíos de funciones futuras (la corrección, CHG-13).
 // Todo contenido del cliente se renderiza como texto (React lo escapa) y se ajusta sin desbordar la página.
-
-function Field({ label, children, testId }: { label: string; children: ReactNode; testId?: string }) {
-  return (
-    <div>
-      <dt className="text-label text-content-secondary">{label}</dt>
-      <dd data-testid={testId} className="mt-0.5 whitespace-pre-wrap break-words text-body text-content [overflow-wrap:anywhere]">
-        {children}
-      </dd>
-    </div>
-  );
-}
-
-const absent = <span className="text-content-muted">{ABSENT_TEXT}</span>;
 
 const NO_DIAGNOSIS = "sin diagnóstico";
 const NO_COST = "sin costo";
@@ -109,7 +95,18 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
         summary={{ diagnosis: order.diagnosis, estimatedCost: order.estimatedCost }}
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+      <BasicDataProvider
+        order={{
+          orderId: order.id,
+          version: order.version,
+          canEdit: order.canEditBasicData,
+          customer: order.customer,
+          device: order.device,
+          problemDescription: order.problemDescription,
+        }}
+      >
+      <BasicDataBar />
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
         <section aria-labelledby="bloque-publico" data-testid="block-public" className="overflow-hidden rounded-md border border-info-line bg-surface">
           <header className="flex items-start gap-3 border-b border-info-line bg-primary-subtle px-4 py-3">
             <span className="mt-0.5 text-primary-active">
@@ -122,16 +119,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
               <p className="text-small text-content-secondary">Lo que el cliente puede ver con su código</p>
             </div>
           </header>
-          <dl className="space-y-4 px-4 py-4">
-            <Field label="Tipo de equipo">{DEVICE_TYPE_LABELS[order.device.type]}</Field>
-            <Field label="Marca">{order.device.brand}</Field>
-            <Field label="Modelo" testId="detail-model">
-              {order.device.model ?? absent}
-            </Field>
-            <Field label="Descripción del problema" testId="detail-problem">
-              {order.problemDescription}
-            </Field>
-          </dl>
+          <PublicBasicData />
           <div className="space-y-4 border-t border-line px-4 py-4" data-testid="diagnosis-cost">
             <DiagnosisCostPanel
               orderId={order.id}
@@ -161,17 +149,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
             </div>
           </header>
           <div className="space-y-6 px-4 py-4">
-            <dl className="space-y-4">
-              <Field label="Nombre" testId="detail-name">
-                {order.customer.name}
-              </Field>
-              <Field label="Teléfono" testId="detail-phone">
-                {order.customer.phone}
-              </Field>
-              <Field label="Correo" testId="detail-email">
-                {order.customer.email ?? absent}
-              </Field>
-            </dl>
+            <InternalBasicData />
 
             <NotesPanel orderId={order.id} visibility="INTERNAL" notes={order.internalNotes} canManage={order.canManageNotes} />
 
@@ -194,6 +172,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
           </div>
         </section>
       </div>
+      </BasicDataProvider>
     </div>
   );
 }

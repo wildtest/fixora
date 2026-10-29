@@ -4,9 +4,11 @@ import type { AdminContext } from '../../../src/application/admin/admin-context'
 import type { SessionService } from '../../../src/application/admin/session-service';
 import type { ActionResult } from '../../../src/application/action-result';
 import { saveDiagnosis, saveEstimatedCost } from '../../../src/application/admin/edit-diagnosis-cost';
+import { saveBasicOrderData } from '../../../src/application/admin/edit-basic-data';
 import { createNote, deleteNote, editNote } from '../../../src/application/admin/order-notes';
 import { transitionOrder } from '../../../src/application/admin/transition-order';
 import type { PrismaClient } from '../../../src/infrastructure/db/generated/client.ts';
+import { createOrderDataStore } from '../../../src/infrastructure/admin/order-data-store';
 import { createOrderNotesStore } from '../../../src/infrastructure/admin/order-notes-store';
 import { createOrderEditStore } from '../../../src/infrastructure/admin/order-edit-store';
 import { createOrderTransitionStore } from '../../../src/infrastructure/admin/order-transition-store';
@@ -144,8 +146,47 @@ function noteAction(context: MatrixContext, kind: 'create' | 'edit' | 'delete'):
   };
 }
 
+/** CHG-13: `saveBasicOrderData` (corrección conjunta de datos básicos). Sin sesión válida no lee ni escribe nada. */
+export function basicDataAction(context: MatrixContext): MatrixAction {
+  const { prisma, owner, sessions, orderId } = context;
+  return {
+    name: 'saveBasicOrderData (CHG-13)',
+    invoke: async (token) => {
+      // La versión vigente: un rechazo SIN sesión debe deberse a la sesión, nunca a una versión desfasada.
+      const version = Number((await owner.query('SELECT version FROM repair_orders WHERE id = $1', [orderId])).rows[0]!.version);
+      return guardAdminAction(
+        () => sessions.authenticate(token),
+        (admin: AdminContext) =>
+          saveBasicOrderData(
+            admin,
+            {
+              orderId,
+              expectedVersion: version,
+              customerName: 'Nombre de la matriz',
+              customerPhone: '+51 999 000 111',
+              customerEmail: '',
+              deviceType: 'LAPTOP',
+              brand: `Marca de la matriz ${Date.now()}`,
+              model: '',
+              problemDescription: 'Descripción de la matriz',
+            },
+            { store: createOrderDataStore(prisma), now: () => new Date() },
+          ),
+      );
+    },
+    snapshot: async () => {
+      const { rows } = await owner.query(
+        'SELECT status::text AS status, version, updated_at, customer_name, customer_name_search, customer_phone, customer_email, device_type::text AS device_type, brand, model, problem_description FROM repair_orders WHERE id = $1',
+        [orderId],
+      );
+      return JSON.stringify(rows);
+    },
+    succeeded: (result) => result.ok && (result.data as { changed?: boolean } | undefined)?.changed === true,
+  };
+}
+
 /** Todas las acciones administrativas registradas. Los changes posteriores añaden aquí las suyas. */
 export function registeredActions(context: MatrixContext): readonly MatrixAction[] {
   return [exampleAdminAction(context), transitionAction(context), editAction(context, 'diagnosis'), editAction(context, 'cost'),
-    noteAction(context, 'create'), noteAction(context, 'edit'), noteAction(context, 'delete')];
+    noteAction(context, 'create'), noteAction(context, 'edit'), noteAction(context, 'delete'), basicDataAction(context)];
 }

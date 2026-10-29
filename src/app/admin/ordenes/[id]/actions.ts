@@ -2,6 +2,8 @@
 
 import type { ActionResult } from "@/application/action-result";
 import type { SessionExpiredCode } from "@/application/admin/admin-action";
+import type { BasicDataCode, BasicDataOutcome } from "@/application/admin/edit-basic-data";
+import { saveBasicOrderDataAction } from "@/application/admin/edit-basic-data-service";
 import type { EditCode, EditOutcome } from "@/application/admin/edit-diagnosis-cost";
 import type { ChangeNoteOutcome, CreateNoteOutcome, NoteCode } from "@/application/admin/order-notes";
 import { createNoteAction, deleteNoteAction, editNoteAction } from "@/application/admin/order-notes-service";
@@ -56,4 +58,21 @@ export async function editNote(request: EditNoteRequest): Promise<ActionResult<C
 
 export async function deleteNote(request: DeleteNoteRequest): Promise<ActionResult<{ readonly deleted: true }, NoteCode | SessionExpiredCode>> {
   return deleteNoteAction(authenticateRequest, request);
+}
+
+// --- CHG-13: corrección conjunta de los datos básicos (siete campos; versión de la orden; sin historial) ----------------
+export type SaveBasicDataRequest = {
+  readonly orderId: string;
+  readonly expectedVersion: number;
+  readonly customerName: string;
+  readonly customerPhone: string;
+  readonly customerEmail: string;
+  readonly deviceType: string;
+  readonly brand: string;
+  readonly model: string;
+  readonly problemDescription: string;
+};
+
+export async function saveBasicOrderData(request: SaveBasicDataRequest): Promise<ActionResult<BasicDataOutcome, BasicDataCode | SessionExpiredCode>> {
+  return saveBasicOrderDataAction(authenticateRequest, request);
 }

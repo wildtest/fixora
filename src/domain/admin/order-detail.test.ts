@@ -17,10 +17,10 @@ describe('identificador de la ruta del detalle', () => {
 describe('contrato del DTO y del recorrido', () => {
   it('lista positiva: notas con su capacidad, sin indicador «publicado» ni capacidades de funciones futuras', () => {
     expect([...DETAIL_KEYS]).toEqual([
-      'allowedTransitions', 'canEditDiagnosisAndCost', 'canManageNotes', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history', 'id',
+      'allowedTransitions', 'canEditBasicData', 'canEditDiagnosisAndCost', 'canManageNotes', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history', 'id',
       'internalNotes', 'neverPublished', 'problemDescription', 'publicNotes', 'status', 'statusHistory', 'trackingCode', 'version',
     ]);
-    for (const forbidden of ['notes', 'canEditBasicData', 'capabilities', 'updatedAt', 'published', 'publishedAt', 'reachedApproval']) {
+    for (const forbidden of ['notes', 'capabilities', 'updatedAt', 'published', 'publishedAt', 'reachedApproval']) {
       expect([...DETAIL_KEYS]).not.toContain(forbidden);
     }
   });
