@@ -23,7 +23,8 @@
     "test:smoke": "node node_modules/@playwright/test/cli.js test --config playwright.smoke.config.ts",
     "ops:privileges": "node --env-file-if-exists=.env.local scripts/verify-runtime-privileges.ts",
     "ops:migration-identity": "node scripts/migration-identity.ts",
-    "admin:provision": "node --env-file-if-exists=.env.local scripts/admin-provision.ts"
+    "admin:provision": "node --env-file-if-exists=.env.local scripts/admin-provision.ts",
+    "seed:demo": "node --env-file-if-exists=.env.local node_modules/vitest/vitest.mjs run --project seed"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

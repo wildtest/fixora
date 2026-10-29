@@ -1,9 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// Smoke de infraestructura (CHG-07 D9). SOLO LECTURA: no registra reparaciones, no envía formularios, no consulta
-// códigos (ni inexistentes: no alimenta el limitador), no depende de una orden demo y no crea endpoints. Comprueba
-// que el despliegue responde y que la configuración de Production es la esperada. La comprobación de `/admin/**`
-// y la consulta de la orden demo ficticia se añadirán a este mismo mecanismo (CHG-08 / CHG-15).
+// Smoke de Production (CHG-07 D9; CHG-15 D9, evidencia de `SC-20`). PÚBLICO, SEGURO Y NO MUTANTE: no registra reparaciones,
+// no envía formularios de escritura, no inicia sesión, no usa credenciales de Production y no crea endpoints. Comprueba que el
+// despliegue responde, que la configuración de Production es la esperada, que `/admin/**` sin sesión no entrega contenido
+// administrativo y, si se proporciona `SMOKE_TRACKING_CODE` (secreto: nunca en el repositorio, en nombres de prueba, en
+// salidas ni en *traces*), que la consulta REAL de la orden demo ficticia por la interfaz funciona. Una consulta
+// con acierto no alimenta el limitador. Sin `SMOKE_TRACKING_CODE` esa prueba se omite explícitamente.
 
 async function loadsWithoutFatalError(page: Page, path: string) {
   const fatal: string[] = [];
@@ -68,4 +70,48 @@ test('solo la landing es indexable y Production no está protegida por login de 
   // Production pública: nada de redirección a un inicio de sesión de Vercel.
   const response = await request.get('/', { maxRedirects: 0 });
   expect(response.status()).toBe(200);
+});
+
+test('/admin/** sin sesión no entrega contenido administrativo: redirige al acceso y el acceso es público, noindex y con CSP de nonce', async ({ request, page }) => {
+  const UNKNOWN_ORDER = '00000000-0000-4000-8000-000000000000';
+  for (const path of ['/admin', '/admin/ordenes', `/admin/ordenes/${UNKNOWN_ORDER}`]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect([301, 302, 303, 307, 308], path).toContain(response.status());
+    expect(response.headers()['location'] ?? '', path).toContain('/admin/acceso');
+    const body = await response.text();
+    expect(body, path).not.toMatch(/Detalle de la orden|Panel|Directorio|Cerrar sesión/);
+  }
+  const access = await request.get('/admin/acceso');
+  expect(access.status()).toBe(200);
+  expect(access.headers()['x-robots-tag']).toBe('noindex, nofollow');
+  const csp = access.headers()['content-security-policy'] ?? '';
+  expect(csp).toMatch(/'nonce-[^']+'/);
+  expect(csp.match(/script-src[^;]*/)?.[0] ?? '').not.toMatch(/'unsafe-inline'|'unsafe-eval'/);
+  await loadsWithoutFatalError(page, '/admin/acceso');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+});
+
+// La consulta de la orden demo ficticia por la UI real. El código nunca se imprime: ni en el nombre de la prueba, ni en
+// mensajes de aserción (solo comparaciones booleanas), ni en *traces* (desactivados para esta prueba).
+const DEMO_CODE = process.env.SMOKE_TRACKING_CODE;
+
+test.describe('orden demo ficticia', () => {
+  test.skip(!DEMO_CODE, 'SMOKE_TRACKING_CODE no está definido: la consulta de la orden demo se omite.');
+
+  test('la consulta real muestra solo la proyección pública y no la expone en la URL ni en el almacenamiento', async ({ page }) => {
+    const code = DEMO_CODE as string;
+    await page.goto('/consultar');
+    await page.getByLabel('Código de seguimiento').fill(code);
+    await page.getByRole('button', { name: 'Consultar estado' }).click();
+    await expect(page.getByTestId('tracking-result')).toBeVisible();
+    expect((await page.getByTestId('result-code').innerText()).trim() === code).toBe(true);
+    await expect(page.getByTestId('status-badge')).toBeVisible();
+    await expect(page.getByTestId('status-timeline')).toBeVisible();
+    // Sin datos privados del cliente (el nombre ficticio de la orden demo comienza por «DEMO FIXORA»).
+    const text = await page.locator('body').innerText();
+    expect(/DEMO FIXORA|\+51 900|@/.test(text)).toBe(false);
+    expect(page.url().includes(code)).toBe(false);
+    const storage = await page.evaluate(() => JSON.stringify({ l: { ...localStorage }, s: { ...sessionStorage } }));
+    expect(storage.includes(code)).toBe(false);
+  });
 });

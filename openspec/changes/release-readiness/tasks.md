@@ -4,37 +4,37 @@
 
 ## 1. Preflight y dependencias
 
-- [ ] 1.1 EJECUTAR EN FASE 7: confirmar el DoR (CHG-14 cerrado con Critical = 0, High = 0 y violaciones de `SC-11`/`SC-12` = 0 abiertas; Production operativa; CHG-07 operativo; resultados de AV-3; CI real disponible); se verifica con una nota de aprobación y el informe de `docs/08-seguridad/`.
+- [x] 1.1 EJECUTAR EN FASE 7: confirmar el DoR (CHG-14 cerrado con Critical = 0, High = 0 y violaciones de `SC-11`/`SC-12` = 0 abiertas; Production operativa; CHG-07 operativo; resultados de AV-3; CI real disponible); se verifica con una nota de aprobación y el informe de `docs/08-seguridad/`.
 
 ## 2. Estructura de trazabilidad
 
-- [ ] 2.1 EJECUTAR EN FASE 7: completar `docs/07-testing/TRACEABILITY.md` para `SC-01…SC-20` y `E1…E17` con dueño, nivel, evidencia, ubicación, estado y observaciones, sin copiar el texto del PRD ni inventar reglas; se verifica con `npm run test:trace` (completitud estructural) y la revisión manual de que cada estado se apoya en evidencia real y no en la presencia del ID.
+- [x] 2.1 EJECUTAR EN FASE 7: completar `docs/07-testing/TRACEABILITY.md` para `SC-01…SC-20` y `E1…E17` con dueño, nivel, evidencia, ubicación, estado y observaciones, sin copiar el texto del PRD ni inventar reglas; se verifica con `npm run test:trace` (completitud estructural) y la revisión manual de que cada estado se apoya en evidencia real y no en la presencia del ID.
 
 ## 3. Verificar `SC-14`
 
-- [ ] 3.1 EJECUTAR EN FASE 7: reunir y ejecutar la evidencia automatizada de persistencia (la orden creada y sus cambios de estado, diagnóstico, costo, notas y datos básicos persisten y se recuperan en consultas posteriores); se verifica con las pruebas de integración en verde registradas en `TRACEABILITY.md`.
+- [x] 3.1 EJECUTAR EN FASE 7: reunir y ejecutar la evidencia automatizada de persistencia (la orden creada y sus cambios de estado, diagnóstico, costo, notas y datos básicos persisten y se recuperan en consultas posteriores); se verifica con las pruebas de integración en verde registradas en `TRACEABILITY.md`.
 
 ## 4. Verificar `E2E-01` y `SC-17`
 
-- [ ] 4.1 EJECUTAR EN FASE 7: confirmar que `E2E-01` (propiedad de CHG-11) existe y pasa en la implementación real, sin rediseñar el flujo ni exigir `ENTREGADO`; se verifica con la ejecución en verde de Playwright y el enlace saneado en `TRACEABILITY.md`.
+- [x] 4.1 EJECUTAR EN FASE 7: confirmar que `E2E-01` (propiedad de CHG-11) existe y pasa en la implementación real, sin rediseñar el flujo ni exigir `ENTREGADO`; se verifica con la ejecución en verde de Playwright y el enlace saneado en `TRACEABILITY.md`.
 
 ## 5. Inspeccionar `SC-19`
 
-- [ ] 5.1 EJECUTAR EN FASE 7: inspeccionar el pipeline de CHG-03/07 y reunir la evidencia de ejecuciones reales de GitHub Actions (`static`, `db-tests`, regresión de seguridad, build, workflows de despliegue y migración, protección de `main` y comprobaciones requeridas), respetando el alcance de entrega continua aprobado; se verifica con la nota de inspección y los enlaces saneados.
+- [x] 5.1 EJECUTAR EN FASE 7: inspeccionar el pipeline de CHG-03/07 y reunir la evidencia de ejecuciones reales de GitHub Actions (`static`, `db-tests`, regresión de seguridad, build, workflows de despliegue y migración, protección de `main` y comprobaciones requeridas), respetando el alcance de entrega continua aprobado; se verifica con la nota de inspección y los enlaces saneados.
 
 ## 6. Revisión responsive de `SC-15`
 
-- [ ] 6.1 EJECUTAR EN FASE 7: preparar `docs/07-testing/SC-15-RESPONSIVE-REVIEW.md` con la lista de flujos públicos y administrativos, viewports (escritorio y móvil según la matriz de Playwright), acciones y criterios (flujo completable, acciones visibles y utilizables, sin desplazamiento horizontal, Público antes que Interno en móvil, Journey, diálogos, formularios); se verifica con la revisión del documento.
-- [ ] 6.2 EJECUTAR EN FASE 7: realizar la revisión manual estructurada en escritorio y móvil, registrar PASS/FAIL, observaciones y evidencia saneada, y corregir o enrutar los fallos; se verifica con el documento completo y sin fallos abiertos.
+- [x] 6.1 EJECUTAR EN FASE 7: preparar `docs/07-testing/SC-15-RESPONSIVE-REVIEW.md` con la lista de flujos públicos y administrativos, viewports (escritorio y móvil según la matriz de Playwright), acciones y criterios (flujo completable, acciones visibles y utilizables, sin desplazamiento horizontal, Público antes que Interno en móvil, Journey, diálogos, formularios); se verifica con la revisión del documento.
+- [x] 6.2 EJECUTAR EN FASE 7: realizar la revisión manual estructurada en escritorio y móvil, registrar PASS/FAIL, observaciones y evidencia saneada, y corregir o enrutar los fallos; se verifica con el documento completo y sin fallos abiertos.
 
 ## 7. *Seed* ficticio
 
-- [ ] 7.1 EJECUTAR EN FASE 7: implementar `seed:demo` con datos exclusivamente ficticios, mediante los casos de uso reales, en un conjunto pequeño de estados útiles, ejecutable solo de forma explícita con confirmación del entorno, prohibido en `test`, sin claves de idempotencia predecibles, sin credenciales y sin código fijo en el repositorio; se verifica con una ejecución en `development` y la revisión de que no se ejecuta en migraciones, build, arranque ni despliegue.
-- [ ] 7.2 EJECUTAR EN FASE 7: definir y verificar el mecanismo contra una segunda carga y elegir el código de la orden demo como `SMOKE_TRACKING_CODE` (secreto de GitHub) sin imprimirlo ni escribirlo en el repositorio; se verifica con la revisión del repositorio, los logs y la configuración del secreto.
+- [x] 7.1 EJECUTAR EN FASE 7: implementar `seed:demo` con datos exclusivamente ficticios, mediante los casos de uso reales, en un conjunto pequeño de estados útiles, ejecutable solo de forma explícita con confirmación del entorno, prohibido en `test`, sin claves de idempotencia predecibles, sin credenciales y sin código fijo en el repositorio; se verifica con una ejecución en `development` y la revisión de que no se ejecuta en migraciones, build, arranque ni despliegue.
+- [x] 7.2 EJECUTAR EN FASE 7: definir y verificar el mecanismo contra una segunda carga y elegir el código de la orden demo como `SMOKE_TRACKING_CODE` (secreto de GitHub) sin imprimirlo ni escribirlo en el repositorio; se verifica con la revisión del repositorio, los logs y la configuración del secreto.
 
 ## 8. Smoke de Production (`SC-20`)
 
-- [ ] 8.1 EJECUTAR EN FASE 7: reutilizar el proyecto/mecanismo `test:smoke` establecido por CHG-07 y extender solo las aserciones necesarias para la evidencia final aprobada (consulta por la UI real de la orden demo y `/admin/**` sin sesión sin contenido administrativo, además de `/`, `/registrar`, `/consultar` y cabeceras públicas), sin recrear su infraestructura y manteniéndolo no mutante, sin inicio de sesión, sin contraseña de Production en CI y sin el código en URL, nombres de pruebas, salidas o *traces* públicos; se verifica con la revisión del proyecto y una ejecución contra un entorno no productivo.
+- [x] 8.1 EJECUTAR EN FASE 7: reutilizar el proyecto/mecanismo `test:smoke` establecido por CHG-07 y extender solo las aserciones necesarias para la evidencia final aprobada (consulta por la UI real de la orden demo y `/admin/**` sin sesión sin contenido administrativo, además de `/`, `/registrar`, `/consultar` y cabeceras públicas), sin recrear su infraestructura y manteniéndolo no mutante, sin inicio de sesión, sin contraseña de Production en CI y sin el código en URL, nombres de pruebas, salidas o *traces* públicos; se verifica con la revisión del proyecto y una ejecución contra un entorno no productivo.
 - [ ] 8.2 EJECUTAR EN FASE 7: ejecutar el smoke contra la URL pública de Production y registrar la evidencia saneada de `SC-20` (un estado «Ready» de Vercel no basta); se verifica con la ejecución en verde y el registro en `docs/09-deploy/`.
 
 ## 9. Flujo manual de cierre
@@ -43,20 +43,20 @@
 
 ## 10. Runbooks RB-1…RB-9
 
-- [ ] 10.1 EJECUTAR EN FASE 7: documentar en `docs/09-deploy/` los runbooks RB-1 (rollback de aplicación), RB-2 (migración fallida o parcial), RB-3 (recuperación/rotación del administrador) y RB-4 (limitador, `SERVICE_UNAVAILABLE`, Neon), con comandos concretos validados en el entorno correspondiente; se verifica con la revisión contra TD §26 y §27.
-- [ ] 10.2 EJECUTAR EN FASE 7: documentar RB-5 (tracking code comprometido, sin rotación), RB-6 (dato sensible publicado), RB-7 (incidente y rotación de credenciales), RB-8 (indisponibilidad o cuota de Neon/Vercel) y RB-9 (inundación de solicitudes, `E13` vigente), sin nuevas funciones de producto; se verifica con la revisión de que ninguno introduce UI, endpoints, rotación de códigos ni borrado normal.
+- [x] 10.1 EJECUTAR EN FASE 7: documentar en `docs/09-deploy/` los runbooks RB-1 (rollback de aplicación), RB-2 (migración fallida o parcial), RB-3 (recuperación/rotación del administrador) y RB-4 (limitador, `SERVICE_UNAVAILABLE`, Neon), con comandos concretos validados en el entorno correspondiente; se verifica con la revisión contra TD §26 y §27.
+- [x] 10.2 EJECUTAR EN FASE 7: documentar RB-5 (tracking code comprometido, sin rotación), RB-6 (dato sensible publicado), RB-7 (incidente y rotación de credenciales), RB-8 (indisponibilidad o cuota de Neon/Vercel) y RB-9 (inundación de solicitudes, `E13` vigente), sin nuevas funciones de producto; se verifica con la revisión de que ninguno introduce UI, endpoints, rotación de códigos ni borrado normal.
 
 ## 11. Verificar el procedimiento *break-glass*
 
-- [ ] 11.1 EJECUTAR EN FASE 7: documentar el procedimiento de redacción/eliminación de privacidad fuera del producto (rol operativo separado, confirmación del entorno, postura de respaldo, orden de claves foráneas, revisión de todas las copias y ramas, *dry run*, verificación posterior) y ensayarlo de forma segura en `development`; se verifica con el ensayo registrado y la comprobación de que no se crea botón, endpoint ni Server Action.
+- [x] 11.1 EJECUTAR EN FASE 7: documentar el procedimiento de redacción/eliminación de privacidad fuera del producto (rol operativo separado, confirmación del entorno, postura de respaldo, orden de claves foráneas, revisión de todas las copias y ramas, *dry run*, verificación posterior) y ensayarlo de forma segura en `development`; se verifica con el ensayo registrado y la comprobación de que no se crea botón, endpoint ni Server Action.
 
 ## 12. Plan de retiro de la demo
 
-- [ ] 12.1 EJECUTAR EN FASE 7: documentar el plan de retiro con su disparador operativo y su checklist (acceso público, recursos de datos, secretos y variables, recursos innecesarios), sin fecha inventada y sin afirmar que Production contiene solo datos ficticios; se verifica con la revisión del documento.
+- [x] 12.1 EJECUTAR EN FASE 7: documentar el plan de retiro con su disparador operativo y su checklist (acceso público, recursos de datos, secretos y variables, recursos innecesarios), sin fecha inventada y sin afirmar que Production contiene solo datos ficticios; se verifica con la revisión del documento.
 
 ## 13. Riesgos residuales y `VAL-04`
 
-- [ ] 13.1 EJECUTAR EN FASE 7: listar en el artefacto de release los riesgos residuales aceptados de TD §27 y del PRD y registrar `VAL-04` como abierto y prerrequisito de cualquier uso operacional real, sin afirmaciones legales ni de cumplimiento; se verifica con la revisión de que no se afirma riesgo cero ni aprobación para operación real.
+- [x] 13.1 EJECUTAR EN FASE 7: listar en el artefacto de release los riesgos residuales aceptados de TD §27 y del PRD y registrar `VAL-04` como abierto y prerrequisito de cualquier uso operacional real, sin afirmaciones legales ni de cumplimiento; se verifica con la revisión de que no se afirma riesgo cero ni aprobación para operación real.
 
 ## 14. Ensamblar la evidencia de release
 
@@ -68,8 +68,15 @@
 
 ## 16. Verificación y cierre
 
-- [ ] 16.1 EJECUTAR EN FASE 7: ejecutar `npm run lint`, `typecheck`, `test:unit`, `test:integration`, `test:e2e`, `test:trace` y `build`, y revisar el alcance del diff (sin funcionalidad nueva, sin dependencias, sin archivos de specs); se verifica con las ejecuciones en verde, `git diff` y `openspec validate release-readiness --strict`.
+- [x] 16.1 EJECUTAR EN FASE 7: ejecutar `npm run lint`, `typecheck`, `test:unit`, `test:integration`, `test:e2e`, `test:trace` y `build`, y revisar el alcance del diff (sin funcionalidad nueva, sin dependencias, sin archivos de specs); se verifica con las ejecuciones en verde, `git diff` y `openspec validate release-readiness --strict`.
 - [ ] 16.2 EJECUTAR EN FASE 7: confirmar la puerta de salida y que M5 solo se declara cuando se cumple el DoD; se verifica con el documento de release.
+
+## Estado de la ejecución (2026-10-29)
+
+- **Pendientes, requieren al propietario** (`docs/09-deploy/RELEASE-READINESS.md` §3): `8.2` (smoke de Production con la orden demo y registro de `SC-20`), `9.1` (flujo manual de cierre con el administrador de Production), `14.1` (checklist final, que depende de las dos anteriores), `15.1` (decisión de release) y `16.2` (puerta de salida y M5). Hasta entonces la decisión es **NO LISTO** y `SC-20` sigue pendiente.
+- `7.2`: `SMOKE_TRACKING_CODE` no se define aquí (el agente no escribe secretos de GitHub ni datos persistentes en Production); el mecanismo está listo y el código nunca se imprime.
+- `7.1`: `seed:demo` se implementó como proyecto `seed` de Vitest (reutiliza los casos de uso reales); se ensayó en `development`.
+- `6.2`: revisión estructurada guiada por automatización con inspección visual de capturas; no es un estudio de usabilidad (`VAL-03` abierta).
 
 ## Workflow follow-up
 

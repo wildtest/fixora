@@ -47,6 +47,22 @@ export default defineConfig({
           hookTimeout: 180_000,
         },
       },
+      {
+        // `seed:demo` (CHG-15 D10): proyecto explícito, fuera de `unit` e `integration`; no se ejecuta en CI ni en build.
+        extends: false,
+        resolve: {
+          alias: {
+            '@': fromRoot('./src'),
+            'server-only': fromRoot('./tests/stubs/server-only.ts'),
+          },
+        },
+        test: {
+          name: 'seed',
+          environment: 'node',
+          include: ['scripts/seed/**/*.seed.ts'],
+          testTimeout: 180_000,
+        },
+      },
     ],
     // Cobertura V8 SELECTIVA (D-2): umbral de 90 % de líneas y de ramas únicamente sobre `domain/` y los módulos
     // puros que se añadan a esta lista por revisión de PR. Sin umbral global ni en UI, Next, `infrastructure/`,
