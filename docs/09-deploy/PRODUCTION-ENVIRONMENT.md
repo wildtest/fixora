@@ -79,6 +79,6 @@ Cada despliegue deja identificables, en los registros de plataforma y en la tabl
 | Rollback de aplicación | *Instant Rollback* y *Promote* realizados por el propietario; Production restaurada a `0c381c6` |
 | Vercel | Node 24.x, rama `main`, sin autenticación de plataforma, región `gru1`; variables solo en Production |
 | Neon | Rama `pre-release-2026-10-28` desde `main`, sin conexiones de Preview. Plan Free; ventana de restauración de 6 horas; sin respaldo independiente fuera de Neon (riesgo aceptado) |
-| AV-3 | Variables inyectadas y conexión como `fixora_app` verificadas con una consulta real de solo lectura. Fuente de IP real **no verificada** (residuo para CHG-14) |
+| AV-3 | Variables inyectadas y conexión como `fixora_app` verificadas con una consulta real de solo lectura. Fuente de IP real verificada por CHG-14 (2026-10-29): la plataforma sobrescribe `x-vercel-forwarded-for` y entrega la IP real del cliente; ver `docs/08-seguridad/SECURITY-REPORT.md` §4.2 |
 
 Estado de despliegue: Production es la demo pública; puede recibir datos reales. Sin seeds ni datos ficticios.

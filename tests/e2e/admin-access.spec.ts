@@ -10,7 +10,7 @@ import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from './support/admin';
 const OWNER_URL = process.env.TEST_DIRECT_URL;
 const COOKIE = '__Host-fixora_session';
 const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex');
-const fakeIp = () => `198.51.100.${Math.floor(Math.random() * 250) + 1}-${Math.random().toString(36).slice(2, 8)}`;
+const fakeIp = () => `2001:db8:${Math.floor(Math.random() * 0xffff).toString(16)}:${Math.floor(Math.random() * 0xffff).toString(16)}::${Math.floor(Math.random() * 0xffff).toString(16)}`; // IPv6 de documentación: un /64 distinto por prueba (el limitador canonicaliza al prefijo)
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
 
 async function withOwner<T>(work: (client: pg.Client) => Promise<T>): Promise<T> {
