@@ -17,13 +17,13 @@
 | SC-01 | CHG-05 | E2E; integración | `tests/e2e/register.spec.ts`; `tests/integration/registration.test.ts`; `src/application/register-repair.test.ts` — registro, código y confirmación (primer tramo de E2E-01; lo cierra CHG-11) | verificado |
 | SC-02 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts` — consulta con el código, sin cuenta; estado, equipo, descripción, recorrido e historial | verificado |
 | SC-03 | CHG-09b | E2E | `tests/e2e/admin-access.spec.ts`; `tests/e2e/admin-orders.spec.ts`; `tests/e2e/admin-order-detail.spec.ts` — inicio de sesión → localizar (directorio y panel) → abrir el detalle (CHG-08, CHG-09a, CHG-09b) | verificado |
-| SC-04 | CHG-11 | E2E | E2E del ciclo completo (soporte: CHG-10) | pendiente |
-| SC-05 | CHG-10 | unitaria | Pruebas de cancelación y estados finales | pendiente |
-| SC-06 | CHG-10 | unitaria | Matriz de 64 pares y rechazo desde servidor | pendiente |
+| SC-04 | CHG-11 | E2E | `tests/e2e/repair-lifecycle.spec.ts`; `tests/integration/repair-lifecycle.test.ts` — recorrido de estados hasta Entregado (soporte de CHG-10); el ciclo completo con diagnóstico y costo lo cierra CHG-11 | parcial |
+| SC-05 | CHG-10 | unitaria | `src/domain/repair/lifecycle.test.ts`; `tests/integration/repair-lifecycle.test.ts`; `tests/e2e/repair-lifecycle.spec.ts` — cancelación solo desde los cuatro primeros estados, sin motivo, irreversible; estados finales sin acciones | verificado |
+| SC-06 | CHG-10 | unitaria | `src/domain/repair/lifecycle.test.ts`; `tests/integration/repair-lifecycle.test.ts` — barrido de los 64 pares (10 permitidos, 54 rechazados) en dominio y contra PostgreSQL | verificado |
 | SC-07 | CHG-11 | E2E; integración | Integración y E2E-01 (CHG-10 rechaza por defecto) | pendiente |
 | SC-08 | CHG-11 | unitaria | Las cuatro pruebas de valores no publicados | pendiente |
-| SC-09 | CHG-10 | unitaria | Pruebas de terminalidad por tipo de dato (soporte: CHG-11, 12, 13) | pendiente |
-| SC-10 | CHG-11 | unitaria | `tests/e2e/admin-order-detail.spec.ts`; `src/app/admin/ordenes/[id]/order-detail-view.test.tsx` — presentación del historial administrativo de estados (CHG-09b); el historial compuesto con diagnóstico y costo lo cierra CHG-11 | parcial |
+| SC-09 | CHG-10 | unitaria | `src/domain/repair/lifecycle.test.ts`; `tests/integration/repair-lifecycle.test.ts` — terminalidad del estado (Entregado y Cancelado sin salidas); la terminalidad de diagnóstico, notas y datos básicos llega con CHG-11, 12 y 13 | parcial |
+| SC-10 | CHG-11 | unitaria | `tests/e2e/repair-lifecycle.spec.ts`; `tests/e2e/admin-order-detail.spec.ts`; `src/app/admin/ordenes/[id]/order-detail-view.test.tsx` — presentación del historial administrativo de estados (CHG-09b); el historial compuesto con diagnóstico y costo lo cierra CHG-11 | parcial |
 | SC-11 | CHG-06 | seguridad | `tests/integration/tracking.test.ts`; `tests/integration/admin-order-detail.test.ts`; `tests/e2e/track.spec.ts`; `src/app/_components/tracking-result.test.tsx` — prueba negativa sobre una orden poblada (núcleo; la verificación final es del Security Pass, CHG-14) | implementado |
 | SC-12 | CHG-08 | seguridad | `tests/integration/admin-access.test.ts`; `tests/e2e/admin-access.spec.ts`; `tests/e2e/admin-order-detail.spec.ts`; `tests/e2e/admin-orders.spec.ts`; `src/application/admin/admin.test.ts` — acceso directo, cookie inventada, token inexistente/expirado y sesión eliminada no acceden; la matriz de autorización de acciones (`tests/integration/support/admin-action-matrix.ts`) la amplía cada change administrativo (núcleo; la verificación final es del Security Pass, CHG-14) | implementado |
 | SC-13 | CHG-06 | unitaria | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts`; `src/application/track-order.test.ts` — respuesta uniforme para código inexistente y mal formado | verificado |
@@ -47,12 +47,12 @@
 | E6 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `src/app/_components/tracking-result.test.tsx` — vacío informativo sin secciones rotas (lo completan CHG-11 y CHG-12) | parcial |
 | E7 | CHG-09a | integración | `tests/integration/admin-orders.test.ts`; `tests/e2e/admin-orders.spec.ts` — búsqueda sin resultados: estado vacío, no error | implementado |
 | E8 | CHG-09a | unitaria | `src/domain/admin/order-directory.test.ts`; `tests/integration/admin-orders.test.ts` — orden estable por fecha de registro descendente y paginación de 20 | implementado |
-| E9 | CHG-10 | unitaria | Pruebas de versión (soporte: CHG-11, 12, 13) | pendiente |
+| E9 | CHG-10 | unitaria | `src/application/admin/transition-order.test.ts`; `tests/integration/repair-lifecycle.test.ts`; `tests/e2e/repair-lifecycle.spec.ts` — STALE_ORDER por versión (dos barreras, carrera tras la carga, concurrencia); la versión de diagnóstico, notas y datos llega con CHG-11, 12 y 13 | implementado |
 | E10 | CHG-08 | unitaria | `src/application/admin/admin.test.ts`; `tests/integration/admin-access.test.ts` — sesión inválida: SESSION_EXPIRED, la acción no se ejecuta y no deja estado parcial (soporte: cada mutación añade su acción a la matriz) | implementado |
-| E11 | CHG-10 | E2E | E2E de los cuatro diálogos y comprobación en servidor | pendiente |
+| E11 | CHG-10 | E2E | `tests/e2e/repair-lifecycle.spec.ts`; `tests/integration/repair-lifecycle.test.ts`; `src/domain/repair/lifecycle.test.ts` — cuatro confirmaciones en la interfaz y comprobadas por el servidor, ligadas a la versión (el resumen del diálogo #1 lo completa CHG-11) | implementado |
 | E12 | CHG-12 | E2E; integración | Integración y E2E de notas | pendiente |
-| E13 | CHG-10 | unitaria | Cancelación de una solicitud falsa; ausencia de anti-spam verificada en CHG-05 | pendiente |
-| E14 | CHG-10 | unitaria | Advertencia del diálogo de cancelación (soporte: CHG-12) | pendiente |
+| E13 | CHG-10 | unitaria | `src/domain/repair/lifecycle.test.ts`; `tests/integration/repair-lifecycle.test.ts` — una solicitud falsa se cancela como cualquier otra orden desde los cuatro primeros estados | verificado |
+| E14 | CHG-10 | unitaria | `tests/e2e/repair-lifecycle.spec.ts` — diálogo de cancelación: irreversible, sin motivo obligatorio; la frase accionable sobre notas llega con CHG-12 | parcial |
 | E15 | CHG-06 | unitaria | `src/domain/repair/tracking.test.ts`; `tests/integration/tracking.test.ts`; `tests/e2e/track.spec.ts`; `src/domain/admin/order-directory.test.ts` — normalización exacta: espacio exterior y mayúsculas/minúsculas ASCII (apoyo: la búsqueda administrativa por código) | verificado |
 | E16 | CHG-05 | unitaria | `src/domain/repair/repair.test.ts` — alfabeto, formato y generación sin sesgo del código | verificado |
 | E17 | CHG-05 | unitaria | `tests/integration/registration.test.ts` — unicidad, colisión y código no reemplazable por el rol de aplicación (soporte: CHG-13: no editable) | implementado |

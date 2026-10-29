@@ -1,11 +1,13 @@
 import type { DeviceType } from '../repair/device-type';
+import type { AllowedTransition } from '../repair/lifecycle';
 import type { OrderStatus } from '../repair/order-status';
 import type { PublicStatusEvent } from '../repair/public-order-view';
 
 // Detalle administrativo de una orden en SOLO LECTURA (CHG-09b D3): DTO con LISTA POSITIVA (TD §17), construido
 // propiedad por propiedad con lo que esta pantalla presenta. Es distinto y NO asignable al `PublicOrderView`.
-// Excluidos a propósito: diagnóstico y costo (CHG-11), notas (CHG-12), historiales de diagnóstico y costo,
-// `version` y `capabilities` (CHG-10), `updatedAt`. Puro e isomórfico.
+// CHG-10 añade `version` (no se muestra: solo alimenta `expectedVersion`) y `allowedTransitions` (indicación de
+// presentación, nunca autoridad). Excluidos a propósito: diagnóstico y costo (CHG-11), notas (CHG-12), historiales de
+// diagnóstico y costo, `capabilities` de funciones futuras y `updatedAt`. Puro e isomórfico.
 
 export type AdminStatusEvent = {
   /** `null` solo en el registro inicial (interno: no se presenta). */
@@ -25,10 +27,14 @@ export type AdminOrderDetailDTO = {
   readonly problemDescription: string;
   /** Del más reciente al más antiguo. */
   readonly statusHistory: readonly AdminStatusEvent[];
+  /** Versión de la orden revisada: el cambio de estado debe devolverla como `expectedVersion`. */
+  readonly version: number;
+  /** Qué puede ofrecer la interfaz para el estado actual; el servidor lo recalcula en cada acción. */
+  readonly allowedTransitions: readonly AllowedTransition[];
 };
 
 /** Claves permitidas del DTO (lista positiva); las pruebas las comparan con lo que realmente sale. */
-export const DETAIL_KEYS = ['createdAt', 'customer', 'device', 'id', 'problemDescription', 'status', 'statusHistory', 'trackingCode'] as const;
+export const DETAIL_KEYS = ['allowedTransitions', 'createdAt', 'customer', 'device', 'id', 'problemDescription', 'status', 'statusHistory', 'trackingCode', 'version'] as const;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

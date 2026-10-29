@@ -15,9 +15,9 @@ describe('identificador de la ruta del detalle', () => {
 });
 
 describe('contrato del DTO y del recorrido', () => {
-  it('lista positiva: ni diagnóstico, ni costo, ni notas, ni versión, ni capacidades', () => {
-    expect([...DETAIL_KEYS]).toEqual(['createdAt', 'customer', 'device', 'id', 'problemDescription', 'status', 'statusHistory', 'trackingCode']);
-    for (const forbidden of ['diagnosis', 'estimatedCost', 'notes', 'version', 'capabilities', 'updatedAt']) {
+  it('lista positiva: ni diagnóstico, ni costo, ni notas, ni capacidades de funciones futuras', () => {
+    expect([...DETAIL_KEYS]).toEqual(['allowedTransitions', 'createdAt', 'customer', 'device', 'id', 'problemDescription', 'status', 'statusHistory', 'trackingCode', 'version']);
+    for (const forbidden of ['diagnosis', 'estimatedCost', 'notes', 'capabilities', 'canEdit', 'updatedAt', 'hasDiagnosisAndCost']) {
       expect([...DETAIL_KEYS]).not.toContain(forbidden);
     }
   });
