@@ -26,7 +26,10 @@ export async function cleanupSeeded(): Promise<void> {
   const pending = tags.splice(0);
   if (pending.length === 0) return;
   await withOwner(async (db) => {
-    for (const tag of pending) await db.query('DELETE FROM repair_orders WHERE customer_name LIKE $1', [`${tag}%`]);
+    for (const tag of pending) {
+      await db.query('DELETE FROM order_status_history WHERE order_id IN (SELECT id FROM repair_orders WHERE customer_name LIKE $1)', [`${tag}%`]);
+      await db.query('DELETE FROM repair_orders WHERE customer_name LIKE $1', [`${tag}%`]);
+    }
   });
 }
 
@@ -49,7 +52,17 @@ export async function login(page: Page) {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
+export type SeedEvent = { readonly from: string | null; readonly to: string; readonly at: Date };
+
 export type SeedOrder = {
+  readonly id?: string;
+  readonly phone?: string;
+  /** `null` = sin correo; por defecto, un correo ficticio. */
+  readonly email?: string | null;
+  /** `null` = sin modelo; por defecto, «M1». */
+  readonly model?: string | null;
+  readonly problem?: string;
+  readonly history?: readonly SeedEvent[];
   readonly name: string;
   readonly status?: string;
   readonly createdAt?: Date;
@@ -60,13 +73,31 @@ export type SeedOrder = {
 /** Siembra una orden FICTICIA, deliberadamente poblada con datos privados (teléfono, correo, diagnóstico, costo). */
 export async function seedOrder(db: pg.Client, order: SeedOrder): Promise<string> {
   const code = order.code ?? randomCode();
+  const id = order.id ?? randomUUID();
   await db.query(
     `INSERT INTO repair_orders (id, tracking_code, status, customer_name, customer_name_search, customer_phone, customer_email,
        device_type, brand, model, problem_description, diagnosis, estimated_cost, version, created_at, updated_at)
-     VALUES ($1, $2, $3::order_status, $4, $5, '+51 CANARY-TELEFONO 999', 'canary-correo@example.com', 'LAPTOP', $6, 'M1',
-       'CANARY-DESCRIPCION', 'CANARY-DIAGNOSTICO', 150.00, 3, $7::timestamptz, $7::timestamptz)`,
-    [randomUUID(), code, order.status ?? 'SOLICITUD_RECIBIDA', order.name, normalizeCustomerNameSearch(order.name), order.brand ?? 'MarcaFicticia', (order.createdAt ?? new Date()).toISOString()],
+     VALUES ($1, $2, $3::order_status, $4, $5, $8, $9, 'LAPTOP', $6, $10, $11, 'CANARY-DIAGNOSTICO', 150.00, 3, $7::timestamptz, $7::timestamptz)`,
+    [
+      id,
+      code,
+      order.status ?? 'SOLICITUD_RECIBIDA',
+      order.name,
+      normalizeCustomerNameSearch(order.name),
+      order.brand ?? 'MarcaFicticia',
+      (order.createdAt ?? new Date()).toISOString(),
+      order.phone ?? '+51 CANARY-TELEFONO 999',
+      order.email === undefined ? 'canary-correo@example.com' : order.email,
+      order.model === undefined ? 'M1' : order.model,
+      order.problem ?? 'CANARY-DESCRIPCION',
+    ],
   );
+  for (const event of order.history ?? []) {
+    await db.query(
+      'INSERT INTO order_status_history (id, order_id, from_status, to_status, occurred_at) VALUES ($1, $2, $3::order_status, $4::order_status, $5::timestamptz)',
+      [randomUUID(), id, event.from, event.to, event.at.toISOString()],
+    );
+  }
   return code;
 }
 
