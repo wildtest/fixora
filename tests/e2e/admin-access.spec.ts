@@ -150,12 +150,10 @@ test.describe('sesión, rutas protegidas y cierre de sesión', () => {
     await page.goto('/admin/acceso');
     await submit(page, `  ${E2E_ADMIN_EMAIL.toUpperCase()} `, E2E_ADMIN_PASSWORD); // el correo se normaliza; la contraseña, no
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Panel de taller' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible();
     await expect(page.locator('[data-testid="demo-notice"]:visible')).toBeVisible();
-    // Frontera mínima: sin Dashboard, listado, búsqueda ni datos de negocio.
-    await expect(page.getByRole('main').getByRole('link')).toHaveCount(0);
-    await expect(page.getByRole('navigation')).toHaveCount(0);
-    await expect(page.getByText(/dashboard|listado de órdenes|buscar/i)).toHaveCount(0);
+    // Entrada protegida: estado autenticado y «Cerrar sesión»/«Salir» presentes (el panel real es de CHG-09a).
+    await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible();
 
     // Cabecera Set-Cookie: sesión de navegador (sin Max-Age ni Expires), HttpOnly, Secure, Strict, Path=/, sin Domain.
     const header = setCookie.join('\n');
@@ -195,7 +193,7 @@ test.describe('sesión, rutas protegidas y cierre de sesión', () => {
     const response = await request.get('/admin', { maxRedirects: 0 });
     expect(response.status()).toBe(307);
     expect(response.headers()['location']).toMatch(/\/admin\/acceso$/);
-    expect(await response.text()).not.toContain('Panel de taller');
+    expect(await response.text()).not.toContain('Dashboard');
   });
 
   test('cookie inventada, con forma válida pero inexistente, o basura: se trata como no autenticada', async ({ browser, baseURL }) => {

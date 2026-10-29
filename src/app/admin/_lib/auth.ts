@@ -46,3 +46,8 @@ export function adminAction<T, C extends string = never>(
 ): ReturnType<typeof guardAdminAction<T, C>> {
   return guardAdminAction(async () => authenticateSession(await readToken()), work);
 }
+
+/** Autenticación de una Server Action (sin caché): el adaptador la pasa a los casos de uso de `application`. */
+export async function authenticateRequest(): Promise<AdminContext | null> {
+  return authenticateSession(await readToken());
+}
