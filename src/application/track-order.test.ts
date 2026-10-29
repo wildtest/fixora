@@ -84,7 +84,7 @@ describe('trackOrder — orden seguro [SC-02] [SC-13] [E4]', () => {
 describe('clientSubject (sujeto del limitador)', () => {
   it('toma el primer valor, en minúsculas y recortado', () => {
     expect(clientSubject(' 203.0.113.7 , 10.0.0.1')).toBe('203.0.113.7');
-    expect(clientSubject('2001:DB8::1')).toBe('2001:db8::1');
+    expect(clientSubject('2001:DB8::1')).toBe('2001:db8:0:0::/64'); // IPv6: se reduce a su prefijo /64 (CHG-14)
   });
 
   it('sin cabecera o con un valor desmesurado usa un sujeto compartido (nunca el vacío)', () => {

@@ -11,7 +11,7 @@ const ALPHABET = '23456789BDFGHJKMNPRSTWX';
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
 
 const randomCode = () => Array.from({ length: 12 }, () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join('');
-const fakeIp = () => `198.51.100.${Math.floor(Math.random() * 250) + 1}-${Math.random().toString(36).slice(2, 8)}`;
+const fakeIp = () => `2001:db8:${Math.floor(Math.random() * 0xffff).toString(16)}:${Math.floor(Math.random() * 0xffff).toString(16)}::${Math.floor(Math.random() * 0xffff).toString(16)}`; // IPv6 de documentación: un /64 distinto por prueba (el limitador canonicaliza al prefijo)
 
 async function withOwner<T>(work: (client: pg.Client) => Promise<T>): Promise<T> {
   const client = new pg.Client({ connectionString: OWNER_URL });

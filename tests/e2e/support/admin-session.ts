@@ -10,7 +10,7 @@ import { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } from './admin';
 const OWNER_URL = process.env.TEST_DIRECT_URL;
 const ALPHABET = '23456789BDFGHJKMNPRSTWX';
 
-export const fakeIp = () => `198.51.100.${Math.floor(Math.random() * 250) + 1}-${Math.random().toString(36).slice(2, 8)}`;
+export const fakeIp = () => `2001:db8:${Math.floor(Math.random() * 0xffff).toString(16)}:${Math.floor(Math.random() * 0xffff).toString(16)}::${Math.floor(Math.random() * 0xffff).toString(16)}`; // IPv6 de documentación: un /64 distinto por prueba (el limitador canonicaliza al prefijo)
 export const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
 export const randomCode = () => Array.from({ length: 12 }, () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join('');
 /** Fragmento único en minúsculas para aislar los datos de una prueba (solo letras: se busca como nombre). */
