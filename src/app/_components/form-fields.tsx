@@ -96,7 +96,7 @@ export function TextField({
   required?: boolean;
   hint?: ReactNode;
   error?: string;
-  type?: "text" | "email" | "tel";
+  type?: "text" | "email" | "tel" | "password";
   inputMode?: "text" | "email" | "tel";
   autoComplete?: string;
   placeholder?: string;

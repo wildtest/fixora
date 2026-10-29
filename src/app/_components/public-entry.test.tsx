@@ -12,10 +12,10 @@ describe('destinos aprobados de los puntos de entrada (TD §6)', () => {
     expect(ENTRY_POINTS.workshop.href).toBe('/admin/acceso');
   });
 
-  it('cada change activa solo su acceso: registro (CHG-05) y consulta (CHG-06) activos; el taller (CHG-08) sigue sin destino', () => {
+  it('los tres accesos están activos: registro (CHG-05), consulta (CHG-06) y taller (CHG-08)', () => {
     expect(ENTRY_POINTS.register.available).toBe(true);
     expect(ENTRY_POINTS.consult.available).toBe(true);
-    expect(ENTRY_POINTS.workshop.available).toBe(false);
+    expect(ENTRY_POINTS.workshop.available).toBe(true);
   });
 });
 
@@ -32,7 +32,7 @@ describe('EntryPoint', () => {
   });
 
   it('no disponible: botón deshabilitado sin href, con el motivo visible y asociado', () => {
-    for (const entry of [ENTRY_POINTS.workshop]) {
+    for (const entry of [{ ...ENTRY_POINTS.workshop, available: false }]) {
       const html = renderToStaticMarkup(<EntryPoint entry={entry} variant="nav" />);
       expect(html, entry.label).toContain('<button');
       expect(html, entry.label).toContain('disabled=""');

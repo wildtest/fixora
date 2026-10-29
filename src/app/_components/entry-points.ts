@@ -5,7 +5,7 @@
 // Cada change activa únicamente su propio acceso:
 //   - CHG-05 (registro de reparación)  → `register.available = true` (✓ activado)
 //   - CHG-06 (consulta pública)        → `consult.available = true`
-//   - CHG-08 (acceso administrativo)   → `workshop.available = true`
+//   - CHG-08 (acceso administrativo)   → `workshop.available = true` (✓ activado)
 
 export type EntryPointDefinition = {
   readonly href: string;
@@ -16,7 +16,7 @@ export type EntryPointDefinition = {
 export const ENTRY_POINTS = {
   register: { href: "/registrar", label: "Registrar reparación", available: true },
   consult: { href: "/consultar", label: "Consultar estado", available: true },
-  workshop: { href: "/admin/acceso", label: "Acceso Taller", available: false },
+  workshop: { href: "/admin/acceso", label: "Acceso Taller", available: true },
 } as const satisfies Record<string, EntryPointDefinition>;
 
 export const UNAVAILABLE_LABEL = "Disponible próximamente";

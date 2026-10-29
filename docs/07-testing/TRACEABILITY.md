@@ -16,7 +16,7 @@
 |---|---|---|---|---|
 | SC-01 | CHG-05 | E2E; integración | `tests/e2e/register.spec.ts`; `tests/integration/registration.test.ts`; `src/application/register-repair.test.ts` — registro, código y confirmación (primer tramo de E2E-01; lo cierra CHG-11) | verificado |
 | SC-02 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts` — consulta con el código, sin cuenta; estado, equipo, descripción, recorrido e historial | verificado |
-| SC-03 | CHG-09b | E2E | E2E: inicio de sesión → localizar → abrir detalle (soporte: CHG-08, 09a) | pendiente |
+| SC-03 | CHG-09b | E2E | `tests/e2e/admin-access.spec.ts` — primer tramo: inicio de sesión y entrada protegida (CHG-08); el E2E «inicio de sesión → localizar → abrir detalle» lo cierra CHG-09b (soporte: CHG-09a) | parcial |
 | SC-04 | CHG-11 | E2E | E2E del ciclo completo (soporte: CHG-10) | pendiente |
 | SC-05 | CHG-10 | unitaria | Pruebas de cancelación y estados finales | pendiente |
 | SC-06 | CHG-10 | unitaria | Matriz de 64 pares y rechazo desde servidor | pendiente |
@@ -25,7 +25,7 @@
 | SC-09 | CHG-10 | unitaria | Pruebas de terminalidad por tipo de dato (soporte: CHG-11, 12, 13) | pendiente |
 | SC-10 | CHG-11 | unitaria | Historial público y administrativo (soporte: CHG-09b, 10) | pendiente |
 | SC-11 | CHG-06 | seguridad | `tests/integration/tracking.test.ts`; `tests/e2e/track.spec.ts`; `src/app/_components/tracking-result.test.tsx` — prueba negativa sobre una orden poblada (núcleo; la verificación final es del Security Pass, CHG-14) | implementado |
-| SC-12 | CHG-08 | seguridad | Prueba parametrizada de acciones sin sesión y Security Pass (soporte: todo change administrativo; verificación: CHG-14) | pendiente |
+| SC-12 | CHG-08 | seguridad | `tests/integration/admin-access.test.ts`; `tests/e2e/admin-access.spec.ts`; `src/application/admin/admin.test.ts` — acceso directo, cookie inventada, token inexistente/expirado y sesión eliminada no acceden; la matriz de autorización de acciones (`tests/integration/support/admin-action-matrix.ts`) la amplía cada change administrativo (núcleo; la verificación final es del Security Pass, CHG-14) | implementado |
 | SC-13 | CHG-06 | unitaria | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts`; `src/application/track-order.test.ts` — respuesta uniforme para código inexistente y mal formado | verificado |
 | SC-14 | CHG-02 | integración | `tests/integration/schema-and-constraints.test.ts`; `tests/integration/privileges.test.ts`; `tests/integration/transaction-and-lock.test.ts` — integración de persistencia contra PostgreSQL real (soporte: cada slice; cierre: CHG-15) | parcial |
 | SC-15 | CHG-15 | revisión manual | `tests/e2e/public-entry.spec.ts`; `src/app/_components/public-entry.test.tsx`; `src/app/public-error.test.tsx` — evidencia parcial de CHG-04 (entrada pública: landing, navegación en dos etapas, 404, error, responsive sin desbordamiento); Revisión manual estructurada (soporte: CHG-04 y cada pantalla) | parcial |
@@ -48,7 +48,7 @@
 | E7 | CHG-09a | integración | Integración de búsqueda y vacío | pendiente |
 | E8 | CHG-09a | unitaria | Orden y paginación | pendiente |
 | E9 | CHG-10 | unitaria | Pruebas de versión (soporte: CHG-11, 12, 13) | pendiente |
-| E10 | CHG-08 | unitaria | Sesión inválida sin estado parcial (soporte: cada mutación) | pendiente |
+| E10 | CHG-08 | unitaria | `src/application/admin/admin.test.ts`; `tests/integration/admin-access.test.ts` — sesión inválida: SESSION_EXPIRED, la acción no se ejecuta y no deja estado parcial (soporte: cada mutación añade su acción a la matriz) | implementado |
 | E11 | CHG-10 | E2E | E2E de los cuatro diálogos y comprobación en servidor | pendiente |
 | E12 | CHG-12 | E2E; integración | Integración y E2E de notas | pendiente |
 | E13 | CHG-10 | unitaria | Cancelación de una solicitud falsa; ausencia de anti-spam verificada en CHG-05 | pendiente |

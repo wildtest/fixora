@@ -37,3 +37,13 @@ Solo para cambios que incluyen `prisma/migrations/**`. Las migraciones son *forw
 4. **Confirmar el objetivo** (proyecto Neon, rama `main`, despliegue) antes de ejecutar nada.
 5. Ejecutar con un rol autorizado, **nunca con el rol runtime**; sin automatizar recuperaciones destructivas.
 6. Verificar (smoke y privilegios) y documentar el incidente y la causa.
+
+## 4. Aprovisionamiento y rotación del administrador
+
+> CHG-08 entrega el script; **su ejecución en Production es una operación de lanzamiento** (CHG-15) y no forma parte de CHG-08. El rol runtime (`fixora_app`) nunca crea administradores ni rota contraseñas: solo lee `admin_users`.
+
+1. Tener a mano la conexión **directa** del propietario/migrador de la rama de destino (`DIRECT_URL`) en el entorno del operador; nunca en Vercel ni en el repositorio.
+2. Ejecutar `npm run admin:provision -- --environment=<development|production> --email=<correo>`. En `test` solo existe la cuenta ficticia de los E2E (no se aprovisiona a mano).
+3. El script muestra el entorno, el destino (con el identificador del endpoint ocultado) y el correo, y exige escribir el nombre del entorno para confirmar. La contraseña se pide de forma interactiva y oculta (de 15 a 128 caracteres; admite espacios y Unicode) y se repite para confirmarla. Nunca se pasa por argumento ni se imprime, igual que el hash.
+4. Si ya existe un administrador, el script **rota** su credencial (singleton) e **invalida todas sus sesiones**. Es también el mecanismo de recuperación si se pierde la contraseña (`RIE-10`): no existe recuperación dentro del producto.
+5. Guardar la contraseña fuera del repositorio. Production y las demás ramas usan contraseñas distintas.

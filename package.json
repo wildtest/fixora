@@ -22,7 +22,8 @@
     "ci:warm": "node scripts/warm-neon.ts",
     "test:smoke": "node node_modules/@playwright/test/cli.js test --config playwright.smoke.config.ts",
     "ops:privileges": "node --env-file-if-exists=.env.local scripts/verify-runtime-privileges.ts",
-    "ops:migration-identity": "node scripts/migration-identity.ts"
+    "ops:migration-identity": "node scripts/migration-identity.ts",
+    "admin:provision": "node --env-file-if-exists=.env.local scripts/admin-provision.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

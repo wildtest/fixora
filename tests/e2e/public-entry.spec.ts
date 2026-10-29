@@ -2,17 +2,17 @@ import { expect, test, type Page } from '@playwright/test';
 
 // E2E de CHG-04 (`public-site-entry`) sobre la base de CHG-03. Consultas por rol y test id; no fija el texto de
 // marketing. Verificación en dos etapas (design.md OQ-1): CHG-04 demuestra que los puntos de entrada existen y
-// que, mientras CHG-05/06/08 no los activen, NO navegan ni simulan operaciones (P-1/P-2 aprobadas). Los destinos
+// que, mientras CHG-05/06/08 no los activen, NO navegan ni simulan operaciones (P-1/P-2 aprobadas); CHG-08 activó el último. Los destinos
 // aprobados se prueban en `src/app/_components/public-entry.test.tsx`. [SC-15]
 
 const ENTRY_LABELS = ['Registrar reparación', 'Consultar estado'] as const;
 const WORKSHOP = 'Acceso Taller';
 const REGISTER = 'Registrar reparación';
 
-// CHG-05 activó «Registrar reparación» (/registrar) y CHG-06 «Consultar estado» (/consultar); «Acceso Taller»
-// (CHG-08) sigue sin destino y se muestra deshabilitado.
+// CHG-05 activó «Registrar reparación» (/registrar), CHG-06 «Consultar estado» (/consultar) y CHG-08 «Acceso Taller»
+// (/admin/acceso): los tres son enlaces.
 const entry = (scope: Pick<Page, 'getByRole'>, label: string) =>
-  scope.getByRole(label === WORKSHOP ? 'button' : 'link', { name: label });
+  scope.getByRole('link', { name: label });
 const UNAVAILABLE = 'Disponible próximamente';
 
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024;
@@ -47,7 +47,7 @@ test.describe('landing PUB-01', () => {
     await noHorizontalOverflow(page);
   });
 
-  test('los puntos de entrada no disponibles no navegan, no son enfocables y explican el motivo', async ({ page }) => {
+  test('los tres puntos de entrada están activos: son enlaces a su ruta, sin controles deshabilitados', async ({ page }) => {
     await page.goto('/');
     const main = page.getByRole('main');
     // Activo (CHG-05): enlace a la ruta aprobada.
@@ -97,14 +97,15 @@ test.describe('navegación pública', () => {
       [...ENTRY_LABELS, WORKSHOP].map((label) => entry(nav, label).boundingBox()),
     );
     expect(boxes[2]!.x).toBeGreaterThan(boxes[1]!.x + boxes[1]!.width);
-    const background = await nav.getByRole('button', { name: WORKSHOP }).evaluate((node) => getComputedStyle(node).backgroundColor);
+    const background = await nav.getByRole('link', { name: WORKSHOP }).evaluate((node) => getComputedStyle(node).backgroundColor);
     expect(background).not.toBe('rgb(15, 95, 168)');
     // Teclado: el enlace «Inicio» es operable y los controles no disponibles no reciben foco.
     await nav.getByRole('link', { name: 'Inicio' }).focus();
     await expect(nav.getByRole('link', { name: 'Inicio' })).toBeFocused();
     await expect(nav.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
     await expect(nav.getByRole('link', { name: 'Consultar estado' })).toHaveAttribute('href', '/consultar');
-    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(1); // solo «Acceso Taller» (CHG-08)
+    await expect(nav.getByRole('link', { name: WORKSHOP })).toHaveAttribute('href', '/admin/acceso');
+    await expect(nav.getByText(UNAVAILABLE)).toHaveCount(0);
   });
 
   test('móvil: botón «Menú» rotulado, panel con los mismos puntos de entrada, teclado y cierre', async ({ page }) => {
@@ -120,7 +121,7 @@ test.describe('navegación pública', () => {
     await expect(panel.getByRole('link', { name: 'Inicio' })).toBeVisible();
     await expect(panel.getByRole('link', { name: REGISTER })).toHaveAttribute('href', '/registrar');
     await expect(panel.getByRole('link', { name: 'Consultar estado' })).toHaveAttribute('href', '/consultar');
-    await expect(panel.getByRole('button', { name: WORKSHOP })).toBeDisabled();
+    await expect(panel.getByRole('link', { name: WORKSHOP })).toHaveAttribute('href', '/admin/acceso');
     await noHorizontalOverflow(page);
     await page.keyboard.press('Escape');
     await expect(button).toHaveAttribute('aria-expanded', 'false');
@@ -177,10 +178,12 @@ test.describe('404 público', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
-  test('las rutas /admin/** inexistentes tampoco revelan detalles (el 404 administrativo es de CHG-08)', async ({ request }) => {
-    const response = await request.get('/admin/no-existe');
-    expect(response.status()).toBe(404);
-    expect(await response.text()).not.toMatch(/node_modules|digest/);
+  test('las rutas /admin/** inexistentes no revelan detalles: sin sesión se redirigen al acceso (CHG-08)', async ({ request }) => {
+    const response = await request.get('/admin/no-existe', { maxRedirects: 0 });
+    expect(response.status()).toBe(307);
+    expect(response.headers()['location']).toMatch(/\/admin\/acceso$/);
+    const followed = await request.get('/admin/no-existe');
+    expect(await followed.text()).not.toMatch(/node_modules|digest/);
   });
 });
 
@@ -196,7 +199,7 @@ test.describe('cabeceras y CSP públicas', () => {
     expect(headers['x-powered-by']).toBeUndefined();
   });
 
-  test('CSP pública: sin orígenes de terceros y NO se envía en /admin/**', async ({ request }) => {
+  test('CSP pública: sin orígenes de terceros; /admin/** lleva su propia CSP estricta con nonce, nunca la pública', async ({ request }) => {
     const csp = (await request.get('/')).headers()['content-security-policy'];
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("script-src 'self' 'unsafe-inline'");
@@ -205,7 +208,10 @@ test.describe('cabeceras y CSP públicas', () => {
     expect(csp).toContain("frame-ancestors 'none'");
     for (const path of ['/admin', '/admin/acceso', '/admin/ordenes/x']) {
       const response = await request.get(path);
-      expect(response.headers()['content-security-policy'], path).toBeUndefined();
+      const adminCsp = response.headers()['content-security-policy'];
+      expect(adminCsp, path).toContain("'strict-dynamic'");
+      expect(adminCsp, path).toMatch(/'nonce-[^']+'/);
+      expect(adminCsp, path).not.toContain("'unsafe-inline'");
       expect(response.headers()['x-content-type-options'], path).toBe('nosniff');
     }
   });
