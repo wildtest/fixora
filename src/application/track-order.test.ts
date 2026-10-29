@@ -11,6 +11,7 @@ const ORDER: PublicOrderView = {
   device: { type: 'LAPTOP', brand: 'Lenovo', model: null },
   problemDescription: 'No enciende',
   statusTimeline: [{ status: 'SOLICITUD_RECIBIDA', occurredAt: '2026-10-28T15:00:00.000Z' }],
+  repairDetails: null,
 };
 const allowed: LimiterDecision = { status: 'allowed' };
 

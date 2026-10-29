@@ -173,12 +173,14 @@ test.describe('PUB-05 resultado', () => {
 
     const everything = [await page.content(), await page.locator('body').innerText(), ...bodies].join('\n');
     expect(bodies.length).toBeGreaterThan(0);
-    for (const secret of ['CANARY', 'Ana Quispe', '321.50', '321,5', 'canary-correo']) {
+    for (const secret of ['CANARY-NOMBRE', 'Ana Quispe', 'CANARY-TELEFONO', 'canary-correo', 'CANARY-NOTA-INTERNA', 'CANARY-NOTA-PUBLICA']) {
       expect(everything, secret).not.toContain(secret);
     }
-    // Ni siquiera con diagnóstico y costo ya registrados se publican en CHG-06 (los publica CHG-11).
-    await expect(page.getByTestId('more-info-empty')).toBeVisible();
-    await expect(page.getByText(/S\/\s?\d/)).toHaveCount(0);
+    // Desde Esperando aprobación el diagnóstico y el costo SÍ son públicos (CHG-11): solo sus valores vigentes.
+    await expect(page.getByTestId('repair-details')).toBeVisible();
+    await expect(page.getByTestId('public-cost')).toHaveText('S/ 321.50');
+    await expect(page.getByTestId('public-diagnosis')).toHaveText('CANARY-DIAGNOSTICO pantalla');
+    await expect(page.getByTestId('more-info-empty')).toHaveCount(0);
   });
 
   test('la respuesta de la consulta no se cachea y el resultado no es indexable', async ({ page }) => {

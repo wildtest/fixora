@@ -134,7 +134,9 @@ test.describe('avance a Esperando aprobación', () => {
     await expect(dialog(page)).toContainText('Al confirmar quedarán congelados y disponibles para el cliente.');
     await expect(dialog(page)).toContainText('Después no podrán modificarse.');
     await expect(dialog(page).getByRole('button', { name: 'Avanzar a Esperando aprobación' })).toBeFocused(); // variante normal
-    await expect(dialog(page)).not.toContainText(/CANARY-DIAGNOSTICO|S\/ /); // el resumen lo aporta CHG-11
+    // CHG-11: el diálogo muestra el resumen real de lo que se publicará (diagnóstico y costo vigentes).
+    await expect(dialog(page).getByTestId('summary-diagnosis')).toHaveText('CANARY-DIAGNOSTICO');
+    await expect(dialog(page).getByTestId('summary-cost')).toHaveText('S/ 150.00');
     await dialog(page).getByRole('button', { name: 'Avanzar a Esperando aprobación' }).click();
     await expect(page.getByTestId('journey-headline')).toHaveText('Etapa 4 de 7 · Esperando aprobación');
     expect((await db.state(order.id)).status).toBe('ESPERANDO_APROBACION');

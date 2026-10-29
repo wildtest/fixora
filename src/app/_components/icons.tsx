@@ -150,3 +150,27 @@ export function SyncAltIcon(props: IconProps) {
     </Icon>
   );
 }
+
+/** Cambio de diagnóstico (`description`): hoja con líneas. */
+export function DescriptionIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 3.5h7l4 4v13H7z" />
+      <path d="M14 3.5v4h4" />
+      <path d="M9.5 12h5" />
+      <path d="M9.5 15.5h5" />
+    </Icon>
+  );
+}
+
+/** Cambio de costo (`payments`): billete. */
+export function PaymentsIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="6.5" width="18" height="11" rx="1.5" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M6.5 9.5v.01" />
+      <path d="M17.5 14.5v.01" />
+    </Icon>
+  );
+}

@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
-import { ABSENT_TEXT, journeyTimeline, type AdminOrderDetailDTO } from "@/domain/admin/order-detail";
+import { ABSENT_TEXT, journeyTimeline, type AdminHistoryEvent, type AdminOrderDetailDTO } from "@/domain/admin/order-detail";
 import { DEVICE_TYPE_LABELS } from "@/domain/repair/device-type";
 import { formatLimaDateTime } from "@/domain/repair/format-date";
 import { buildJourney } from "@/domain/repair/journey";
+import { formatSoles } from "@/domain/repair/money";
 import { ORDER_STATUS_LABELS } from "@/domain/repair/order-status";
-import { LockIcon, SyncAltIcon, VisibilityIcon } from "../../../_components/icons";
+import { DescriptionIcon, LockIcon, PaymentsIcon, SyncAltIcon, VisibilityIcon } from "../../../_components/icons";
 import { RepairJourney } from "../../../_components/repair-journey";
 import { StatusBadge } from "../../../_components/tracking-result";
+import { DiagnosisCostPanel } from "./diagnosis-cost-panel";
 import { OrderLifecycle } from "./order-lifecycle";
 
 // Detalle administrativo (ADM-04). Estructura de DESIGN, de arriba abajo y SOLO lo que existe: cabecera → Repair
@@ -27,6 +29,50 @@ function Field({ label, children, testId }: { label: string; children: ReactNode
 }
 
 const absent = <span className="text-content-muted">{ABSENT_TEXT}</span>;
+
+const NO_DIAGNOSIS = "sin diagnóstico";
+const NO_COST = "sin costo";
+
+// Entrada del historial administrativo combinado (DESIGN §8.2): marcador cuadrado con icono por tipo de cambio, el tipo en
+// negrita + fecha y el contenido «{anterior} → {nuevo}» (en el primer registro, solo el valor). Sin autor.
+function HistoryEntry({ event }: { event: AdminHistoryEvent }) {
+  const Icon = event.type === "STATUS" ? SyncAltIcon : event.type === "DIAGNOSIS" ? DescriptionIcon : PaymentsIcon;
+  const label = event.type === "STATUS" ? "Estado" : event.type === "DIAGNOSIS" ? "Diagnóstico" : "Costo estimado";
+  let content: React.ReactNode;
+  if (event.type === "STATUS") {
+    content = (
+      <>
+        {event.fromStatus ? `${ORDER_STATUS_LABELS[event.fromStatus]} → ` : null}
+        <strong>{ORDER_STATUS_LABELS[event.toStatus]}</strong>
+      </>
+    );
+  } else {
+    const show = event.type === "COST" ? (value: string | null) => (value === null ? NO_COST : formatSoles(value)) : (value: string | null) => value ?? NO_DIAGNOSIS;
+    content =
+      event.previous === null && event.next !== null ? (
+        <strong>{show(event.next)}</strong>
+      ) : (
+        <>
+          {show(event.previous)} → <strong>{show(event.next)}</strong>
+        </>
+      );
+  }
+  return (
+    <li data-testid="history-event" data-type={event.type} className="flex gap-3">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-xs bg-surface-secondary text-content-secondary">
+        <Icon size={18} />
+      </span>
+      <div className="min-w-0">
+        <p className="text-small text-content-secondary">
+          <span className="font-semibold text-content">{label}</span> · {formatLimaDateTime(event.occurredAt)}
+        </p>
+        <p data-testid="history-change" className="whitespace-pre-wrap break-words text-body text-content [overflow-wrap:anywhere]">
+          {content}
+        </p>
+      </div>
+    </li>
+  );
+}
 
 export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
   const journey = buildJourney(order.status, journeyTimeline(order.statusHistory));
@@ -59,6 +105,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
         status={order.status}
         version={order.version}
         allowedTransitions={order.allowedTransitions}
+        summary={{ diagnosis: order.diagnosis, estimatedCost: order.estimatedCost }}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
@@ -84,6 +131,17 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
               {order.problemDescription}
             </Field>
           </dl>
+          <div className="space-y-4 border-t border-line px-4 py-4" data-testid="diagnosis-cost">
+            <DiagnosisCostPanel
+              orderId={order.id}
+              version={order.version}
+              status={order.status}
+              diagnosis={order.diagnosis}
+              estimatedCost={order.estimatedCost}
+              canEdit={order.canEditDiagnosisAndCost}
+              neverPublished={order.neverPublished}
+            />
+          </div>
         </section>
 
         <section aria-labelledby="bloque-interno" data-testid="block-internal" className="overflow-hidden rounded-md border border-dashed border-line-strong bg-surface">
@@ -114,7 +172,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
             <section aria-labelledby="historial-titulo" data-testid="status-history" className="rounded-sm border border-dashed border-line-strong p-3">
               <div className="flex items-center justify-between gap-2">
                 <h3 id="historial-titulo" className="text-label text-content">
-                  Historial de estados
+                  Historial administrativo
                 </h3>
                 <span className="inline-flex items-center gap-1 text-caption text-content-secondary">
                   <LockIcon size={14} />
@@ -122,21 +180,8 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
                 </span>
               </div>
               <ol className="mt-3 space-y-3">
-                {order.statusHistory.map((event) => (
-                  <li key={`${event.toStatus}-${event.occurredAt}`} data-testid="history-event" className="flex gap-3">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-xs bg-surface-secondary text-content-secondary">
-                      <SyncAltIcon size={18} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-small text-content-secondary">
-                        <span className="font-semibold text-content">Estado</span> · {formatLimaDateTime(event.occurredAt)}
-                      </p>
-                      <p data-testid="history-change" className="text-body text-content">
-                        {event.fromStatus ? `${ORDER_STATUS_LABELS[event.fromStatus]} → ` : null}
-                        <strong>{ORDER_STATUS_LABELS[event.toStatus]}</strong>
-                      </p>
-                    </div>
-                  </li>
+                {order.history.map((event, index) => (
+                  <HistoryEntry key={`${event.type}-${event.occurredAt}-${index}`} event={event} />
                 ))}
               </ol>
             </section>

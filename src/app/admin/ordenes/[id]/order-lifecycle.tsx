@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import type { AllowedTransition } from "@/domain/repair/lifecycle";
+import { formatSoles } from "@/domain/repair/money";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/domain/repair/order-status";
 import { Alert } from "../../../_components/alert";
 import { ButtonLink } from "../../../_components/button-link";
@@ -80,6 +81,27 @@ const FAILURES: Record<Exclude<Failure, "SESSION_EXPIRED">, { variant: "warning"
   UNEXPECTED: { variant: "error", title: "Ocurrió un problema inesperado.", text: "Inténtalo nuevamente.", refresh: true },
 };
 
+// Resumen del diálogo #1 (DESIGN §12): el diagnóstico y el costo vigentes que se publicarán. Corresponde a la versión revisada:
+// si cambian antes de confirmar, la confirmación vieja devuelve STALE_ORDER y no se publica nada.
+function PublicationSummary({ summary }: { summary: { diagnosis: string | null; estimatedCost: string | null } }) {
+  return (
+    <dl data-testid="publication-summary" className="space-y-3 rounded-md bg-surface-secondary p-4">
+      <div>
+        <dt className="text-label text-content-secondary">Diagnóstico</dt>
+        <dd data-testid="summary-diagnosis" className="mt-0.5 max-h-40 overflow-y-auto whitespace-pre-wrap break-words text-body text-content [overflow-wrap:anywhere]">
+          {summary.diagnosis}
+        </dd>
+      </div>
+      <div>
+        <dt className="text-label text-content-secondary">Costo estimado</dt>
+        <dd data-testid="summary-cost" className="mt-0.5 text-card-title tabular-nums text-primary-active">
+          {summary.estimatedCost === null ? null : formatSoles(summary.estimatedCost)}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
 const secondaryButton =
   "transition-soft inline-flex h-11 w-full items-center justify-center rounded-sm bg-primary-subtle px-4 text-button text-primary-active hover:bg-secondary-hover md:w-auto lg:h-10";
 
@@ -89,12 +111,15 @@ export function OrderLifecycle({
   status,
   version,
   allowedTransitions,
+  summary,
 }: {
   orderId: string;
   trackingCode: string;
   status: OrderStatus;
   version: number;
   allowedTransitions: readonly AllowedTransition[];
+  /** Diagnóstico y costo vigentes de la versión revisada: es lo que muestra el resumen del diálogo #1. */
+  summary: { diagnosis: string | null; estimatedCost: string | null };
 }) {
   const router = useRouter();
   const [refreshing, startRefresh] = useTransition();
@@ -219,6 +244,7 @@ export function OrderLifecycle({
           chip={`${ORDER_STATUS_LABELS[status]} → ${ORDER_STATUS_LABELS[dialog.targetStatus]}`}
           title={spec.title(trackingCode)}
           description={spec.description}
+          summary={dialog.targetStatus === "ESPERANDO_APROBACION" ? <PublicationSummary summary={summary} /> : undefined}
           alert={spec.alert}
           actionLabel={dialog.targetStatus === "CANCELADO" ? "Cancelar orden" : `Avanzar a ${ORDER_STATUS_LABELS[dialog.targetStatus]}`}
           pending={busy}

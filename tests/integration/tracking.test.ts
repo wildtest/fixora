@@ -98,6 +98,7 @@ describe('[SC-02] consulta con un código existente', () => {
           { status: 'EQUIPO_RECIBIDO', occurredAt: '2026-10-21T15:00:00.000Z' },
           { status: 'SOLICITUD_RECIBIDA', occurredAt: '2026-10-20T15:00:00.000Z' },
         ],
+        repairDetails: null, // En diagnóstico: aunque existan los valores, aún no son públicos (CHG-11)
       },
     });
   });
@@ -138,24 +139,33 @@ describe('[SC-11] proyección pública con lista positiva', () => {
       const result = await trackOrder(CODE, SUBJECT, dependencies());
       expect(result.ok).toBe(true);
       if (!result.ok) return;
-      expect(Object.keys(result.data).sort()).toEqual(['device', 'problemDescription', 'statusTimeline', 'status', 'trackingCode'].sort());
+      expect(Object.keys(result.data).sort()).toEqual(['device', 'problemDescription', 'repairDetails', 'statusTimeline', 'status', 'trackingCode'].sort());
+      // CHG-11: el diagnóstico y el costo se publican desde Esperando aprobación (el fixture no tiene el evento hacia esa etapa, por
+      // lo que Cancelado NO los publica); antes, nunca, aunque existan los valores.
+      const published = ['ESPERANDO_APROBACION', 'EN_REPARACION', 'ENTREGADO'].includes(status);
+      expect(result.data.repairDetails).toEqual(published ? { diagnosis: 'CANARY-DIAGNOSIS', estimatedCost: '123.45' } : null);
       expect(Object.keys(result.data.device).sort()).toEqual(['brand', 'model', 'type']);
       for (const event of result.data.statusTimeline) expect(Object.keys(event).sort()).toEqual(['occurredAt', 'status']);
-      const serialized = JSON.stringify(result);
+      // Todo lo demás (excepto los valores publicados de `repairDetails`) sigue siendo privado.
+      const serialized = JSON.stringify({ ...result, data: { ...result.data, repairDetails: undefined } });
       for (const forbidden of [
-        'CANARY', 'canary', 'Ana Quispe', 'customer', '123.45', 'diagnosis', 'estimated', 'version', 'internal', 'note', 'from_status',
+        'CANARY', 'canary', 'Ana Quispe', 'customer', '123.45', 'diagnosis', 'estimated', 'version', 'internal', 'note', 'from_status', 'published', 'previous',
       ]) {
         expect(serialized, forbidden).not.toContain(forbidden);
       }
+      if (!published) expect(JSON.stringify(result)).not.toMatch(/CANARY-DIAGNOSIS|123\.45|repairDetails":\{/);
       // Ni el UUID de la orden ni el de ninguna fila de historial.
       expect(serialized).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     },
   );
 
-  it('el diagnóstico y el costo no atraviesan la proyección en ningún estado (CHG-11 los publicará)', async () => {
-    await insertPopulatedOrder('ESPERANDO_APROBACION');
-    const result = await trackOrder(CODE, SUBJECT, dependencies());
-    expect(JSON.stringify(result)).not.toMatch(/CANARY-DIAGNOSIS|123\.45/);
+  it('el diagnóstico y el costo SOLO atraviesan la proyección desde Esperando aprobación (CHG-11) y nunca antes', async () => {
+    await insertPopulatedOrder('EN_DIAGNOSTICO');
+    const before = await trackOrder(CODE, SUBJECT, dependencies());
+    expect(JSON.stringify(before)).not.toMatch(/CANARY-DIAGNOSIS|123\.45/);
+    await owner.query("UPDATE repair_orders SET status = 'ESPERANDO_APROBACION'");
+    const after = await trackOrder(CODE, SUBJECT, dependencies());
+    expect(after.ok && after.data.repairDetails).toEqual({ diagnosis: 'CANARY-DIAGNOSIS', estimatedCost: '123.45' });
   });
 
   it('el rol de aplicación no necesita (ni tiene) acceso a columnas fuera de la proyección para consultar', async () => {
@@ -167,11 +177,11 @@ describe('[SC-11] proyección pública con lista positiva', () => {
     await owner.query('REVOKE SELECT ON order_status_history FROM fixora_app');
     try {
       await owner.query(
-        'GRANT SELECT (id, tracking_code, status, device_type, brand, model, problem_description) ON repair_orders TO fixora_app',
+        'GRANT SELECT (id, tracking_code, status, device_type, brand, model, problem_description, diagnosis, estimated_cost) ON repair_orders TO fixora_app',
       );
       await owner.query('GRANT SELECT (id, order_id, to_status, occurred_at) ON order_status_history TO fixora_app');
       const result = await trackOrder(CODE, SUBJECT, dependencies());
-      expect(result.ok).toBe(true); // no lee customer_*, diagnosis, estimated_cost ni version
+      expect(result.ok).toBe(true); // no lee customer_*, version ni notas (diagnosis y estimated_cost solo se proyectan si son públicos)
     } finally {
       await owner.query('REVOKE SELECT ON repair_orders FROM fixora_app');
       await owner.query('REVOKE SELECT ON order_status_history FROM fixora_app');

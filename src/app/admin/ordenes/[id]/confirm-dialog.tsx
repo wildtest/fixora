@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Alert } from "../../../_components/alert";
 
 // Diálogo de confirmación E11 (DESIGN.md §6.12 y §12): un solo patrón para las cuatro confirmaciones. Chip de transición
@@ -17,6 +17,7 @@ export function ConfirmDialog({
   chip,
   title,
   description,
+  summary,
   alert,
   actionLabel,
   pending,
@@ -27,6 +28,8 @@ export function ConfirmDialog({
   chip: string;
   title: string;
   description?: string;
+  /** Resumen de lo que se confirma (p. ej. el diagnóstico y el costo que se publicarán); lo aporta el llamador. */
+  summary?: ReactNode;
   alert: { variant: "info" | "warning" | "error"; title?: string; text: string };
   actionLabel: string;
   pending: boolean;
@@ -71,6 +74,7 @@ export function ConfirmDialog({
           {title}
         </h2>
         {description ? <p className="text-body text-content-secondary">{description}</p> : null}
+        {summary}
         <Alert variant={alert.variant} title={alert.title}>
           {alert.text}
         </Alert>
