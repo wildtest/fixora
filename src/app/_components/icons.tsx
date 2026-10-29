@@ -128,3 +128,25 @@ export function CloseIcon(props: IconProps) {
     </Icon>
   );
 }
+
+/** Visible al cliente (`visibility`): ojo. */
+export function VisibilityIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="2.75" />
+    </Icon>
+  );
+}
+
+/** Cambio de estado (`sync_alt`): dos flechas opuestas. */
+export function SyncAltIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 8h14" />
+      <path d="M15 5l3 3-3 3" />
+      <path d="M20 16H6" />
+      <path d="M9 13l-3 3 3 3" />
+    </Icon>
+  );
+}

@@ -23,15 +23,24 @@ const STATUS_LABELS: Record<string, string> = {
 // Con Cache Components la Activity conserva oculto el árbol de la ruta anterior: solo cuentan las filas visibles.
 const rows = (page: Page) => page.getByTestId('order-row').filter({ visible: true });
 
+// Cada interacción del directorio es una Server Action: se espera su respuesta y el fin del estado pendiente, para que
+// ninguna aserción se cumpla por casualidad con el resultado ANTERIOR.
+async function settled(page: Page, interaction: () => Promise<unknown>) {
+  const response = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/admin/ordenes'));
+  await interaction();
+  await response;
+  await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+}
+
 async function search(page: Page, text: string) {
   await page.getByLabel('Buscar por código o nombre').fill(text);
-  await page.getByRole('button', { name: 'Buscar' }).click();
+  await settled(page, () => page.getByRole('button', { name: 'Buscar' }).click());
 }
 
 async function chooseStatus(page: Page, status: string | null) {
   const label = status ? STATUS_LABELS[status]! : 'Todos';
-  if (isMobile(page)) await page.getByRole('combobox', { name: 'Filtrar por estado' }).selectOption({ label });
-  else await page.getByRole('group', { name: 'Filtrar por estado' }).getByRole('button', { name: label, exact: true }).click();
+  if (isMobile(page)) await settled(page, () => page.getByRole('combobox', { name: 'Filtrar por estado' }).selectOption({ label }));
+  else await settled(page, () => page.getByRole('group', { name: 'Filtrar por estado' }).getByRole('button', { name: label, exact: true }).click());
 }
 
 async function openDirectory(page: Page) {
@@ -67,11 +76,11 @@ test.describe('ADM-02 — Dashboard', () => {
     const customers = await recent.getByTestId('order-customer').allInnerTexts();
     expect(customers).toEqual([6, 5, 4, 3, 2].map((i) => `${tag} Reciente ${i}`));
 
-    // Sin métricas, gráficos ni acciones de modificación; la orden no es clicable ni ofrece «Ver detalle» (CHG-09b).
+    // Sin métricas, gráficos ni acciones de modificación; cada orden reciente ofrece un único enlace «Ver detalle» (CHG-09b).
     await expect(page.getByText(/tendencia|promedio|ingresos|gráfico/i)).toHaveCount(0);
-    await expect(page.getByRole('link', { name: /ver detalle/i })).toHaveCount(0);
+    await expect(recent.first().getByRole('link', { name: /^Ver detalle de la orden/ })).toHaveAttribute('href', /^\/admin\/ordenes\/[0-9a-f-]{36}$/);
     await expect(page.getByRole('button', { name: /ver detalle|editar|eliminar|crear|cambiar estado/i })).toHaveCount(0);
-    await expect(recent.first().getByRole('link')).toHaveCount(0);
+    await expect(recent.first().getByRole('link')).toHaveCount(1);
     await noHorizontalOverflow(page);
   });
 
@@ -123,7 +132,7 @@ test.describe('ADM-03 — Directorio, búsqueda, filtro y paginación', () => {
     expect(page.url()).not.toContain(code);
     expect(page.url()).not.toContain(code.toLowerCase());
 
-    await search(page, `${tag} munoz`);
+    await search(page, `${tag} carlos munoz`);
     await expect(rows(page)).toHaveCount(1);
     await expect(rows(page).first().getByTestId('order-customer')).toHaveText(`${tag} Carlos Muñoz`);
     expect(page.url()).not.toContain(tag);
@@ -146,9 +155,11 @@ test.describe('ADM-03 — Directorio, búsqueda, filtro y paginación', () => {
     await openDirectory(page);
     await search(page, `${tag} 100%`);
     await expect(rows(page)).toHaveCount(1);
-    await search(page, `${tag} %`);
+    await search(page, '% ruiz');
     await expect(rows(page)).toHaveCount(1); // '%' literal: solo coincide el nombre que lo contiene
     await expect(rows(page).first().getByTestId('order-customer')).toHaveText(`${tag} 100% Ruiz`);
+    await search(page, `${tag} %`); // como comodín coincidiría con ambos nombres; como literal, con ninguno
+    await expect(page.getByText('No se encontraron órdenes con esa búsqueda o filtro.')).toBeVisible();
   });
 
   test('filtro por estado, búsqueda + filtro y «Todos»', async ({ page }) => {
@@ -191,7 +202,7 @@ test.describe('ADM-03 — Directorio, búsqueda, filtro y paginación', () => {
     await expect(rows(page).first().getByTestId('order-customer')).toHaveText(`${tag} Cliente 24`);
     await expect(page.getByRole('button', { name: 'Anterior' })).toBeDisabled();
 
-    await page.getByRole('button', { name: 'Siguiente' }).click();
+    await settled(page, () => page.getByRole('button', { name: 'Siguiente' }).click());
     await expect(page.getByTestId('orders-page')).toHaveText('Página 2 de 2');
     await expect(rows(page)).toHaveCount(5);
     await expect(page.getByRole('button', { name: 'Siguiente' })).toBeDisabled();
@@ -215,12 +226,12 @@ test.describe('ADM-03 — Directorio, búsqueda, filtro y paginación', () => {
     await expect(page.getByText('Verifica los términos o elige otro estado.')).toBeVisible();
     await expect(page.getByText(/ocurrió un problema/i)).toHaveCount(0);
     await expect(page.getByTestId('orders-page')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Limpiar búsqueda y filtros' }).click();
+    await settled(page, () => page.getByRole('button', { name: 'Limpiar búsqueda y filtros' }).click());
     await expect(page.getByLabel('Buscar por código o nombre')).toHaveValue('');
     await expect(rows(page).first()).toBeVisible();
   });
 
-  test('las filas muestran código, fecha en hora de Lima, cliente, equipo y estado; sin acciones ni detalle; sin desbordamiento', async ({ page }) => {
+  test('las filas muestran código, fecha en hora de Lima, cliente, equipo y estado; con un único enlace «Ver detalle», sin acciones de modificación; sin desbordamiento', async ({ page }) => {
     const tag = uniqueTag();
     await withOwner(async (db) => {
       await seedOrder(db, { name: `${tag} Fila Completa`, status: 'ESPERANDO_APROBACION', createdAt: new Date('2030-01-01T15:05:00.000Z'), brand: 'Lenovo' });
@@ -233,7 +244,7 @@ test.describe('ADM-03 — Directorio, búsqueda, filtro y paginación', () => {
     await expect(row).toContainText('01/01/2030 10:05'); // 15:05 UTC = 10:05 en America/Lima
     await expect(row).toContainText('Laptop · Lenovo M1');
     await expect(row.getByTestId('status-badge')).toHaveText('Esperando aprobación');
-    await expect(row.getByRole('link')).toHaveCount(0);
+    await expect(row.getByRole('link')).toHaveCount(1);
     await expect(row.getByRole('button')).toHaveCount(0);
     await expect(page.getByRole('main')).not.toContainText(/CANARY|canary/); // sin teléfono, correo, descripción ni diagnóstico
     await noHorizontalOverflow(page);

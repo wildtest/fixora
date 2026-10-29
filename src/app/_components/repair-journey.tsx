@@ -59,11 +59,11 @@ function Connector({ stage }: { stage: JourneyStage }) {
   );
 }
 
-export function RepairJourney({ journey }: { journey: Journey }) {
+export function RepairJourney({ journey, title = "Recorrido de tu reparación" }: { journey: Journey; title?: string }) {
   return (
     <section aria-labelledby="journey-title" data-testid="repair-journey">
       <h2 id="journey-title" className="text-h3 text-content">
-        Recorrido de tu reparación
+        {title}
       </h2>
       <p data-testid="journey-headline" className="mt-1 text-small text-content-secondary">
         {journey.headline}
