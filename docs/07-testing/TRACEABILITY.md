@@ -16,7 +16,7 @@
 |---|---|---|---|---|
 | SC-01 | CHG-05 | E2E; integración | `tests/e2e/register.spec.ts`; `tests/integration/registration.test.ts`; `src/application/register-repair.test.ts` — registro, código y confirmación (primer tramo de E2E-01; lo cierra CHG-11) | verificado |
 | SC-02 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts` — consulta con el código, sin cuenta; estado, equipo, descripción, recorrido e historial | verificado |
-| SC-03 | CHG-09b | E2E | `tests/e2e/admin-access.spec.ts` — primer tramo: inicio de sesión y entrada protegida (CHG-08); el E2E «inicio de sesión → localizar → abrir detalle» lo cierra CHG-09b (soporte: CHG-09a) | parcial |
+| SC-03 | CHG-09b | E2E | `tests/e2e/admin-access.spec.ts`; `tests/e2e/admin-orders.spec.ts` — tramos «inicio de sesión → localizar la orden» (CHG-08, CHG-09a); el E2E completo «… → abrir detalle» lo cierra CHG-09b | parcial |
 | SC-04 | CHG-11 | E2E | E2E del ciclo completo (soporte: CHG-10) | pendiente |
 | SC-05 | CHG-10 | unitaria | Pruebas de cancelación y estados finales | pendiente |
 | SC-06 | CHG-10 | unitaria | Matriz de 64 pares y rechazo desde servidor | pendiente |
@@ -45,14 +45,14 @@
 | E4 | CHG-06 | unitaria | `tests/e2e/track.spec.ts`; `tests/integration/tracking.test.ts` — código inexistente: mismo aviso, sin datos de ninguna orden | verificado |
 | E5 | CHG-11 | unitaria | Pruebas de publicación en `CANCELADO` (soporte: CHG-10) | pendiente |
 | E6 | CHG-06 | E2E | `tests/e2e/track.spec.ts`; `src/app/_components/tracking-result.test.tsx` — vacío informativo sin secciones rotas (lo completan CHG-11 y CHG-12) | parcial |
-| E7 | CHG-09a | integración | Integración de búsqueda y vacío | pendiente |
-| E8 | CHG-09a | unitaria | Orden y paginación | pendiente |
+| E7 | CHG-09a | integración | `tests/integration/admin-orders.test.ts`; `tests/e2e/admin-orders.spec.ts` — búsqueda sin resultados: estado vacío, no error | implementado |
+| E8 | CHG-09a | unitaria | `src/domain/admin/order-directory.test.ts`; `tests/integration/admin-orders.test.ts` — orden estable por fecha de registro descendente y paginación de 20 | implementado |
 | E9 | CHG-10 | unitaria | Pruebas de versión (soporte: CHG-11, 12, 13) | pendiente |
 | E10 | CHG-08 | unitaria | `src/application/admin/admin.test.ts`; `tests/integration/admin-access.test.ts` — sesión inválida: SESSION_EXPIRED, la acción no se ejecuta y no deja estado parcial (soporte: cada mutación añade su acción a la matriz) | implementado |
 | E11 | CHG-10 | E2E | E2E de los cuatro diálogos y comprobación en servidor | pendiente |
 | E12 | CHG-12 | E2E; integración | Integración y E2E de notas | pendiente |
 | E13 | CHG-10 | unitaria | Cancelación de una solicitud falsa; ausencia de anti-spam verificada en CHG-05 | pendiente |
 | E14 | CHG-10 | unitaria | Advertencia del diálogo de cancelación (soporte: CHG-12) | pendiente |
-| E15 | CHG-06 | unitaria | `src/domain/repair/tracking.test.ts`; `tests/integration/tracking.test.ts`; `tests/e2e/track.spec.ts` — normalización exacta: espacio exterior y mayúsculas/minúsculas ASCII | verificado |
+| E15 | CHG-06 | unitaria | `src/domain/repair/tracking.test.ts`; `tests/integration/tracking.test.ts`; `tests/e2e/track.spec.ts`; `src/domain/admin/order-directory.test.ts` — normalización exacta: espacio exterior y mayúsculas/minúsculas ASCII (apoyo: la búsqueda administrativa por código) | verificado |
 | E16 | CHG-05 | unitaria | `src/domain/repair/repair.test.ts` — alfabeto, formato y generación sin sesgo del código | verificado |
 | E17 | CHG-05 | unitaria | `tests/integration/registration.test.ts` — unicidad, colisión y código no reemplazable por el rol de aplicación (soporte: CHG-13: no editable) | implementado |
