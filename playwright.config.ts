@@ -9,6 +9,8 @@ const isCI = Boolean(process.env.CI);
 
 export default defineConfig({
   testDir: 'tests/e2e',
+  // Administrador FICTICIO en la rama `test` (CHG-08), tras la guardia anti-desastre.
+  globalSetup: './tests/e2e/support/global-setup.ts',
   outputDir: 'test-results',
   fullyParallel: false,
   // Un solo worker siempre: los proyectos comparten la base de pruebas y el limitador (varias pruebas la alteran a propósito).

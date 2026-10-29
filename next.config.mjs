@@ -35,6 +35,8 @@ const nextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // Cuerpo máximo de las Server Actions bajo el predeterminado de 1 MB (CHG-08): los formularios de FIXORA son de texto corto.
+  experimental: { serverActions: { bodySizeLimit: "64kb" } },
   turbopack: {
     rules: {
       "*.css": {
