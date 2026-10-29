@@ -9,12 +9,13 @@ import { DescriptionIcon, LockIcon, PaymentsIcon, SyncAltIcon, VisibilityIcon } 
 import { RepairJourney } from "../../../_components/repair-journey";
 import { StatusBadge } from "../../../_components/tracking-result";
 import { DiagnosisCostPanel } from "./diagnosis-cost-panel";
+import { NotesPanel } from "./notes-panel";
 import { OrderLifecycle } from "./order-lifecycle";
 
 // Detalle administrativo (ADM-04). Estructura de DESIGN, de arriba abajo y SOLO lo que existe: cabecera → Repair
 // Journey (presentación, compartido con PUB-05) → acciones de ciclo de vida (CHG-10, FUERA del Journey) → bloques
-// Público e Interno (DESIGN §9, cinco señales: etiqueta textual, icono, encabezado, tipo de borde y posición). Sin
-// marcadores vacíos de funciones futuras (diagnóstico, costo y notas llegan con CHG-11/12; la corrección, con CHG-13).
+// Público e Interno (DESIGN §9, cinco señales: etiqueta textual, icono, encabezado, tipo de borde y posición). Las
+// notas (CHG-12) viven en cada bloque según su visibilidad; sin marcadores vacíos de funciones futuras (la corrección, CHG-13).
 // Todo contenido del cliente se renderiza como texto (React lo escapa) y se ajusta sin desbordar la página.
 
 function Field({ label, children, testId }: { label: string; children: ReactNode; testId?: string }) {
@@ -142,6 +143,9 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
               neverPublished={order.neverPublished}
             />
           </div>
+          <div className="border-t border-line px-4 py-4">
+            <NotesPanel orderId={order.id} visibility="PUBLIC" notes={order.publicNotes} canManage={order.canManageNotes} />
+          </div>
         </section>
 
         <section aria-labelledby="bloque-interno" data-testid="block-internal" className="overflow-hidden rounded-md border border-dashed border-line-strong bg-surface">
@@ -168,6 +172,8 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
                 {order.customer.email ?? absent}
               </Field>
             </dl>
+
+            <NotesPanel orderId={order.id} visibility="INTERNAL" notes={order.internalNotes} canManage={order.canManageNotes} />
 
             <section aria-labelledby="historial-titulo" data-testid="status-history" className="rounded-sm border border-dashed border-line-strong p-3">
               <div className="flex items-center justify-between gap-2">

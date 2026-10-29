@@ -99,6 +99,7 @@ describe('[SC-02] consulta con un código existente', () => {
           { status: 'SOLICITUD_RECIBIDA', occurredAt: '2026-10-20T15:00:00.000Z' },
         ],
         repairDetails: null, // En diagnóstico: aunque existan los valores, aún no son públicos (CHG-11)
+        publicNotes: [{ content: 'CANARY-PUBLIC-NOTE', createdAt: expect.any(String) }], // solo la nota PÚBLICA (CHG-12)
       },
     });
   });
@@ -139,15 +140,18 @@ describe('[SC-11] proyección pública con lista positiva', () => {
       const result = await trackOrder(CODE, SUBJECT, dependencies());
       expect(result.ok).toBe(true);
       if (!result.ok) return;
-      expect(Object.keys(result.data).sort()).toEqual(['device', 'problemDescription', 'repairDetails', 'statusTimeline', 'status', 'trackingCode'].sort());
+      expect(Object.keys(result.data).sort()).toEqual(['device', 'problemDescription', 'publicNotes', 'repairDetails', 'statusTimeline', 'status', 'trackingCode'].sort());
       // CHG-11: el diagnóstico y el costo se publican desde Esperando aprobación (el fixture no tiene el evento hacia esa etapa, por
       // lo que Cancelado NO los publica); antes, nunca, aunque existan los valores.
       const published = ['ESPERANDO_APROBACION', 'EN_REPARACION', 'ENTREGADO'].includes(status);
       expect(result.data.repairDetails).toEqual(published ? { diagnosis: 'CANARY-DIAGNOSIS', estimatedCost: '123.45' } : null);
       expect(Object.keys(result.data.device).sort()).toEqual(['brand', 'model', 'type']);
       for (const event of result.data.statusTimeline) expect(Object.keys(event).sort()).toEqual(['occurredAt', 'status']);
-      // Todo lo demás (excepto los valores publicados de `repairDetails`) sigue siendo privado.
-      const serialized = JSON.stringify({ ...result, data: { ...result.data, repairDetails: undefined } });
+      // Todo lo demás (excepto los valores publicados de `repairDetails` y las notas PÚBLICAS) sigue siendo privado.
+      expect(result.data.publicNotes).toEqual([{ content: 'CANARY-PUBLIC-NOTE', createdAt: expect.any(String) }]);
+      expect(Object.keys(result.data.publicNotes[0]!).sort()).toEqual(['content', 'createdAt']);
+      expect(JSON.stringify(result)).not.toContain('CANARY-INTERNAL-NOTE');
+      const serialized = JSON.stringify({ ...result, data: { ...result.data, repairDetails: undefined, publicNotes: undefined } });
       for (const forbidden of [
         'CANARY', 'canary', 'Ana Quispe', 'customer', '123.45', 'diagnosis', 'estimated', 'version', 'internal', 'note', 'from_status', 'published', 'previous',
       ]) {

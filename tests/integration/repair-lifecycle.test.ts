@@ -108,7 +108,7 @@ describe('transición válida', () => {
     let view = await publicStore.findByTrackingCode(CODE);
     expect(view?.status).toBe('EQUIPO_RECIBIDO');
     expect(view?.statusTimeline.map((e) => e.status)).toEqual(['EQUIPO_RECIBIDO', 'SOLICITUD_RECIBIDA']);
-    expect(Object.keys(view!).sort()).toEqual(['device', 'problemDescription', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
+    expect(Object.keys(view!).sort()).toEqual(['device', 'problemDescription', 'publicNotes', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
     expect(JSON.stringify(view)).not.toMatch(/CANARY|canary|version|confirm|"id"/);
 
     await transitionOrder(admin, command(id, 'ENTREGADO', 2, true), clock); // rechazada

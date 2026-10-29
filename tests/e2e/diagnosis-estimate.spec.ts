@@ -220,8 +220,8 @@ test.describe('congelamiento y publicación', () => {
     await expect(page.getByTestId('cost-readonly-state')).toHaveText('Congelado');
     await expect(page.getByTestId('diagnosis-readonly')).toHaveText(PRIVATE_DIAGNOSIS);
     await expect(page.getByTestId('cost-readonly')).toHaveText('S/ 180.00');
-    await expect(page.getByRole('button', { name: /Guardar/ })).toHaveCount(0);
-    await expect(page.locator('textarea, input[name="estimatedCost"]')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Guardar (diagn|costo)/ })).toHaveCount(0);
+    await expect(page.locator('#diagnosis, input[name="estimatedCost"]')).toHaveCount(0);
     expect(await db.order(order.id)).toMatchObject({ status: 'ESPERANDO_APROBACION', diagnosis: PRIVATE_DIAGNOSIS, cost: '180.00' });
 
     // Publicado: el cliente ve el costo destacado y el diagnóstico, sin historiales ni datos administrativos.

@@ -2,18 +2,18 @@ import 'server-only';
 import type { AdminHistoryEvent, AdminOrderDetailDTO, AdminStatusEvent } from '../../domain/admin/order-detail';
 import { isDeviceType } from '../../domain/repair/device-type';
 import { centsToMoney, moneyToCents } from '../../domain/repair/money';
+import { isNoteVisibility, type AdminNote } from '../../domain/repair/note';
 import { isOrderStatus } from '../../domain/repair/order-status';
 import { getPrisma } from '../db/client';
 import type { PrismaClient } from '../db/generated/client.ts';
 
 // Repositorio administrativo del DETALLE de una orden (CHG-09b D4, ampliado por CHG-10 y CHG-11). Lectura específica,
-// sin `GenericRepository` y sin tipos de Prisma hacia arriba. Dos consultas acotadas (la orden y su historial combinado
-// de estado, diagnóstico y costo), sin N+1, que SELECCIONAN solo las columnas del DTO: nada de notas ni de otras
-// funciones. El costo se lee como TEXTO (`NUMERIC::text`) y se canonicaliza con céntimos enteros: nunca pasa por `number`.
+// sin `GenericRepository` y sin tipos de Prisma hacia arriba. Tres consultas acotadas (la orden, su historial combinado
+// de estado, diagnóstico y costo, y sus notas), sin N+1, que SELECCIONAN solo las columnas del DTO. El costo se lee como TEXTO (`NUMERIC::text`) y se canonicaliza con céntimos enteros: nunca pasa por `number`.
 // El identificador llega ya validado como UUID por la frontera.
 
-/** Lectura base: el caso de uso añade `allowedTransitions`, `canEditDiagnosisAndCost` y `neverPublished` (reglas de dominio). */
-export type AdminOrderDetailRecord = Omit<AdminOrderDetailDTO, 'allowedTransitions' | 'canEditDiagnosisAndCost' | 'neverPublished'> & {
+/** Lectura base: el caso de uso añade `allowedTransitions`, `canEditDiagnosisAndCost`, `canManageNotes` y `neverPublished` (reglas de dominio). */
+export type AdminOrderDetailRecord = Omit<AdminOrderDetailDTO, 'allowedTransitions' | 'canEditDiagnosisAndCost' | 'canManageNotes' | 'neverPublished'> & {
   /** ¿La orden alcanzó alguna vez Esperando aprobación? (decidido por su recorrido real, no por sus valores). */
   readonly reachedApproval: boolean;
 };
@@ -40,6 +40,7 @@ type OrderRow = {
   reached_approval: boolean;
 };
 
+type NoteRow = { id: string; version: number; content: string; visibility: string; created_at: Date };
 type EventRow = { kind: string; occurred_at: Date; previous: string | null; next: string | null };
 
 function canonicalCost(value: string | null): string | null {
@@ -92,6 +93,17 @@ export function createAdminOrderDetailStore(prisma: Pick<PrismaClient, '$queryRa
           FROM "cost_history" c WHERE c."order_id" = ${id}::uuid
         ) e
         ORDER BY e."occurred_at" DESC, e."rank" ASC, e."id" DESC`;
+      // Notas de ESTA orden (CHG-12), separadas por visibilidad, de la más reciente a la más antigua (desempate por `id`).
+      const notes = await prisma.$queryRaw<NoteRow[]>`
+        SELECT n."id"::text AS "id", n."version" AS "version", n."content", n."visibility"::text AS "visibility", n."created_at"
+        FROM "order_notes" n WHERE n."order_id" = ${id}::uuid ORDER BY n."created_at" DESC, n."id" DESC`;
+      const publicNotes: AdminNote[] = [];
+      const internalNotes: AdminNote[] = [];
+      for (const note of notes) {
+        if (!isNoteVisibility(note.visibility)) throw new Error('Visibilidad almacenada no válida.');
+        const view: AdminNote = { id: note.id, version: note.version, content: note.content, createdAt: note.created_at.toISOString() };
+        (note.visibility === 'PUBLIC' ? publicNotes : internalNotes).push(view);
+      }
       const history = events.map(toEvent);
       const statusHistory: AdminStatusEvent[] = [];
       for (const event of history) {
@@ -108,6 +120,8 @@ export function createAdminOrderDetailStore(prisma: Pick<PrismaClient, '$queryRa
         problemDescription: order.problem_description,
         diagnosis: order.diagnosis,
         estimatedCost: canonicalCost(order.estimated_cost),
+        publicNotes,
+        internalNotes,
         statusHistory,
         history,
         version: order.version,

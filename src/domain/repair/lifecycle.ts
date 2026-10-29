@@ -112,3 +112,12 @@ export function isDiagnosisAndCostPublic(status: OrderStatus, reachedApproval: b
   if (status === 'CANCELADO') return reachedApproval;
   return status === 'ESPERANDO_APROBACION' || status === 'EN_REPARACION' || status === 'LISTO_PARA_RECOJO' || status === 'ENTREGADO';
 }
+
+/**
+ * Las notas se gestionan (crear, editar, eliminar) en los seis estados NO finales y son de solo lectura en Entregado y
+ * Cancelado (CHG-12 D1). NO se aplican a las notas las reglas de congelamiento de diagnóstico y costo. La interfaz lo usa
+ * como indicación; el servidor lo recalcula dentro de la transacción protegida por el bloqueo de la fila de la orden.
+ */
+export function canManageNotes(status: OrderStatus): boolean {
+  return !isTerminal(status);
+}

@@ -1,9 +1,10 @@
 import type { DeviceType } from './device-type';
 import type { OrderStatus } from './order-status';
+import type { PublicNote } from './note';
 
 // Proyección pública de una orden (TD §17, SC-11): lista positiva construida propiedad por propiedad.
 // Solo lo que PRD §4.6 autoriza. `repairDetails` (CHG-11) existe SOLO cuando el diagnóstico y el costo son públicos
-// (desde Esperando aprobación; en Cancelado solo si la orden llegó a esa etapa) y `publicNotes` (CHG-12) no existe aún.
+// (desde Esperando aprobación; en Cancelado solo si la orden llegó a esa etapa) y `publicNotes` (CHG-12) solo trae notas públicas.
 // Sin datos del cliente, UUID, versión, notas internas, indicador «publicado» ni historiales administrativos.
 
 export type PublicStatusEvent = {
@@ -21,6 +22,8 @@ export type PublicOrderView = {
   readonly statusTimeline: readonly PublicStatusEvent[];
   /** `null` mientras no sean públicos: la presencia de valores NUNCA implica publicación. Valores vigentes y congelados. */
   readonly repairDetails: PublicRepairDetails | null;
+  /** Solo notas PÚBLICAS (CHG-12), la más reciente primero. Las internas nunca entran en esta proyección. */
+  readonly publicNotes: readonly PublicNote[];
 };
 
 export type PublicRepairDetails = {

@@ -336,7 +336,7 @@ describe('publicación: derivada del estado, nunca de la presencia de valores (S
     await saveEstimatedCost(admin, cost(id, '95.5', 4), deps());
     await transitionOrder(admin, { orderId: id, targetStatus: 'ESPERANDO_APROBACION', expectedVersion: 5, confirmed: true }, transitionDeps());
     const view = await createPublicOrderStore(prisma).findByTrackingCode(CODE);
-    expect(Object.keys(view!).sort()).toEqual(['device', 'problemDescription', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
+    expect(Object.keys(view!).sort()).toEqual(['device', 'problemDescription', 'publicNotes', 'repairDetails', 'status', 'statusTimeline', 'trackingCode']);
     expect(Object.keys(view!.repairDetails!).sort()).toEqual(['diagnosis', 'estimatedCost']);
     expect(view!.repairDetails).toEqual({ diagnosis: 'Diagnóstico final', estimatedCost: '95.50' });
     expect(JSON.stringify(view)).not.toMatch(/CANARY|Quispe|\b90\.00|history|version|"id"|customer|phone|email|published|previous/i);

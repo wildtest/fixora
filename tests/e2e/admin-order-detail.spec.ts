@@ -131,7 +131,7 @@ test.describe('ADM-04 — contenido del detalle', () => {
     await noHorizontalOverflow(page);
   });
 
-  test('los datos de contacto y equipo y el recorrido son de solo lectura; solo hay acciones de ciclo de vida y el guardado de diagnóstico y costo, sin notas ni edición de datos', async ({ page }) => {
+  test('los datos de contacto y equipo y el recorrido son de solo lectura; solo hay acciones de ciclo de vida, el guardado de diagnóstico y costo y las notas (CHG-12), sin edición de datos', async ({ page }) => {
     const tag = uniqueTag();
     const { id } = await seedWithHistory(tag);
     await login(page);
@@ -142,9 +142,9 @@ test.describe('ADM-04 — contenido del detalle', () => {
       await expect(region.getByRole('button')).toHaveCount(0);
       await expect(region.locator('input, textarea, select, form, [disabled], [contenteditable]')).toHaveCount(0);
     }
-    // Las únicas acciones: ciclo de vida (CHG-10) y el guardado independiente de diagnóstico y costo (CHG-11).
-    await expect(main.getByRole('button')).toHaveText(['Avanzar a Esperando aprobación', 'Cancelar orden', 'Guardar diagnóstico', 'Guardar costo']);
-    await expect(main.getByText(/Editar datos|próximamente|Notas/)).toHaveCount(0);
+    // Las únicas acciones: ciclo de vida (CHG-10), el guardado independiente de diagnóstico y costo (CHG-11) y los dos compositores de notas (CHG-12).
+    await expect(main.getByRole('button')).toHaveText(['Avanzar a Esperando aprobación', 'Cancelar orden', 'Guardar diagnóstico', 'Guardar costo', 'Publicar nota', 'Guardar nota interna']);
+    await expect(main.getByText(/Editar datos|próximamente/)).toHaveCount(0);
     await expect(page.locator('#diagnosis')).toHaveValue('CANARY-DIAGNOSTICO');
     await expect(page.locator('#estimatedCost')).toHaveValue('150.00');
   });

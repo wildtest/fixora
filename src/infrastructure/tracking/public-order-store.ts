@@ -12,11 +12,14 @@ import type { PrismaClient } from '../db/generated/client.ts';
 // una proyección CONDICIONADA en la propia consulta: solo salen de la base de datos en los estados públicos (Esperando
 // aprobación, En reparación, Listo para recojo y Entregado) y en Cancelado únicamente si existe un evento hacia
 // Esperando aprobación; en cualquier otro caso la consulta devuelve NULL y los valores NO se cargan en memoria. La
-// presencia de valores nunca implica publicación. `publicNotes` (CHG-12) no existe todavía.
+// presencia de valores nunca implica publicación. Las notas públicas (CHG-12) salen de una SEGUNDA consulta acotada con
+// `visibility = 'PUBLIC'` explícito y solo `content` y `created_at`: las notas internas nunca se cargan en memoria.
 
 export type PublicOrderStore = {
   findByTrackingCode(trackingCode: string): Promise<PublicOrderView | null>;
 };
+
+type NoteRow = { content: string; created_at: Date };
 
 type Row = {
   tracking_code: string;
@@ -68,6 +71,11 @@ export function createPublicOrderStore(prisma: PrismaClient = getPrisma()): Publ
         if (!isOrderStatus(row.event_status)) throw new Error('Estado de historial no válido.');
         statusTimeline.push({ status: row.event_status, occurredAt: row.event_at.toISOString() });
       }
+      const notes = await prisma.$queryRaw<NoteRow[]>`
+        SELECT n."content", n."created_at"
+        FROM "order_notes" n JOIN "repair_orders" o ON o."id" = n."order_id"
+        WHERE o."tracking_code" = ${trackingCode} AND n."visibility" = 'PUBLIC'
+        ORDER BY n."created_at" DESC, n."id" DESC`;
       return {
         trackingCode: first.tracking_code,
         status: first.status,
@@ -75,6 +83,7 @@ export function createPublicOrderStore(prisma: PrismaClient = getPrisma()): Publ
         problemDescription: first.problem_description,
         statusTimeline,
         repairDetails: toRepairDetails(first.public_diagnosis, first.public_cost),
+        publicNotes: notes.map((n) => ({ content: n.content, createdAt: n.created_at.toISOString() })),
       };
     },
   };

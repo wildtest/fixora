@@ -8,8 +8,8 @@ import type { PublicOrderView } from "@/domain/repair/public-order-view";
 import { RepairJourney } from "./repair-journey";
 
 // PUB-05 — Seguimiento público (DESIGN.md): SOLO la información pública autorizada (PRD §4.6). Recibe el
-// `PublicOrderView` (lista positiva) y nunca consulta nada. Sin acciones que modifiquen datos. Diagnóstico, costo y
-// notas públicas aún no existen (CHG-11/CHG-12): se muestra el vacío informativo de E6, sin secciones rotas.
+// `PublicOrderView` (lista positiva) y nunca consulta nada. Sin acciones que modifiquen datos. Diagnóstico y costo
+// (CHG-11) y notas públicas (CHG-12) son secciones separadas; si no hay ninguno se muestra el vacío informativo de E6.
 
 const BADGE: Record<OrderStatus, string> = {
   SOLICITUD_RECIBIDA: "bg-primary-subtle text-primary-active",
@@ -120,7 +120,28 @@ export function TrackingResult({ order, actions }: { order: PublicOrderView; act
             {order.repairDetails.diagnosis}
           </p>
         </section>
-      ) : (
+      ) : null}
+
+      {order.publicNotes.length > 0 ? (
+        // Notas públicas (CHG-12): del más reciente al más antiguo, solo contenido y fecha. Texto plano (React lo escapa).
+        <section aria-labelledby="notas-title" data-testid="public-notes" className="rounded-md border border-line bg-surface p-6">
+          <h2 id="notas-title" className="text-h3 text-content">
+            Notas del taller
+          </h2>
+          <ul className="mt-4 space-y-4">
+            {order.publicNotes.map((note, index) => (
+              <li key={`${note.createdAt}-${index}`} data-testid="public-note">
+                <p className="text-small tabular-nums text-content-secondary">{formatLimaDateTime(note.createdAt)}</p>
+                <p data-testid="public-note-content" className="mt-0.5 whitespace-pre-wrap break-words text-body text-content [overflow-wrap:anywhere]">
+                  {note.content}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {!order.repairDetails && order.publicNotes.length === 0 ? (
         <section aria-labelledby="mas-info-title" className="rounded-md bg-surface-secondary p-4">
           <h2 id="mas-info-title" className="text-label text-content">
             Diagnóstico, costo y notas
@@ -129,7 +150,7 @@ export function TrackingResult({ order, actions }: { order: PublicOrderView; act
             Todavía no hay información adicional disponible. Cuando el taller la publique, aparecerá aquí.
           </p>
         </section>
-      )}
+      ) : null}
 
       {actions ? <div className="flex flex-col gap-2 md:flex-row">{actions}</div> : null}
     </div>

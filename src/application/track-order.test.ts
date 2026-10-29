@@ -12,6 +12,7 @@ const ORDER: PublicOrderView = {
   problemDescription: 'No enciende',
   statusTimeline: [{ status: 'SOLICITUD_RECIBIDA', occurredAt: '2026-10-28T15:00:00.000Z' }],
   repairDetails: null,
+  publicNotes: [],
 };
 const allowed: LimiterDecision = { status: 'allowed' };
 

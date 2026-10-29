@@ -3,6 +3,8 @@
 import type { ActionResult } from "@/application/action-result";
 import type { SessionExpiredCode } from "@/application/admin/admin-action";
 import type { EditCode, EditOutcome } from "@/application/admin/edit-diagnosis-cost";
+import type { ChangeNoteOutcome, CreateNoteOutcome, NoteCode } from "@/application/admin/order-notes";
+import { createNoteAction, deleteNoteAction, editNoteAction } from "@/application/admin/order-notes-service";
 import { saveDiagnosisAction, saveEstimatedCostAction } from "@/application/admin/edit-diagnosis-cost-service";
 import type { TransitionCode, TransitionOutcome } from "@/application/admin/transition-order";
 import { transitionOrderAction } from "@/application/admin/transition-order-service";
@@ -37,4 +39,21 @@ export async function saveDiagnosis(request: SaveDiagnosisRequest): Promise<Acti
 
 export async function saveEstimatedCost(request: SaveCostRequest): Promise<ActionResult<EditOutcome, EditCode | SessionExpiredCode>> {
   return saveEstimatedCostAction(authenticateRequest, request);
+}
+
+// --- CHG-12: notas públicas e internas (versión PROPIA de la nota; no tocan la versión de la orden) ----------------------
+export type CreateNoteRequest = { readonly orderId: string; readonly visibility: string; readonly content: string };
+export type EditNoteRequest = { readonly orderId: string; readonly noteId: string; readonly expectedNoteVersion: number; readonly content: string };
+export type DeleteNoteRequest = { readonly orderId: string; readonly noteId: string; readonly expectedNoteVersion: number };
+
+export async function createNote(request: CreateNoteRequest): Promise<ActionResult<CreateNoteOutcome, NoteCode | SessionExpiredCode>> {
+  return createNoteAction(authenticateRequest, request);
+}
+
+export async function editNote(request: EditNoteRequest): Promise<ActionResult<ChangeNoteOutcome, NoteCode | SessionExpiredCode>> {
+  return editNoteAction(authenticateRequest, request);
+}
+
+export async function deleteNote(request: DeleteNoteRequest): Promise<ActionResult<{ readonly deleted: true }, NoteCode | SessionExpiredCode>> {
+  return deleteNoteAction(authenticateRequest, request);
 }

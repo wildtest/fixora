@@ -9,6 +9,9 @@ vi.mock('./actions', () => ({
   transitionOrderStatus: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   saveDiagnosis: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   saveEstimatedCost: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
+  createNote: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
+  editNote: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
+  deleteNote: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
 }));
 
 // Presentación del detalle administrativo (CHG-09b): solo lectura, separación Público/Interno y ausencias.
@@ -25,6 +28,9 @@ const base: AdminOrderDetailDTO = {
   diagnosis: null,
   estimatedCost: null,
   canEditDiagnosisAndCost: false,
+  canManageNotes: false,
+  publicNotes: [],
+  internalNotes: [],
   neverPublished: false,
   history: [
     { type: 'STATUS', fromStatus: 'SOLICITUD_RECIBIDA', toStatus: 'EQUIPO_RECIBIDO', occurredAt: '2026-10-29T15:00:00.000Z' },
@@ -80,10 +86,11 @@ describe('detalle administrativo', () => {
     expect(out.indexOf('29/10/2026 10:00')).toBeLessThan(out.indexOf('28/10/2026 10:05', out.indexOf('history-event')));
   });
 
-  it('orden final sin valores: solo lectura, sin botones ni campos, y sin marcadores de notas ni de funciones futuras', () => {
+  it('orden final sin valores: solo lectura, sin botones ni campos, con notas en «Solo lectura» y sin marcadores de funciones futuras', () => {
     const out = html({ ...base, status: 'ENTREGADO' });
     expect(out).not.toMatch(/<button|<form|<input|<textarea|<select|disabled/);
-    expect(out).not.toMatch(/Notas|Nota |próximamente|Avanzar|Cancelar orden|Editar|Guardar/);
+    expect(out).not.toMatch(/próximamente|Avanzar|Cancelar orden|Editar|Guardar|Publicar nota|Eliminar/);
+    expect(out).toContain('Solo lectura');
     expect(out).not.toContain(base.id); // el UUID interno no se presenta como dato de negocio
   });
 
@@ -215,5 +222,38 @@ describe('diagnóstico y costo en el detalle (CHG-11)', () => {
     expect(out).toMatch(/data-type="COST"/);
     expect(out).toMatch(/data-type="DIAGNOSIS"/);
     expect(out).not.toMatch(/autor|usuario|admin@|IP /i);
+  });
+});
+
+describe('notas en el detalle (CHG-12)', () => {
+  const notes = {
+    publicNotes: [{ id: '11111111-1111-4111-8111-111111111111', version: 1, content: 'Pieza <b>en camino</b>', createdAt: '2026-10-29T15:00:00.000Z' }],
+    internalNotes: [{ id: '22222222-2222-4222-8222-222222222222', version: 3, content: 'Cliente molesto', createdAt: '2026-10-29T16:00:00.000Z' }],
+  };
+
+  it('gestionable: compositor por bloque, «Publicar nota» primaria y «Guardar nota interna» secundaria, sin cambio de visibilidad', () => {
+    const out = html({ ...base, status: 'EN_DIAGNOSTICO', canManageNotes: true, ...notes });
+    const pub = out.slice(out.indexOf('data-testid="block-public"'), out.indexOf('data-testid="block-internal"'));
+    const internal = out.slice(out.indexOf('data-testid="block-internal"'));
+    expect(pub).toContain('Publicar nota');
+    expect(pub).toContain('Lo verá el cliente');
+    expect(pub).toContain('Pieza &lt;b&gt;en camino&lt;/b&gt;'); // escapado
+    expect(pub).not.toContain('Cliente molesto'); // la interna no se mezcla con la pública
+    expect(internal).toContain('Guardar nota interna');
+    expect(internal).toContain('Solo la verá el taller');
+    expect(internal).toContain('Cliente molesto');
+    expect(internal).not.toContain('Pieza');
+    expect(pub).toContain('Visible al cliente');
+    expect(internal).toContain('Solo taller');
+    expect(out).not.toMatch(/editada|autor|Cambiar visibilidad|papelera/i);
+    expect(out.match(/Editar/g)).toHaveLength(2);
+    expect(out.match(/Eliminar/g)).toHaveLength(2);
+  });
+
+  it('estado final: las notas se leen pero sin compositor, Editar ni Eliminar', () => {
+    const out = html({ ...base, status: 'ENTREGADO', canManageNotes: false, ...notes });
+    expect(out).toContain('Cliente molesto');
+    expect(out).toContain('Solo lectura');
+    expect(out).not.toMatch(/Publicar nota|Guardar nota interna|Editar|Eliminar|<textarea/);
   });
 });
