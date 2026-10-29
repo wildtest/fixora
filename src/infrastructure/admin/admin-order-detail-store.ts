@@ -7,11 +7,14 @@ import type { PrismaClient } from '../db/generated/client.ts';
 
 // Repositorio administrativo del DETALLE de una orden (CHG-09b D4). Lectura específica, sin `GenericRepository` y
 // sin tipos de Prisma hacia arriba. Dos consultas acotadas (la orden y sus eventos de estado), sin N+1, que
-// SELECCIONAN solo las columnas del DTO: no leen diagnóstico, costo, notas, historiales de diagnóstico o costo,
-// `version` ni `updated_at`. El identificador llega ya validado como UUID por la frontera.
+// SELECCIONAN solo las columnas del DTO: no leen los VALORES de diagnóstico y costo (solo si están presentes, para
+// decidir la transición a Esperando aprobación), ni notas, historiales de diagnóstico o costo, ni `updated_at`. El identificador llega ya validado como UUID por la frontera.
+
+/** Lectura base: el caso de uso añade `allowedTransitions` (reglas de dominio) a partir de la presencia de diagnóstico y costo. */
+export type AdminOrderDetailRecord = Omit<AdminOrderDetailDTO, 'allowedTransitions'> & { readonly hasDiagnosisAndCost: boolean };
 
 export type AdminOrderDetailStore = {
-  findById(id: string): Promise<AdminOrderDetailDTO | null>;
+  findById(id: string): Promise<AdminOrderDetailRecord | null>;
 };
 
 type OrderRow = {
@@ -26,6 +29,8 @@ type OrderRow = {
   brand: string;
   model: string | null;
   problem_description: string;
+  version: number;
+  has_diagnosis_and_cost: boolean;
 };
 
 type EventRow = { from_status: string | null; to_status: string; occurred_at: Date };
@@ -36,7 +41,8 @@ export function createAdminOrderDetailStore(prisma: Pick<PrismaClient, '$queryRa
       const orders = await prisma.$queryRaw<OrderRow[]>`
         SELECT o."id"::text AS "id", o."tracking_code", o."status"::text AS "status", o."created_at",
                o."customer_name", o."customer_phone", o."customer_email",
-               o."device_type"::text AS "device_type", o."brand", o."model", o."problem_description"
+               o."device_type"::text AS "device_type", o."brand", o."model", o."problem_description", o."version" AS "version",
+               (o."diagnosis" IS NOT NULL AND btrim(o."diagnosis") <> '' AND o."estimated_cost" IS NOT NULL) AS "has_diagnosis_and_cost"
         FROM "repair_orders" o WHERE o."id" = ${id}::uuid`;
       const order = orders[0];
       if (!order) return null;
@@ -65,6 +71,8 @@ export function createAdminOrderDetailStore(prisma: Pick<PrismaClient, '$queryRa
         device: { type: order.device_type, brand: order.brand, model: order.model },
         problemDescription: order.problem_description,
         statusHistory,
+        version: order.version,
+        hasDiagnosisAndCost: order.has_diagnosis_and_cost === true,
       };
     },
   };

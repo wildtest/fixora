@@ -7,11 +7,12 @@ import { ORDER_STATUS_LABELS } from "@/domain/repair/order-status";
 import { LockIcon, SyncAltIcon, VisibilityIcon } from "../../../_components/icons";
 import { RepairJourney } from "../../../_components/repair-journey";
 import { StatusBadge } from "../../../_components/tracking-result";
+import { OrderLifecycle } from "./order-lifecycle";
 
-// Detalle administrativo de SOLO LECTURA (ADM-04, CHG-09b). Estructura de DESIGN, de arriba abajo y SOLO lo que existe:
-// cabecera → Repair Journey (presentación, compartido con PUB-05) → bloques Público e Interno (DESIGN §9, cinco
-// señales: etiqueta textual, icono, encabezado, tipo de borde y posición). Sin controles de modificación, deshabilitados
-// ni marcadores vacíos de funciones futuras (diagnóstico, costo y notas llegan con CHG-11/12; transiciones con CHG-10).
+// Detalle administrativo (ADM-04). Estructura de DESIGN, de arriba abajo y SOLO lo que existe: cabecera → Repair
+// Journey (presentación, compartido con PUB-05) → acciones de ciclo de vida (CHG-10, FUERA del Journey) → bloques
+// Público e Interno (DESIGN §9, cinco señales: etiqueta textual, icono, encabezado, tipo de borde y posición). Sin
+// marcadores vacíos de funciones futuras (diagnóstico, costo y notas llegan con CHG-11/12; la corrección, con CHG-13).
 // Todo contenido del cliente se renderiza como texto (React lo escapa) y se ajusta sin desbordar la página.
 
 function Field({ label, children, testId }: { label: string; children: ReactNode; testId?: string }) {
@@ -51,6 +52,14 @@ export function OrderDetailView({ order }: { order: AdminOrderDetailDTO }) {
       </header>
 
       <RepairJourney journey={journey} title="Recorrido de la reparación" />
+
+      <OrderLifecycle
+        orderId={order.id}
+        trackingCode={order.trackingCode}
+        status={order.status}
+        version={order.version}
+        allowedTransitions={order.allowedTransitions}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
         <section aria-labelledby="bloque-publico" data-testid="block-public" className="overflow-hidden rounded-md border border-info-line bg-surface">

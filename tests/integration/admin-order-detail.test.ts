@@ -62,6 +62,11 @@ describe('detalle de una orden existente', () => {
     expect(detail).not.toBeNull();
     expect(Object.keys(detail!).sort()).toEqual([...DETAIL_KEYS]);
     expect(detail).toMatchObject({
+      version: 9,
+      allowedTransitions: [
+        { targetStatus: 'EQUIPO_RECIBIDO', requiresConfirmation: false },
+        { targetStatus: 'CANCELADO', requiresConfirmation: true },
+      ],
       id,
       trackingCode: CODE,
       status: 'SOLICITUD_RECIBIDA',
@@ -82,7 +87,7 @@ describe('detalle de una orden existente', () => {
     await owner.query("INSERT INTO diagnosis_history (id, order_id, previous_value, new_value, occurred_at) VALUES ($1, $2, NULL, 'CANARY-HIST-DIAGNOSTICO', now())", [randomUUID(), id]);
     await owner.query('INSERT INTO cost_history (id, order_id, previous_value, new_value, occurred_at) VALUES ($1, $2, NULL, 777.77, now())', [randomUUID(), id]);
     const json = JSON.stringify(await getAdminOrderDetail(admin, id, store()));
-    expect(json).not.toMatch(/CANARY-DIAGNOSTICO|CANARY-NOTA|CANARY-HIST|321|777|"version"|"diagnosis"|"estimatedCost"|"notes"|"capabilities"/);
+    expect(json).not.toMatch(/CANARY-DIAGNOSTICO|CANARY-NOTA|CANARY-HIST|321|777|"diagnosis"|"estimatedCost"|"notes"|"capabilities"|hasDiagnosisAndCost/);
   });
 
   it('el repositorio no menciona columnas ni tablas de funciones futuras en sus consultas', () => {
@@ -90,8 +95,13 @@ describe('detalle de una orden existente', () => {
       .split('\n')
       .filter((line) => !line.trim().startsWith('//'))
       .join('\n');
-    for (const forbidden of ['"diagnosis"', 'estimated_cost', '"version"', 'updated_at', 'order_notes', 'diagnosis_history', 'cost_history', 'queryRawUnsafe']) {
-      expect(source, forbidden).not.toContain(forbidden);
+    // Solo se admite la PRESENCIA de diagnóstico y costo (para decidir la transición), nunca sus valores.
+    const withoutPresence = source
+      .replaceAll('o."diagnosis" IS NOT NULL', '')
+      .replaceAll('btrim(o."diagnosis")', '')
+      .replaceAll('o."estimated_cost" IS NOT NULL', '');
+    for (const forbidden of ['"diagnosis"', 'estimated_cost', 'updated_at', 'order_notes', 'diagnosis_history', 'cost_history', 'queryRawUnsafe']) {
+      expect(withoutPresence, forbidden).not.toContain(forbidden);
     }
   });
 

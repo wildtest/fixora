@@ -1,5 +1,6 @@
 import 'server-only';
 import { parseOrderId, type AdminOrderDetailDTO } from '../../domain/admin/order-detail';
+import { presentTransitions } from '../../domain/repair/lifecycle';
 import { createAdminOrderDetailStore, type AdminOrderDetailStore } from '../../infrastructure/admin/admin-order-detail-store';
 import type { AdminContext } from './admin-context';
 
@@ -17,5 +18,8 @@ export async function getAdminOrderDetail(
 ): Promise<AdminOrderDetailDTO | null> {
   const id = parseOrderId(rawId);
   if (id === null) return null;
-  return store.findById(id);
+  const record = await store.findById(id);
+  if (record === null) return null;
+  const { hasDiagnosisAndCost, ...detail } = record;
+  return { ...detail, allowedTransitions: presentTransitions(record.status, hasDiagnosisAndCost) };
 }

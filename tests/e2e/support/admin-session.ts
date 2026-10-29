@@ -62,6 +62,10 @@ export type SeedOrder = {
   /** `null` = sin modelo; por defecto, «M1». */
   readonly model?: string | null;
   readonly problem?: string;
+  /** `null` = sin diagnóstico (fixture directo en PostgreSQL; no hay UI ni endpoint). Por defecto, presente. */
+  readonly diagnosis?: string | null;
+  /** `null` = sin costo estimado. Por defecto, presente. */
+  readonly cost?: number | null;
   readonly history?: readonly SeedEvent[];
   readonly name: string;
   readonly status?: string;
@@ -77,7 +81,7 @@ export async function seedOrder(db: pg.Client, order: SeedOrder): Promise<string
   await db.query(
     `INSERT INTO repair_orders (id, tracking_code, status, customer_name, customer_name_search, customer_phone, customer_email,
        device_type, brand, model, problem_description, diagnosis, estimated_cost, version, created_at, updated_at)
-     VALUES ($1, $2, $3::order_status, $4, $5, $8, $9, 'LAPTOP', $6, $10, $11, 'CANARY-DIAGNOSTICO', 150.00, 3, $7::timestamptz, $7::timestamptz)`,
+     VALUES ($1, $2, $3::order_status, $4, $5, $8, $9, 'LAPTOP', $6, $10, $11, $12, $13, 3, $7::timestamptz, $7::timestamptz)`,
     [
       id,
       code,
@@ -90,6 +94,8 @@ export async function seedOrder(db: pg.Client, order: SeedOrder): Promise<string
       order.email === undefined ? 'canary-correo@example.com' : order.email,
       order.model === undefined ? 'M1' : order.model,
       order.problem ?? 'CANARY-DESCRIPCION',
+      order.diagnosis === undefined ? 'CANARY-DIAGNOSTICO' : order.diagnosis,
+      order.cost === undefined ? 150 : order.cost,
     ],
   );
   for (const event of order.history ?? []) {

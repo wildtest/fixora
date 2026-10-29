@@ -131,17 +131,23 @@ test.describe('ADM-04 — contenido del detalle', () => {
     await noHorizontalOverflow(page);
   });
 
-  test('solo lectura: sin controles de modificación, deshabilitados ni marcadores de funciones futuras', async ({ page }) => {
+  test('los datos y el recorrido son de solo lectura: las únicas acciones son las de ciclo de vida, sin edición ni marcadores de funciones futuras', async ({ page }) => {
     const tag = uniqueTag();
     const { id } = await seedWithHistory(tag);
     await login(page);
     await page.goto(`/admin/ordenes/${id}`);
     const main = page.getByRole('main');
-    await expect(main.getByRole('button')).toHaveCount(0);
-    await expect(main.locator('input, textarea, select, form, [disabled], [contenteditable]')).toHaveCount(0);
-    await expect(main.getByText(/Editar|Avanzar|Cancelar orden|Guardar|próximamente|Diagnóstico|Costo|Notas?\b/)).toHaveCount(0);
+    // Datos (Público e Interno) y recorrido: ningún control.
+    for (const region of [page.getByTestId('block-public'), page.getByTestId('block-internal'), page.getByTestId('repair-journey')]) {
+      await expect(region.getByRole('button')).toHaveCount(0);
+      await expect(region.locator('input, textarea, select, form, [disabled], [contenteditable]')).toHaveCount(0);
+    }
+    // Las únicas acciones (CHG-10) viven en su propio bloque, fuera del Journey: avanzar y cancelar.
+    await expect(main.getByRole('button')).toHaveText(['Avanzar a Esperando aprobación', 'Cancelar orden']);
+    await expect(main.locator('input, textarea, select, form, [contenteditable]')).toHaveCount(0);
+    await expect(main.getByText(/Editar|Guardar|próximamente|Diagnóstico|Costo|Notas?/)).toHaveCount(0);
     await expect(main.getByText('CANARY-DIAGNOSTICO')).toHaveCount(0); // diagnóstico y costo existen en la base y NO se cargan
-    await expect(main.getByText(/150(\.00)?/)).toHaveCount(0);
+    await expect(main.getByText(/150(.00)?/)).toHaveCount(0);
   });
 });
 

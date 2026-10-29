@@ -285,7 +285,8 @@ describe('autorización de acciones administrativas (SC-12, E10)', () => {
     if (!result.ok) throw new Error('el inicio de sesión de la prueba falló');
     for (const action of registeredActions(context)) {
       const before = await action.snapshot();
-      expect(await action.invoke(result.data.sessionToken), action.name).toEqual({ ok: true, data: { by: adminId } });
+      const outcome = await action.invoke(result.data.sessionToken);
+      expect(action.succeeded(outcome), `${action.name}: ${JSON.stringify(outcome)}`).toBe(true);
       expect(await action.snapshot(), action.name).not.toBe(before);
     }
   });
