@@ -55,11 +55,12 @@ export type AdminOrderDetailDTO = {
   readonly neverPublished: boolean;
   /** Indicación (el servidor lo recalcula): notas gestionables en los seis estados no finales. */
   readonly canManageNotes: boolean;
+  readonly canEditBasicData: boolean;
 };
 
 /** Claves permitidas del DTO (lista positiva); las pruebas las comparan con lo que realmente sale. */
 export const DETAIL_KEYS = [
-  'allowedTransitions', 'canEditDiagnosisAndCost', 'canManageNotes', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history',
+  'allowedTransitions', 'canEditBasicData', 'canEditDiagnosisAndCost', 'canManageNotes', 'createdAt', 'customer', 'device', 'diagnosis', 'estimatedCost', 'history',
   'id', 'internalNotes', 'neverPublished', 'problemDescription', 'publicNotes', 'status', 'statusHistory', 'trackingCode', 'version',
 ] as const;
 

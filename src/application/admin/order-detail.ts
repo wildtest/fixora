@@ -1,6 +1,6 @@
 import 'server-only';
 import { parseOrderId, type AdminOrderDetailDTO } from '../../domain/admin/order-detail';
-import { canEditDiagnosisAndCost, canManageNotes, presentTransitions } from '../../domain/repair/lifecycle';
+import { canEditBasicData, canEditDiagnosisAndCost, canManageNotes, presentTransitions } from '../../domain/repair/lifecycle';
 import { createAdminOrderDetailStore, type AdminOrderDetailStore } from '../../infrastructure/admin/admin-order-detail-store';
 import type { AdminContext } from './admin-context';
 
@@ -27,6 +27,7 @@ export async function getAdminOrderDetail(
     allowedTransitions: presentTransitions(record.status, hasDiagnosisAndCost),
     canEditDiagnosisAndCost: canEditDiagnosisAndCost(record.status),
     canManageNotes: canManageNotes(record.status),
+    canEditBasicData: canEditBasicData(record.status),
     neverPublished: record.status === 'CANCELADO' && !reachedApproval,
   };
 }

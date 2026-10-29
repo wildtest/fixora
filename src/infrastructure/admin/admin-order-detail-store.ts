@@ -12,8 +12,8 @@ import type { PrismaClient } from '../db/generated/client.ts';
 // de estado, diagnóstico y costo, y sus notas), sin N+1, que SELECCIONAN solo las columnas del DTO. El costo se lee como TEXTO (`NUMERIC::text`) y se canonicaliza con céntimos enteros: nunca pasa por `number`.
 // El identificador llega ya validado como UUID por la frontera.
 
-/** Lectura base: el caso de uso añade `allowedTransitions`, `canEditDiagnosisAndCost`, `canManageNotes` y `neverPublished` (reglas de dominio). */
-export type AdminOrderDetailRecord = Omit<AdminOrderDetailDTO, 'allowedTransitions' | 'canEditDiagnosisAndCost' | 'canManageNotes' | 'neverPublished'> & {
+/** Lectura base: el caso de uso añade `allowedTransitions`, `canEditDiagnosisAndCost`, `canManageNotes`, `canEditBasicData` y `neverPublished` (reglas de dominio). */
+export type AdminOrderDetailRecord = Omit<AdminOrderDetailDTO, 'allowedTransitions' | 'canEditDiagnosisAndCost' | 'canManageNotes' | 'canEditBasicData' | 'neverPublished'> & {
   /** ¿La orden alcanzó alguna vez Esperando aprobación? (decidido por su recorrido real, no por sus valores). */
   readonly reachedApproval: boolean;
 };

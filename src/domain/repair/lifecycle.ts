@@ -121,3 +121,12 @@ export function isDiagnosisAndCostPublic(status: OrderStatus, reachedApproval: b
 export function canManageNotes(status: OrderStatus): boolean {
   return !isTerminal(status);
 }
+
+/**
+ * ¿Pueden corregirse los datos básicos (CHG-13 D4)? En los seis estados no finales, incluido Esperando aprobación; nunca en
+ * Entregado ni Cancelado. NO se aplica el congelamiento de diagnóstico y costo. La interfaz lo usa como indicación; el
+ * servidor lo recalcula con la orden vigente en cada guardado.
+ */
+export function canEditBasicData(status: OrderStatus): boolean {
+  return !isTerminal(status);
+}

@@ -9,6 +9,7 @@ vi.mock('./actions', () => ({
   transitionOrderStatus: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   saveDiagnosis: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   saveEstimatedCost: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
+  saveBasicOrderData: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   createNote: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   editNote: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
   deleteNote: async () => ({ ok: false, code: 'INTERNAL_ERROR' }),
@@ -29,6 +30,7 @@ const base: AdminOrderDetailDTO = {
   estimatedCost: null,
   canEditDiagnosisAndCost: false,
   canManageNotes: false,
+  canEditBasicData: false,
   publicNotes: [],
   internalNotes: [],
   neverPublished: false,
@@ -255,5 +257,35 @@ describe('notas en el detalle (CHG-12)', () => {
     expect(out).toContain('Cliente molesto');
     expect(out).toContain('Solo lectura');
     expect(out).not.toMatch(/Publicar nota|Guardar nota interna|Editar|Eliminar|<textarea/);
+  });
+});
+
+describe('corrección de datos básicos en el detalle (CHG-13)', () => {
+  it('orden abierta: «Editar datos» visible, datos en solo lectura y código sin campo editable', () => {
+    const out = html({ ...base, status: 'ESPERANDO_APROBACION', canEditBasicData: true });
+    expect(out).toContain('Editar datos');
+    expect(out).not.toContain('Guardar cambios');
+    expect(out).not.toContain('Cancelar edición');
+    expect(out).not.toMatch(/name="trackingCode"|name="brand"|name="customerName"/);
+    expect(out).toContain('Ana Quispe');
+    expect(out).toContain('23456789BDFG');
+  });
+
+  it('el detalle sigue sin formularios anidados (el editor no envuelve el resto en un <form>)', () => {
+    const out = html({ ...base, status: 'EN_DIAGNOSTICO', canEditBasicData: true, canEditDiagnosisAndCost: true, canManageNotes: true });
+    expect(out.match(/<form[^>]*>/g)?.length ?? 0).toBeGreaterThan(0);
+    // Ningún <form> se abre antes de que se cierre el anterior.
+    let depth = 0;
+    for (const tag of out.match(/<\/?form\b/g) ?? []) {
+      depth += tag === '</form' ? -1 : 1;
+      expect(depth).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('estado final: sin «Editar datos» ni campos editables', () => {
+    for (const status of ['ENTREGADO', 'CANCELADO'] as const) {
+      const out = html({ ...base, status, canEditBasicData: false });
+      expect(out, status).not.toMatch(/Editar datos|Guardar cambios|Cancelar edición/);
+    }
   });
 });
