@@ -24,9 +24,9 @@
 
 ## 5. Entrega
 
-- [ ] 5.1 Rama `fix/landing-visual-fidelity`, commit con rutas explícitas, PR, `static` y `db-tests` en verde y fusión sin push directo a `main`.
-- [ ] 5.2 Validar Production tras el despliegue (landing en escritorio y móvil, CTA de registro y consulta, acceso taller, aviso demostrativo) sin crear datos.
-- [ ] 5.3 Archivar el change y verificar `openspec validate --all --strict`, `openspec list`, `openspec list --specs` y `openspec doctor` (0 changes activos).
+- [x] 5.1 Rama `fix/landing-visual-fidelity`, commit con rutas explícitas, PR, `static` y `db-tests` en verde y fusión sin push directo a `main`.
+- [x] 5.2 Validar Production tras el despliegue (landing en escritorio y móvil, CTA de registro y consulta, acceso taller, aviso demostrativo) sin crear datos.
+- [x] 5.3 Archivar el change y verificar `openspec validate --all --strict`, `openspec list`, `openspec list --specs` y `openspec doctor` (0 changes activos).
 
 ## Registro de la comparación visual (4.1)
 

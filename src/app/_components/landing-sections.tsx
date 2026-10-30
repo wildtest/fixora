@@ -43,7 +43,7 @@ export function LandingHero() {
         Sistema de seguimiento abierto
       </p>
       <h1 id="lema" className="mt-4 max-w-3xl text-display-mobile text-content md:text-display">
-        Tu reparación,
+        Tu reparación,{" "}
         <span className="block text-primary">siempre bajo control.</span>
       </h1>
       <p className="mt-4 max-w-2xl text-body-lg text-content-secondary">
