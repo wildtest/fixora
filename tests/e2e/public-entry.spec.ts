@@ -85,10 +85,15 @@ test.describe('landing PUB-01', () => {
       [2, 'Consultar reparación'],
       [2, 'Claridad técnica en tiempo real sin fricción'],
       [2, '¿Cómo funciona el proceso?'],
+      [2, 'Servicios para acompañar tu reparación'],
       [2, 'Privacidad y control absoluto'],
       [3, 'Registra tu equipo'],
       [3, 'Recibe tu código'],
       [3, 'Consulta el avance'],
+      [3, 'Registro de reparación'],
+      [3, 'Diagnóstico y costo estimado'],
+      [3, 'Seguimiento del avance'],
+      [3, 'Entrega y cierre'],
       [3, 'Sin cuentas ni contraseñas'],
       [3, 'Trazabilidad de estado'],
       [3, 'Protección de datos personales'],
@@ -99,6 +104,10 @@ test.describe('landing PUB-01', () => {
     await expect(main.getByText('MONITOREO INMEDIATO', { exact: false })).toBeVisible();
     await expect(page.getByTestId('how-it-works').getByRole('listitem')).toHaveCount(3);
     await expect(page.getByTestId('privacy').getByRole('listitem')).toHaveCount(3);
+    await expect(page.getByTestId('services').getByRole('listitem')).toHaveCount(4);
+    await expect(page.getByTestId('hero-illustration')).toBeVisible();
+    await expect(page.getByTestId('hero-illustration')).toContainText('Ilustración conceptual');
+    await expect(main).not.toContainText(/garant|24 horas|a domicilio|cotizaci[oó]n autom|testimonio/i);
     // Lo ilustrativo está rotulado, no hay campo de consulta ni códigos verosímiles.
     await expect(page.getByTestId('illustration-code')).toContainText('Ilustración');
     await expect(page.getByTestId('illustration-journey')).toContainText('Ejemplo ilustrativo');

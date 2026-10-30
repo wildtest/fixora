@@ -6,6 +6,7 @@ import {
   LandingHero,
   LandingHowItWorks,
   LandingPrivacy,
+  LandingServices,
 } from "../_components/landing-sections";
 
 // PUB-01 — Landing (DESIGN.md §3.1; referencia Stitch aprobada): insignia, lema en dos líneas, dos accesos de igual
@@ -23,6 +24,7 @@ export default function LandingPage() {
       <LandingEntryCards />
       <LandingClarityBand />
       <LandingHowItWorks />
+      <LandingServices />
       <LandingPrivacy />
       <LandingFooter />
     </div>

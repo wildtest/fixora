@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { EntryPoint } from './entry-point';
 import { ENTRY_POINTS, UNAVAILABLE_LABEL } from './entry-points';
-import { LandingClarityBand, LandingEntryCards, LandingFooter, LandingHero, LandingHowItWorks, LandingPrivacy } from './landing-sections';
+import { LandingClarityBand, LandingEntryCards, LandingFooter, LandingHero, LandingHowItWorks, LandingPrivacy, LandingServices } from './landing-sections';
 import { LoadingPlaceholder } from './loading-placeholder';
 
 // Puntos de entrada públicos (CHG-04, D-2, P-1/P-2): destinos aprobados y los dos estados del componente.
@@ -67,6 +67,7 @@ describe('narrativa de la landing', () => {
       <LandingEntryCards />
       <LandingClarityBand />
       <LandingHowItWorks />
+      <LandingServices />
       <LandingPrivacy />
       <LandingFooter />
     </>,
@@ -84,6 +85,7 @@ describe('narrativa de la landing', () => {
       'Registra tu equipo',
       'Recibe tu código',
       'Consulta el avance',
+      'Servicios para acompañar tu reparación',
       'Privacidad y control absoluto',
       'Sin cuentas ni contraseñas',
       'Trazabilidad de estado',
@@ -98,6 +100,21 @@ describe('narrativa de la landing', () => {
     expect(html).toContain('href="/registrar"');
     expect(html).toContain('href="/consultar"');
     expect(html).not.toMatch(/<(input|textarea|select|form)/);
+  });
+
+  it('el hero incluye una ilustración conceptual local, decorativa y rotulada', () => {
+    expect(html).toContain('data-testid="hero-illustration"');
+    expect(html).toContain('Ilustración conceptual');
+    expect(html).toMatch(/<svg[^>]*aria-hidden="true"/);
+    expect(html).not.toMatch(/linearGradient|radialGradient|<image|https?:\/\/(?!www\.w3\.org)/);
+  });
+
+  it('la sección de servicios presenta los cuatro servicios del flujo V1 sin promesas no respaldadas', () => {
+    for (const title of ['Registro de reparación', 'Diagnóstico y costo estimado', 'Seguimiento del avance', 'Entrega y cierre']) {
+      expect(html, title).toContain(title);
+    }
+    expect(html.match(/data-testid="services"/g)).toHaveLength(1);
+    expect(html).not.toMatch(/garant|24 horas|domicilio|env[ií]o|cotizaci[oó]n autom|certificad|testimonio|calificaci|a[ñn]os de experiencia/i);
   });
 
   it('lo ilustrativo está rotulado y no usa códigos verosímiles', () => {
