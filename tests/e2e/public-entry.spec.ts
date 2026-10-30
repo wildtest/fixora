@@ -36,7 +36,7 @@ test.describe('landing PUB-01', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const main = page.getByRole('main');
-    const cards = main.getByRole('listitem');
+    const cards = page.getByTestId('entry-cards').getByRole('listitem');
     await expect(cards).toHaveCount(2);
     for (const label of ENTRY_LABELS) {
       await expect(entry(main, label)).toBeVisible();
@@ -71,6 +71,56 @@ test.describe('landing PUB-01', () => {
     await page.getByRole('main').getByRole('link', { name: REGISTER }).click();
     await expect(page).toHaveURL(/\/registrar$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Registrar reparación' })).toBeVisible();
+  });
+
+  test('narrativa aprobada: secciones, encabezados semánticos y contenido ilustrativo', async ({ page }) => {
+    await page.goto('/');
+    const main = page.getByRole('main');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Tu reparación,');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('siempre bajo control.');
+    await expect(main.getByText('Sistema de seguimiento abierto')).toBeVisible();
+    for (const [level, name] of [
+      [2, 'Registrar reparación'],
+      [2, 'Consultar reparación'],
+      [2, 'Claridad técnica en tiempo real sin fricción'],
+      [2, '¿Cómo funciona el proceso?'],
+      [2, 'Privacidad y control absoluto'],
+      [3, 'Registra tu equipo'],
+      [3, 'Recibe tu código'],
+      [3, 'Consulta el avance'],
+      [3, 'Sin cuentas ni contraseñas'],
+      [3, 'Trazabilidad de estado'],
+      [3, 'Protección de datos personales'],
+    ] as const) {
+      await expect(main.getByRole('heading', { level, name }), name).toBeVisible();
+    }
+    await expect(main.getByText('NUEVO REGISTRO', { exact: false })).toBeVisible();
+    await expect(main.getByText('MONITOREO INMEDIATO', { exact: false })).toBeVisible();
+    await expect(page.getByTestId('how-it-works').getByRole('listitem')).toHaveCount(3);
+    await expect(page.getByTestId('privacy').getByRole('listitem')).toHaveCount(3);
+    // Lo ilustrativo está rotulado, no hay campo de consulta ni códigos verosímiles.
+    await expect(page.getByTestId('illustration-code')).toContainText('Ilustración');
+    await expect(page.getByTestId('illustration-journey')).toContainText('Ejemplo ilustrativo');
+    await expect(main.locator('input, textarea, select')).toHaveCount(0);
+    await expect(main).not.toContainText(/FX-2026|EJ-8921|EJ-0000/);
+    // Pie con el lema y el aviso demostrativo; la franja sigue siendo única por test id.
+    await expect(page.getByTestId('landing-footer')).toContainText('FIXORA © 2026');
+    await expect(page.getByTestId('landing-footer')).toContainText('Tu reparación, siempre bajo control');
+    await expect(page.getByTestId('landing-footer')).toContainText('Entorno de demostración');
+    await expect(page.getByTestId('demo-notice')).toHaveCount(1);
+    await noHorizontalOverflow(page);
+  });
+
+  test('«Consultar estado» lleva a la consulta real y «Acceso Taller» sigue en la navegación', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('main').getByRole('link', { name: 'Consultar estado' })).toHaveAttribute('href', '/consultar');
+    await openMenuIfMobile(page);
+    await expect(page.getByRole('link', { name: WORKSHOP }).first()).toHaveAttribute('href', '/admin/acceso');
+    await page.keyboard.press('Escape');
+    await page.goto('/');
+    await page.getByRole('main').getByRole('link', { name: 'Consultar estado' }).click();
+    await expect(page).toHaveURL(/\/consultar$/);
   });
 
   test('la landing es la única ruta indexable', async ({ page, request }) => {
