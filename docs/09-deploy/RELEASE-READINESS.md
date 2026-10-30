@@ -1,6 +1,6 @@
 # Evidencia de release y decisión — FIXORA V1
 
-> Registro de CHG-15 `release-readiness` (D3, D9–D11, D14, D17–D19). Reúne y enlaza la evidencia; **no** duplica la trazabilidad (`docs/07-testing/TRACEABILITY.md`) ni repite el Security Pass (`docs/08-seguridad/SECURITY-REPORT.md`). Sin secretos, tokens, códigos de seguimiento reales ni PII. Fecha de la evidencia: 2026-10-29 · `main` `24771af` (CHG-01…CHG-14 archivados).
+> Registro de CHG-15 `release-readiness` (D3, D9–D11, D14, D17–D19). Reúne y enlaza la evidencia; **no** duplica la trazabilidad (`docs/07-testing/TRACEABILITY.md`) ni repite el Security Pass (`docs/08-seguridad/SECURITY-REPORT.md`). Sin secretos, tokens, códigos de seguimiento reales ni PII. Fecha de la evidencia: 2026-10-29 · `main` `24771af` (CHG-01…CHG-14 archivados) más la PR de CHG-15 (solo documentación, `seed:demo`, smoke y runbooks).
 
 ## 1. Decisión de release
 
@@ -9,7 +9,7 @@
 | **LISTO PARA EVALUACIÓN ACADÉMICA / DEMO** | todas las puertas de §2 en PASS |
 | **NO LISTO** | cualquier puerta en FAIL o pendiente |
 
-**Estado actual: NO LISTO — una puerta pendiente de cierre por el propietario** (§3: smoke de la orden demo en Production y flujo manual de cierre con el administrador de Production). Todas las demás puertas están en PASS. **Esta decisión nunca equivale a «aprobado para operación real»** (`VAL-04`, §6).
+**Estado actual (2026-10-29): LISTO PARA EVALUACIÓN ACADÉMICA / DEMO** — las 12 puertas de §2 están en PASS; el propietario cerró en Production el smoke con la orden demo y el flujo manual de cierre (§3). FIXORA V1 está funcionalmente completa (M0…M5) y desplegada como demostración pública. **Esta decisión nunca equivale a «aprobado para operación real»**: `VAL-04` sigue abierta y es prerrequisito de cualquier uso operacional real (§6).
 
 ## 2. Puertas de release (D3)
 
@@ -20,27 +20,36 @@
 | 3 | Seguridad: CHG-14 cerrado | **PASS** | 0 Critical, 0 High, `SC-11` y `SC-12` sin hallazgos abiertos (`SECURITY-REPORT.md`) |
 | 4 | AV-3 disponible | **PASS** | variables inyectadas y conexión como `fixora_app` (CHG-07) y fuente de IP real (`SECURITY-REPORT.md` §4.2) |
 | 5 | `SC-14`, `SC-15`, `SC-17`, `SC-19` | **PASS** | `TRACEABILITY.md` (verificado) y `SC-15-RESPONSIVE-REVIEW.md` |
-| 5 | `SC-20` (despliegue público de demostración) | **PENDIENTE** | smoke de Production 14/14 en verde **sin** la orden demo (§3); falta la consulta real de la orden demo y el cierre manual |
-| 6 | `TRACEABILITY.md` completo | **PASS** | 37/37 identificadores con dueño, evidencia y estado: 36 verificados, 1 pendiente (`SC-20`) |
+| 5 | `SC-20` (despliegue público de demostración) | **PASS** | smoke de Production 16/16 en verde **con** la orden demo y flujo manual de cierre (§3) |
+| 6 | `TRACEABILITY.md` completo | **PASS** | 37/37 identificadores con dueño, evidencia y estado: **37 verificados**, 0 pendientes |
 | 7 | *Seed* ficticio y aviso de demostración | **PASS** | `npm run seed:demo` (§5) ensayado en `development`; aviso visible en Production (smoke) |
 | 8 | Runbooks RB-1…RB-9 y *break-glass* | **PASS** | `RUNBOOKS.md`; *break-glass* ensayado en `development` con `ROLLBACK` |
 | 9 | Plan de retiro de la demo | **PASS** | §7 |
 | 10 | Riesgos residuales y `VAL-04` explícitos | **PASS** | §6 |
-| 11 | Flujo manual de cierre ejecutado con datos ficticios | **PENDIENTE** | §3 (requiere el administrador de Production) |
+| 11 | Flujo manual de cierre ejecutado con datos ficticios | **PASS** | §3 (administrador de Production, orden demo ficticia) |
 
-## 3. Cierre pendiente (acción del propietario, datos ficticios)
+## 3. Cierre en Production (ejecutado por el propietario, datos ficticios)
 
-El agente **no** puede registrar datos persistentes en Production ni iniciar sesión (no dispone de credenciales de Production; esas acciones requieren al propietario). Pasos, con datos ficticios, **sin** modificar nada existente:
+El agente no registra datos persistentes en Production ni inicia sesión (no dispone de sus credenciales; esas acciones requieren al propietario, y el control de permisos de la herramienta las denegó al agente). El propietario ejecutó el 2026-10-29, con datos ficticios y sin modificar nada existente, y comunicó el resultado; esta sección registra la evidencia **saneada** (sin códigos de seguimiento, contraseñas, tokens, cookies, URL de conexión ni PII).
 
-1. **Orden demo.** En `https://<Production>/registrar`, registrar una orden con nombre «DEMO FIXORA Production», teléfono `+51 900 000 100`, tipo Celular, marca «MarcaDemo» y una descripción que diga que es una demostración. Guardar el código de la confirmación **fuera del repositorio**.
-2. **Smoke con la orden demo.** `SMOKE_BASE_URL=https://<Production> SMOKE_TRACKING_CODE=<código> npm run test:smoke` (o definir el secreto de GitHub `SMOKE_TRACKING_CODE`). Esperado: 16/16 (la prueba de la orden demo deja de omitirse). No imprime el código ni deja *traces*.
-3. **Flujo manual de cierre (D11).** Con el administrador de Production (`npm run admin:provision -- --environment=production --email=<correo>` si aún no existe): iniciar sesión → localizar la orden demo → avanzar a *Equipo recibido* → consultar el código en `/consultar` y comprobar el nuevo estado.
-4. **Comprobaciones de `SEC-003`** (mismas sesiones): inspeccionar en el navegador la cookie `__Host-fixora_session` (`HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/`, sin `Domain`) y revisar los Runtime Logs del último despliegue sin PII.
-5. Avisar para registrar la evidencia saneada y cerrar `SC-20` y la decisión de release.
+| Paso | Resultado |
+|---|---|
+| Administrador de Production (`admin:provision` contra la rama Neon `main` con la conexión del propietario como variable temporal de sesión) | **OK**: administrador creado en `main`; el singleton se mantiene |
+| Inicio de sesión del administrador en `/admin/acceso` de Production | **OK** |
+| Orden demo ficticia registrada por la interfaz pública de Production («DEMO FIXORA Production»); código guardado fuera del repositorio | **OK** |
+| `SMOKE_BASE_URL=<Production> SMOKE_TRACKING_CODE=<código> npm run test:smoke` | **16/16 PASS** (la consulta de la orden demo deja de omitirse) |
+| Flujo D11: transición *Solicitud recibida → Equipo recibido* con el administrador de Production | **OK** |
+| Consulta pública del código en `/consultar` refleja *Equipo recibido* | **OK** |
+| Cookie `__Host-fixora_session` inspeccionada en el navegador | `HttpOnly` sí · `Secure` sí · `SameSite=Strict` · `Path=/` · sin `Domain` explícito |
+| Runtime Logs de Vercel del despliegue vigente revisados | sin contraseñas, sin tokens ni cookies de sesión, sin secretos de configuración, sin PII innecesaria, sin contenido sensible |
+
+**Nota de operación (lección registrada).** El primer intento de aprovisionar el administrador escribió en `development`: `--environment` es solo una etiqueta y la conexión sale de `DIRECT_URL`, que `.env.local` fija a `development`; el destino impreso oculta el identificador del endpoint y no distingue ramas. Se corrigió ejecutando el provisioning con la `DIRECT_URL` de `main` como variable temporal de la sesión, verificando antes el host y limpiándola después (`RUNBOOKS.md` §4). El administrador de `development` es legítimo y puede permanecer. Mejora opcional futura: una comprobación explícita del endpoint esperado en el script.
+
+La orden demo permanece en Production como dato ficticio; el plan de retiro (§7) la cubre. `SEC-003` queda cerrada con esta evidencia (`SECURITY-REPORT.md`).
 
 ## 4. Regresión final
 
-La regresión completa se ejecutó sobre el HEAD enviado a la PR de CHG-15 (sin cambios de código ni de pruebas posteriores; solo documentación): `lint` y `typecheck` sin errores; **613** pruebas unitarias; cobertura de `domain/` **100 %** de líneas y **97,43 %** de ramas; **262** pruebas de integración sobre PostgreSQL real; **280** pruebas E2E (escritorio y móvil; 4 omitidas por diseño); `build` correcto; trazabilidad 37/37 (**36** verificados · **1** pendiente: `SC-20`); `ci:secrets` y `ci:audit` sin hallazgos.
+La regresión completa se ejecutó sobre el HEAD enviado a la PR de CHG-15 (sin cambios de código ni de pruebas posteriores; solo documentación): `lint` y `typecheck` sin errores; **613** pruebas unitarias; cobertura de `domain/` **100 %** de líneas y **97,43 %** de ramas; **262** pruebas de integración sobre PostgreSQL real; **280** pruebas E2E (escritorio y móvil; 4 omitidas por diseño); `build` correcto; trazabilidad 37/37 (**36** verificados · **1** pendiente: `SC-20`); `ci:secrets` y `ci:audit` sin hallazgos. El cierre de §3 no modifica código ni pruebas (solo documentación, trazabilidad y estado), por lo que esta regresión sigue siendo la del HEAD final de código; la trazabilidad se revalidó con `npm run test:trace` (37/37 verificados) tras cerrar `SC-20`.
 
 ## 5. *Seed* ficticio (`seed:demo`)
 
@@ -89,4 +98,4 @@ Checklist, en este orden:
 
 ## 9. Resultado de la regresión final y del smoke
 
-Smoke de Production del 2026-10-29 contra la URL pública (`main` `24771af`): **14 pruebas en verde y 2 omitidas** (la consulta de la orden demo se omite hasta definir `SMOKE_TRACKING_CODE`; §3). Cubre HTTPS y landing, aviso de demostración, `/registrar` y `/consultar`, 404 sin detalles técnicos, cabeceras de seguridad, indexación y ausencia de login de plataforma, y `/admin/**` sin sesión sin contenido administrativo (redirección, acceso `noindex` y CSP con *nonce*). Ensayo de las pruebas nuevas contra una instancia local: la consulta de la orden demo y `/admin/**` en verde; las cuatro comprobaciones exclusivas de HTTPS/HSTS fallan como se espera fuera de Production.
+Smoke de Production del 2026-10-29 contra la URL pública (`main` `24771af`): **14 pruebas en verde y 2 omitidas** sin `SMOKE_TRACKING_CODE`; con la orden demo registrada por el propietario el mismo smoke dio **16/16 PASS** (§3). Cubre HTTPS y landing, aviso de demostración, `/registrar` y `/consultar`, 404 sin detalles técnicos, cabeceras de seguridad, indexación y ausencia de login de plataforma, y `/admin/**` sin sesión sin contenido administrativo (redirección, acceso `noindex` y CSP con *nonce*). Ensayo de las pruebas nuevas contra una instancia local: la consulta de la orden demo y `/admin/**` en verde; las cuatro comprobaciones exclusivas de HTTPS/HSTS fallan como se espera fuera de Production.

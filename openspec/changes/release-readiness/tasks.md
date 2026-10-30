@@ -35,11 +35,11 @@
 ## 8. Smoke de Production (`SC-20`)
 
 - [x] 8.1 EJECUTAR EN FASE 7: reutilizar el proyecto/mecanismo `test:smoke` establecido por CHG-07 y extender solo las aserciones necesarias para la evidencia final aprobada (consulta por la UI real de la orden demo y `/admin/**` sin sesión sin contenido administrativo, además de `/`, `/registrar`, `/consultar` y cabeceras públicas), sin recrear su infraestructura y manteniéndolo no mutante, sin inicio de sesión, sin contraseña de Production en CI y sin el código en URL, nombres de pruebas, salidas o *traces* públicos; se verifica con la revisión del proyecto y una ejecución contra un entorno no productivo.
-- [ ] 8.2 EJECUTAR EN FASE 7: ejecutar el smoke contra la URL pública de Production y registrar la evidencia saneada de `SC-20` (un estado «Ready» de Vercel no basta); se verifica con la ejecución en verde y el registro en `docs/09-deploy/`.
+- [x] 8.2 EJECUTAR EN FASE 7: ejecutar el smoke contra la URL pública de Production y registrar la evidencia saneada de `SC-20` (un estado «Ready» de Vercel no basta); se verifica con la ejecución en verde y el registro en `docs/09-deploy/`.
 
 ## 9. Flujo manual de cierre
 
-- [ ] 9.1 EJECUTAR EN FASE 7: ejecutar manualmente en Production, solo con datos ficticios, el flujo registro → administrador → cambio → consulta pública y registrar la evidencia saneada; se verifica con el documento en `docs/09-deploy/`, sin secretos, tokens, códigos reales ni PII.
+- [x] 9.1 EJECUTAR EN FASE 7: ejecutar manualmente en Production, solo con datos ficticios, el flujo registro → administrador → cambio → consulta pública y registrar la evidencia saneada; se verifica con el documento en `docs/09-deploy/`, sin secretos, tokens, códigos reales ni PII.
 
 ## 10. Runbooks RB-1…RB-9
 
@@ -60,21 +60,21 @@
 
 ## 14. Ensamblar la evidencia de release
 
-- [ ] 14.1 EJECUTAR EN FASE 7: ensamblar el checklist final (código y CI, migraciones, Production, Security Pass, `SC-14`, `SC-15`, `SC-17`, `SC-19`, `SC-20`, trazabilidad, runbooks, seed, aviso de demostración, plan de retiro, riesgos y `VAL-04`) enlazando la evidencia sin duplicar la trazabilidad, y revisar la observabilidad suficiente para la demo; se verifica con el documento y la revisión del saneado.
+- [x] 14.1 EJECUTAR EN FASE 7: ensamblar el checklist final (código y CI, migraciones, Production, Security Pass, `SC-14`, `SC-15`, `SC-17`, `SC-19`, `SC-20`, trazabilidad, runbooks, seed, aviso de demostración, plan de retiro, riesgos y `VAL-04`) enlazando la evidencia sin duplicar la trazabilidad, y revisar la observabilidad suficiente para la demo; se verifica con el documento y la revisión del saneado.
 
 ## 15. Decisión de release
 
-- [ ] 15.1 EJECUTAR EN FASE 7: decidir el estado de release («listo para evaluación académica / demo» solo si todas las puertas pasan; «no listo» si alguna falla, sin esconder fallos); se verifica con el registro de la decisión que distingue explícitamente la demo de «aprobado para operación real».
+- [x] 15.1 EJECUTAR EN FASE 7: decidir el estado de release («listo para evaluación académica / demo» solo si todas las puertas pasan; «no listo» si alguna falla, sin esconder fallos); se verifica con el registro de la decisión que distingue explícitamente la demo de «aprobado para operación real».
 
 ## 16. Verificación y cierre
 
 - [x] 16.1 EJECUTAR EN FASE 7: ejecutar `npm run lint`, `typecheck`, `test:unit`, `test:integration`, `test:e2e`, `test:trace` y `build`, y revisar el alcance del diff (sin funcionalidad nueva, sin dependencias, sin archivos de specs); se verifica con las ejecuciones en verde, `git diff` y `openspec validate release-readiness --strict`.
-- [ ] 16.2 EJECUTAR EN FASE 7: confirmar la puerta de salida y que M5 solo se declara cuando se cumple el DoD; se verifica con el documento de release.
+- [x] 16.2 EJECUTAR EN FASE 7: confirmar la puerta de salida y que M5 solo se declara cuando se cumple el DoD; se verifica con el documento de release.
 
 ## Estado de la ejecución (2026-10-29)
 
-- **Pendientes, requieren al propietario** (`docs/09-deploy/RELEASE-READINESS.md` §3): `8.2` (smoke de Production con la orden demo y registro de `SC-20`), `9.1` (flujo manual de cierre con el administrador de Production), `14.1` (checklist final, que depende de las dos anteriores), `15.1` (decisión de release) y `16.2` (puerta de salida y M5). Hasta entonces la decisión es **NO LISTO** y `SC-20` sigue pendiente.
-- `7.2`: `SMOKE_TRACKING_CODE` no se define aquí (el agente no escribe secretos de GitHub ni datos persistentes en Production); el mecanismo está listo y el código nunca se imprime.
+- **21/21 completadas.** `8.2`, `9.1`, `14.1`, `15.1` y `16.2` se cerraron con la ejecución manual del propietario en Production (datos ficticios): smoke 16/16 con la orden demo, flujo de cierre, cookie y Runtime Logs; evidencia saneada en `docs/09-deploy/RELEASE-READINESS.md` §3. Decisión: **listo para evaluación académica / demo**, nunca «aprobado para operación real» (`VAL-04` abierta).
+- `7.2`: `SMOKE_TRACKING_CODE` se pasó por variable de entorno local del propietario; no se define como secreto de GitHub (el agente no escribe secretos) y el código nunca se imprime.
 - `7.1`: `seed:demo` se implementó como proyecto `seed` de Vitest (reutiliza los casos de uso reales); se ensayó en `development`.
 - `6.2`: revisión estructurada guiada por automatización con inspección visual de capturas; no es un estudio de usabilidad (`VAL-03` abierta).
 

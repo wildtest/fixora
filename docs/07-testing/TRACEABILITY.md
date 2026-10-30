@@ -33,7 +33,7 @@
 | SC-17 | CHG-11 | E2E | `tests/e2e/diagnosis-estimate.spec.ts` (prueba «E2E-01»: registro → código → inicio de sesión → búsqueda → detalle → avances → diagnóstico y costo → E11 #1 → consulta pública con estado, Journey, diagnóstico y costo) | verificado |
 | SC-18 | CHG-14 | seguridad | `docs/08-seguridad/SECURITY-REPORT.md`; `tests/e2e/security.spec.ts`; `src/security-static.test.ts`; `src/infrastructure/security/client-subject.test.ts` — Security Pass formal: 0 Critical y 0 High abiertos, SC-11 y SC-12 sin hallazgos abiertos, SEC-001 corregido y reevaluado, evidencia de Production sobre cabeceras y fuente de IP | verificado |
 | SC-19 | CHG-03 | inspección | `.github/workflows/ci.yml`; `docs/07-testing/CI-QUALITY-GATES.md` — PR #1 con static y db-tests en verde, cola de db-tests, protección de main; ejecuciones reales posteriores: los checks static y db-tests en verde en las PR #12, #13 y #14 (runs 40920984356, 40940202894 y 40953258542), el workflow migrate-production aplicó la migración con aprobación humana (run 40757447307) y rechazó entradas inválidas en su job de verificación; acciones fijadas por SHA y permisos mínimos de solo lectura (inspección de los dos workflows de `.github/workflows/ci.yml` y `.github/workflows/migrate-production.yml`) | verificado |
-| SC-20 | CHG-07 | smoke | Smoke de Production (cierre: CHG-15) | pendiente |
+| SC-20 | CHG-07 | smoke | `tests/smoke/production.smoke.spec.ts` ejecutado contra la URL pública de Production: 16/16 PASS con la orden demo (variable SMOKE_TRACKING_CODE), más el flujo manual de cierre (administrador de Production, *Equipo recibido*, consulta pública) y la cookie y los Runtime Logs revisados; evidencia saneada en `docs/09-deploy/RELEASE-READINESS.md` §3 | verificado |
 
 ## Casos borde
 
