@@ -28,6 +28,11 @@
 
 ## 5. Entrega
 
-- [ ] 5.1 Rama `fix/landing-visual-enhancement`, PR, `static` y `db-tests` en verde, fusión sin push directo a `main`.
-- [ ] 5.2 Validar Production sin crear datos.
-- [ ] 5.3 Archivar y verificar OpenSpec (0 changes activos).
+- [x] 5.1 Rama `fix/landing-visual-enhancement`, PR, `static` y `db-tests` en verde, fusión sin push directo a `main`.
+- [x] 5.2 Validar Production sin crear datos.
+- [x] 5.3 Archivar y verificar OpenSpec (0 changes activos).
+
+## Evidencia de entrega
+
+- PR #19: `static` y `db-tests` en verde; `db-tests` ejecuta `npm run test:e2e` completo (build + Playwright escritorio y móvil). **Full E2E in GitHub CI: PASS** (la E2E completa local no se completó por falta de memoria del runner local; limitación de infraestructura, no fallo de pruebas). Local targeted PUB-01 E2E: PASS.
+- Production (no destructiva, 1440/820/390): sin desbordamiento, h1 correcto, ilustración del hero, 4 servicios, CTA `/registrar` y `/consultar`, 2 enlaces `/admin/acceso`, un aviso demo, pie, 0 campos de formulario.
