@@ -174,3 +174,73 @@ export function PaymentsIcon(props: IconProps) {
     </Icon>
   );
 }
+
+// Iconos locales de la narrativa de PUB-01 (CHG landing-visual-fidelity): mismas reglas que el resto (contorno,
+// `currentColor`, decorativos).
+
+/** Pasos y beneficios: equipo (`devices`). */
+export function DevicesIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="5" width="13" height="10" rx="1.5" />
+      <path d="M1.75 18.5h15.5" />
+      <rect x="18" y="9" width="4" height="9" rx="1" />
+    </Icon>
+  );
+}
+
+/** Código (`tag`): almohadilla. */
+export function HashIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.5 4l-1.5 16" />
+      <path d="M16 4l-1.5 16" />
+      <path d="M4.5 9h15.5" />
+      <path d="M4 15h15.5" />
+    </Icon>
+  );
+}
+
+/** Sin cuentas (`no_accounts`): persona tachada. */
+export function NoAccountIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="8.5" r="3.25" />
+      <path d="M5.5 19.5c.6-3.2 3.2-5 6.5-5s5.9 1.8 6.5 5" />
+      <path d="M4 4l16 16" />
+    </Icon>
+  );
+}
+
+/** Trazabilidad (`timeline`): línea con puntos. */
+export function TimelineIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="5.5" cy="17" r="1.75" />
+      <circle cx="12" cy="8" r="1.75" />
+      <circle cx="18.5" cy="14" r="1.75" />
+      <path d="M7 15.8l3.8-6" />
+      <path d="M13.5 9.2l3.6 3.7" />
+    </Icon>
+  );
+}
+
+/** Protección (`shield`). */
+export function ShieldIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.25l7 2.75v5.5c0 4.2-2.9 7.7-7 9.25-4.1-1.55-7-5.05-7-9.25V6z" />
+      <path d="M9.25 12l2 2 3.5-3.75" />
+    </Icon>
+  );
+}
+
+/** Comprobado (`check_circle`). */
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9.25" />
+      <path d="M8 12.25l2.75 2.75L16 9.5" />
+    </Icon>
+  );
+}
