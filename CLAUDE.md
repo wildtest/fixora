@@ -83,7 +83,7 @@ Seguridad: Security Pass con 0 Critical y 0 High
 ```
 
 - **No** está aprobada para operación real: `VAL-04` sigue abierta. La demo puede recibir datos reales pese al aviso.
-- **Fase 15 (README, portfolio y auditoría final): en cierre.** Dependen de la persona propietaria: capturas finales, decisión de licencia, topics de GitHub y la auditoría académica final.
+- **Fase 15 (README, portfolio y auditoría final): en cierre.** README, diagramas, badges, las seis capturas finales, URL de Production y metadatos de GitHub (descripción, sitio web, topics): COMPLETE. Pendiente: **auditoría académica final 5/5**. LICENSE: sin licencia seleccionada, decisión de la persona propietaria diferida (no requerida para la entrega académica / demo).
 - Las 8 main specs son `public-site-entry`, `repair-request-registration`, `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate` y `order-notes`. CHG-01…CHG-15 y las mejoras posteriores `landing-visual-fidelity` y `landing-visual-enhancement` están archivados en `openspec/changes/archive/`.
 
 | Fase | Ruta | Estado |

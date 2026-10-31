@@ -264,4 +264,4 @@ docs/       pipeline documental (00 definición … 09 despliegue)
 
 ## Licencia
 
-Sin licencia asignada todavía: la elección corresponde a la persona propietaria del repositorio. Hasta entonces, aplican los derechos de autor por defecto.
+Sin licencia seleccionada: la decisión corresponde a la persona propietaria del repositorio y está diferida; no se requiere para la entrega académica / demo. Hasta entonces, aplican los derechos de autor por defecto.
