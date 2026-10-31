@@ -38,7 +38,22 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 | 07 Testing | `07-testing/` | ✅ Implementado — [CI-QUALITY-GATES.md](07-testing/CI-QUALITY-GATES.md), [TRACEABILITY.md](07-testing/TRACEABILITY.md) (37/37 verificados), [SC-15-RESPONSIVE-REVIEW.md](07-testing/SC-15-RESPONSIVE-REVIEW.md) |
 | 08 Seguridad | `08-seguridad/` | ✅ Implementado — [SECURITY-REPORT.md](08-seguridad/SECURITY-REPORT.md): 0 Critical y 0 High |
 | 09 Deploy | `09-deploy/` | ✅ Implementado — Production en Vercel + Neon, CI/CD, `migrate-production`, runbooks y [RELEASE-READINESS.md](09-deploy/RELEASE-READINESS.md): listo para evaluación académica / demo |
-| 15 README, portfolio y auditoría final | `README.md` | 🟡 En cierre — pendientes que dependen de la persona propietaria: capturas finales, licencia, topics de GitHub y la auditoría académica final |
+| 15 README, portfolio y auditoría final | `README.md` | 🟡 En cierre — ver el detalle de la Fase 15 más abajo; **solo falta la auditoría académica final 5/5** |
+
+**Fase 15 — estado de sus entregables:**
+
+| Entregable | Estado |
+|---|---|
+| README final | ✅ COMPLETE |
+| Diagramas | ✅ COMPLETE (`06-diagramas/DIAGRAMAS.md` y Mermaid del Technical Design) |
+| Badges | ✅ COMPLETE |
+| Capturas | ✅ COMPLETE — las seis capturas finales (`docs/assets/screenshots/`) se generaron, revisaron e incorporaron al README |
+| URL de Production | ✅ COMPLETE (`https://fixora-rho-one.vercel.app`) |
+| GitHub portfolio | ✅ COMPLETE (repositorio público con descripción, sitio web y topics) |
+| Auditoría académica final 5/5 | ⏳ PENDING |
+| LICENSE | Sin licencia seleccionada; decisión de la persona propietaria diferida. No se requiere para la entrega académica / demo |
+
+La Fase 15 **no** se marca completa hasta cerrar la auditoría académica final.
 
 Cifras vigentes de calidad (sobre `main` `030aaf7`, 2026-10-30): 618 pruebas unitarias, 262 de integración, E2E completa en GitHub CI, cobertura de `domain/` 100 % de líneas y 97,43 % de ramas, trazabilidad 37/37. Los informes de cada fase conservan sus propias cifras como evidencia **fechada**; no son el estado actual.
 
