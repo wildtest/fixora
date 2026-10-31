@@ -18,43 +18,29 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 → testing
 → security pass
 → deploy + CI/CD
+→ release readiness
 ```
 
 ## Estado actual
 
+**FIXORA V1 completa y desplegada como demostración académica** (`https://fixora-rho-one.vercel.app`). Fases 0 a 14 completadas técnicamente; **Fase 15 (README, portfolio y auditoría final) en cierre**. OpenSpec: **0 changes activos y 8 specs canónicas** (`public-site-entry`, `repair-request-registration`, `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate`, `order-notes`). La V1 **no** está aprobada para operación real: `VAL-04` sigue abierta.
+
 | Fase | Carpeta | Estado |
 |---|---|---|
-| 00 Definición | `00-definicion/` | COMPLETADO |
-| 01 PRD | `01-producto/` | COMPLETADO |
-| 02 Diseño | `02-diseno/` | COMPLETADO — Exploración UX + sistema visual (`DESIGN.md` aprobado) |
-| 03 Arquitectura | `03-arquitectura/` | Área de la **Fase 5 — Technical Design / Arquitectura**: CERRADA el 2026-10-26 (Technical Design aprobado y ADR-001…010 aceptados) |
-| 04 Backlog / planificación | `04-planificacion/` | CERRADO (Fase 6.3): estrategia `OPENSPEC-STRATEGY.md` y backlog maestro `BACKLOG.md` aprobados. La carpeta `04-backlog/` se eliminó; no hay estructura paralela |
-| 05 Specs | `openspec/specs/` | Fase 6 COMPLETADA: 16 changes materializados y aprobados (CHG-01 ya archivado: 15 activos); 7 main specs (`public-site-entry`, `repair-request-registration`, `public-order-tracking`; el resto nace al implementar, verificar y archivar). `openspec/specs/` es la ubicación canónica; no se mantiene copia paralela en `docs/05-specs/` |
-| 06 Diagramas | `06-diagramas/` | PENDIENTE |
-| 07 Testing | `07-testing/` | PENDIENTE |
-| 08 Seguridad | `08-seguridad/` | PENDIENTE |
-| 09 Deploy | `09-deploy/` | PENDIENTE |
+| 00 Definición | `00-definicion/` | ✅ Completada |
+| 01 PRD | `01-producto/` | ✅ Completada — aprobado el 2026-10-25; fuente de verdad funcional |
+| 02 Diseño | `02-diseno/` | ✅ Completada — exploración UX (Stitch) y sistema visual (Claude Design); `DESIGN.md` aprobado el 2026-10-26 |
+| 03 Arquitectura | `03-arquitectura/` | ✅ Completada — Technical Design aprobado, ADR-001…010 aceptados, revisión adversarial sin Critical ni High; cerrada el 2026-10-26; Architecture Validation Gates AV-1, AV-2 y AV-3 en PASS |
+| 04 Backlog / planificación | `04-planificacion/` | ✅ Completada — `OPENSPEC-STRATEGY.md`, `BACKLOG.md` y gate de cobertura de la Fase 6.5 |
+| 05 Specs | `openspec/` | ✅ Completada — 16 changes (CHG-01…CHG-15) implementados, verificados y archivados, más 2 mejoras visuales posteriores de la landing; 8 specs canónicas en `openspec/specs/`. No hay copia paralela en `docs/05-specs/` |
+| Implementación | `src/`, `prisma/`, `tests/` | ✅ Completada — V1 funcional (hitos M0…M5) |
+| 06 Diagramas | `06-diagramas/` | ✅ Índice de diagramas, flujo CI/CD y pipeline AI-First; el resto vive en el Technical Design |
+| 07 Testing | `07-testing/` | ✅ Implementado — [CI-QUALITY-GATES.md](07-testing/CI-QUALITY-GATES.md), [TRACEABILITY.md](07-testing/TRACEABILITY.md) (37/37 verificados), [SC-15-RESPONSIVE-REVIEW.md](07-testing/SC-15-RESPONSIVE-REVIEW.md) |
+| 08 Seguridad | `08-seguridad/` | ✅ Implementado — [SECURITY-REPORT.md](08-seguridad/SECURITY-REPORT.md): 0 Critical y 0 High |
+| 09 Deploy | `09-deploy/` | ✅ Implementado — Production en Vercel + Neon, CI/CD, `migrate-production`, runbooks y [RELEASE-READINESS.md](09-deploy/RELEASE-READINESS.md): listo para evaluación académica / demo |
+| 15 README, portfolio y auditoría final | `README.md` | 🟡 En cierre — pendientes que dependen de la persona propietaria: capturas finales, licencia, topics de GitHub y la auditoría académica final |
 
-Entregable aprobado de la fase 01: `01-producto/PRD.md` (aprobado el 2026-10-25). Es la fuente de verdad funcional de FIXORA V1.
-
-Fase 02 Diseño completada (exploración UX con Google Stitch + sistema visual con Claude Design). Entregables en `02-diseno/`:
-
-- `STITCH-BRIEF.md` — briefing UX derivado del PRD.
-- `UX-EXPLORATION.md` — exploración A/B/C, Dirección UX Consolidada, pantallas, navegación y estados. Fuente de verdad de estructura UX/navegación.
-- `DESIGN-BRIEF.md` — contexto controlado entregado a Claude Design (insumo histórico).
-- `DESIGN.md` — **fuente de verdad visual y de detalle UX/UI** (aprobado 2026-10-26): sistema visual, componentes, patrones y decisiones de diseño. No sustituye al PRD en reglas funcionales.
-- `referencias/` — capturas de Stitch (`stitch/`) y sistema visual de Claude Design (`claude-design/`); referencias, no fuente de requisitos.
-
-Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias.
-
-**Fase 5 — Technical Design / Arquitectura** (área documental: `03-arquitectura/`) — entregables:
-
-- [`TECHNICAL-DESIGN.md`](03-arquitectura/TECHNICAL-DESIGN.md) — **fuente de verdad técnica y arquitectónica** (aprobado). La revisión adversarial y sus correcciones están completadas.
-- [`adrs/`](03-arquitectura/adrs/) — ADR-001 … ADR-010 (todos Aceptados): razonamiento y alternativas de las decisiones del Technical Design. Índice en TD §33.
-
-**Fase 5 cerrada el 2026-10-26**: Technical Design aprobado, 10 ADRs aceptados, revisión adversarial completada (0 Critical, 0 High) y A-5 completado. El Architecture Validation Gate (TD §29) es el primer gate de la Fase 7: AV-1 y AV-2 ✅ PASS (ver `03-arquitectura/validation/`); AV-3 diferido hasta CHG-07. **Fase 6 — OpenSpec, Specs y Backlog: en curso.** 6.1 bootstrap de OpenSpec 1.15.0 completado (solo Claude Code; `openspec/`); pendientes 6.2 partición de Specs, 6.3 backlog maestro, 6.4 creación y revisión de Specs y 6.5 gate de cobertura. Aún no existen Specs, backlog ni implementación (Fase 7).
-
-**Fase 6 — OpenSpec, Specs y Backlog** (✅ COMPLETADA): **6.1 ✅** (bootstrap de OpenSpec 1.15.0) · **6.2 ✅** (estrategia de partición, cerrada el 2026-10-27) · **6.3 ✅** (backlog maestro priorizado, cerrada el 2026-10-27: [`04-planificacion/BACKLOG.md`](04-planificacion/BACKLOG.md)) · **6.4 ✅ COMPLETADA** (16/16 changes materializados, revisados, aprobados y validados con `--strict`; no aplicados ni archivados; 0 main specs; materialización y revisión de changes OpenSpec por olas: **Ola 1 ✅ MATERIALIZADA Y APROBADA**, **Ola 2 ✅ MATERIALIZADA Y APROBADA**, **Ola 3 ✅ MATERIALIZADA Y APROBADA** (**Ola 4 ✅ MATERIALIZADA Y APROBADA** (CHG-12, CHG-13, CHG-14 y CHG-15 ✅): CHG-12 `order-notes` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: nueva capability `order-notes`; extiende `public-order-tracking` y `admin-order-management`; CHG-10 y CHG-11 deben archivarse antes); CHG-13 `order-data-correction` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: extiende `admin-order-management`; CHG-10, CHG-11 y CHG-12 deben archivarse antes; sin capability nueva); **M4 — V1 funcional completa: COMPLETAMENTE ESPECIFICADA** (no implementada, ejecutada, probada ni desplegada); CHG-14 `security-hardening-pass` **MATERIALIZADO Y APROBADO — pendiente de ejecución/implementación en Fase 7** (SKIP_SPECS: sin capability ni delta specs; requiere M4 implementada, Production y resultados de AV-3 para ejecutarse en Fase 7); CHG-15 `release-readiness` **MATERIALIZADO Y APROBADO — pendiente de ejecución/implementación en Fase 7** (SKIP_SPECS: sin capability ni delta specs; requiere CHG-14 completado, Production, CHG-07 y resultados de AV-3 para ejecutarse en Fase 7); **16/16 changes materializados**; **M5 — V1 lista para evaluación y despliegue: ✅ ALCANZADO el 2026-10-29 (CHG-15 `release-readiness` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED, 21/21, SKIP_SPECS; 37/37 criterios verificados; smoke de Production 16/16; decisión «listo para evaluación académica / demo», NO «aprobado para operación real»: `VAL-04` sigue abierta; evidencia en `docs/09-deploy/RELEASE-READINESS.md`)**; `VAL-04` sigue abierto; a nivel de planificación OpenSpec, **M3 — `E2E-01` queda completamente especificado por CHG-10 + CHG-11**, sin que ninguna prueba se haya ejecutado) (CHG-08 `admin-access` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**, DELTA SPECS: nueva capability `admin-access`; CHG-09a `admin-order-directory` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: nueva capability `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate`); CHG-09b `admin-order-detail` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: extiende `admin-order-management`; CHG-09a debe archivarse antes); CHG-10 `repair-status-lifecycle` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: nueva capability `repair-lifecycle`; extiende `public-order-tracking` y `admin-order-management`; CHG-06, CHG-09a y CHG-09b deben archivarse antes); CHG-11 `diagnosis-and-estimate` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: nueva capability `diagnosis-and-estimate`; extiende `admin-order-management` y `public-order-tracking`; CHG-10 debe archivarse antes)); CHG-05 `repair-request-registration` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: `repair-request-registration` y `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate`); CHG-06 `public-order-tracking` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (DELTA SPECS: extiende `public-order-tracking`; CHG-05 debe archivarse antes); CHG-07 `production-environment-baseline` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (SKIP_SPECS); CHG-01 `application-skeleton` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**; CHG-02 `persistence-foundation` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**; CHG-03 `ci-quality-gates` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7**; CHG-04 `ui-foundation-and-public-entry` **MATERIALIZADO Y APROBADO — pendiente de implementación en Fase 7** (primer change con DELTA SPECS: `public-site-entry`)) · **6.5 ✅ COMPLETADA Y APROBADA** (Coverage & Consistency Gate: primera pasada FAIL → corrective pass completado → segunda auditoría PASS WITH NON-BLOCKING CLEANUP, revisión formal APROBADA; Fase 7 INICIADA (Etapa 7.0: AV-2 Early ESM Precheck ✅ PASS, AV-1 ✅ PASS, AV-2 Full Persistence ✅ PASS (14/14; proyecto Neon temporal eliminado por el propietario), AV-3 DEFERRED UNTIL CHG-07; local Architecture Validation Gates ✅ COMPLETED; Fase 7 EN CURSO · M0 IN PROGRESS · CHG-01 `application-skeleton` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED (`openspec/changes/archive/2026-10-27-application-skeleton/`) · CHG-02 `persistence-foundation` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED (43/43; `openspec/changes/archive/2026-10-28-persistence-foundation/`). CHG-03 `ci-quality-gates` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED (34/34; PR #1 de verificación sin fusionar). CHG-04 `ui-foundation-and-public-entry` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED (24/24; M0 completado). CHG-05 `repair-request-registration` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED (16/16; PR #3). CHG-06 `public-order-tracking` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED (19/19; PR #4). CHG-11 `diagnosis-and-estimate` ✅ ARCHIVED (21/21; diagnóstico, costo y publicación; E2E-01 completo). CHG-10 `repair-status-lifecycle` ✅ ARCHIVED (18/18; máquina de estados y ciclo de vida). CHG-09b `admin-order-detail` ✅ ARCHIVED (18/18; detalle administrativo de solo lectura). CHG-09a `admin-order-directory` ✅ ARCHIVED (18/18; dashboard y directorio de órdenes). CHG-08 `admin-access` ✅ ARCHIVED (24/24; acceso administrativo y sesión). CHG-07 `production-environment-baseline` ✅ ARCHIVED (28/28; Production con migración inicial, smoke 12/12 y rollback probado; AV-3 PASS con residuo). CHG-04 `ui-foundation-and-public-entry`: ✅ ARCHIVED (24/24). Presentation Preview 0: ✅ DEPLOYED en https://fixora-rho-one.vercel.app (commit `94ec074`; checkpoint PRESENTATION PREVIEW, no CHG-07 completo, ni línea base de Production, ni AV-3, ni `SC-20`; la rama local `presentation-preview` es solo un *snapshot*) · 0 changes activos, 8 main specs (`public-site-entry`, `repair-request-registration`, `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate`, `order-notes`; CHG-12 `order-notes` y CHG-13 `order-data-correction` y CHG-14 `security-hardening-pass` ✅ IMPLEMENTED ✅ VERIFIED ✅ ARCHIVED, 18/18, 17/17 y 27/27); evidencia en [`03-arquitectura/validation/`](03-arquitectura/validation/); implementación NO INICIADA); informe en [`04-planificacion/PHASE-6.5-COVERAGE-GATE.md`](04-planificacion/PHASE-6.5-COVERAGE-GATE.md)). [`04-planificacion/OPENSPEC-STRATEGY.md`](04-planificacion/OPENSPEC-STRATEGY.md) es **planificación del proyecto, no una fuente canónica de Specs**; cuando existan Specs vigentes, `openspec/specs/` seguirá siendo la fuente canónica. `04-planificacion/` es la ubicación canónica de la planificación de la Fase 6.
+Cifras vigentes de calidad (sobre `main` `030aaf7`, 2026-10-30): 618 pruebas unitarias, 262 de integración, E2E completa en GitHub CI, cobertura de `domain/` 100 % de líneas y 97,43 % de ramas, trazabilidad 37/37. Los informes de cada fase conservan sus propias cifras como evidencia **fechada**; no son el estado actual.
 
 ## Mapa de documentos y su rol
 
@@ -66,28 +52,39 @@ Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias.
 | Diseño | `02-diseno/UX-EXPLORATION.md` | Exploración UX y estructura/navegación aprobadas |
 | Diseño | `02-diseno/DESIGN-BRIEF.md` | Insumo histórico entregado a Claude Design, consolidado por `DESIGN.md` |
 | Diseño | `02-diseno/DESIGN.md` | **Experiencia** y sistema visual (fuente de verdad UX/UI) |
-| Diseño | `02-diseno/referencias/` | Capturas de Stitch y sistema visual de Claude Design; solo referencia |
+| Diseño | `02-diseno/referencias/` | Capturas de Stitch y sistema visual de Claude Design; solo referencia, **no** capturas del producto |
 | Arquitectura | `03-arquitectura/TECHNICAL-DESIGN.md` | **Cómo** se construye (fuente de verdad técnica) |
 | Arquitectura | `03-arquitectura/adrs/ADR-001…010` | **Por qué**: razonamiento y alternativas |
-| Planificación | `04-planificacion/OPENSPEC-STRATEGY.md`, `04-planificacion/BACKLOG.md` | Estrategia de partición y backlog maestro (ambos cerrados). Planificación, no Specs |
-| Specs / OpenSpec | `openspec/specs/` y `openspec/changes/` | Detalle implementable de cambios concretos (inicializado en la Fase 6.1; aún sin Specs). Ubicación canónica: no hay copia en `docs/05-specs/` |
+| Arquitectura | `03-arquitectura/validation/` | Evidencia de los Architecture Validation Gates |
+| Planificación | `04-planificacion/OPENSPEC-STRATEGY.md`, `BACKLOG.md`, `PHASE-6.5-COVERAGE-GATE.md` | Estrategia de partición, backlog maestro y gate de cobertura. Planificación, no Specs |
+| Specs / OpenSpec | `openspec/specs/` y `openspec/changes/archive/` | Specs canónicas vigentes e historial de changes archivados |
+| Diagramas | `06-diagramas/DIAGRAMAS.md` | Índice de diagramas, flujo CI/CD y pipeline AI-First |
+| Testing | `07-testing/` | Compuertas de calidad, trazabilidad y revisión responsive |
+| Seguridad | `08-seguridad/SECURITY-REPORT.md` | Security Pass formal |
+| Deploy | `09-deploy/` | Entornos, Production, runbooks y decisión de release |
+
+Jerarquía: PRD > UX-EXPLORATION > DESIGN.md > referencias. El Technical Design y los ADR son la fuente técnica.
 
 ## Qué consume cada fase
 
-- **00 Definición** — `PROJECT-BRIEF.md`: decisiones aprobadas de producto. Punto de partida.
-- **01 PRD** — consume la definición; fija requisitos de producto. Aprobado: es la fuente de verdad funcional de V1.
-- **02 Diseño** — consume el PRD; define experiencia (exploración UX) y sistema visual (`DESIGN.md`). Completada.
-- **03 Arquitectura** — consume PRD y diseño; contiene el Technical Design y los ADRs. Aquí se aprobaron las tecnologías antes provisionales. Fue seguido de una revisión adversarial (completada). Fase 5 cerrada.
-- **04 Backlog** — consume PRD, diseño y arquitectura; descompone el trabajo.
-- **05 Specs** — consume el backlog; especificación y tareas (con OpenSpec, ya inicializado). Todo cambio de comportamiento pasa por una spec antes del código.
+- **00 Definición** — decisiones aprobadas de producto. Punto de partida.
+- **01 PRD** — consume la definición; fija los requisitos de producto.
+- **02 Diseño** — consume el PRD; define la experiencia y el sistema visual.
+- **03 Arquitectura** — consume PRD y diseño; Technical Design y ADR, seguidos de una revisión adversarial.
+- **04 Backlog** — consume PRD, diseño y arquitectura; descompone el trabajo en changes.
+- **05 Specs** — consume el backlog; especificación y tareas con OpenSpec. Todo cambio de comportamiento pasa por una spec antes del código.
 - **06 Diagramas** — documentan lo implementado y revisado.
 - **07 Testing** — estrategia y evidencia de pruebas, derivadas de las specs.
 - **08 Seguridad** — Security Pass sobre el sistema construido.
-- **09 Deploy** — despliegue y CI/CD.
+- **09 Deploy** — despliegue, CI/CD y decisión de release.
 
 ## Reglas
 
 - No se avanza a código funcional hasta que existan los documentos de los que depende.
 - Las decisiones de arquitectura importantes se registran como ADR.
 - Los supuestos no son decisiones aprobadas hasta que un documento los apruebe.
-- Las carpetas vacías se conservan con `.gitkeep`; se puede retirar al añadir el primer documento.
+- Los cambios de comportamiento posteriores pasan por OpenSpec (propuesta, revisión, aplicación, verificación y archivo).
+
+## Historia del proceso (referencia)
+
+El estado fase a fase de cada change durante la construcción (CHG-01 … CHG-15, incluidos el checkpoint «Presentation Preview 0», las olas de materialización y los gates) se conserva en `openspec/changes/archive/` y en los informes de `04-planificacion/`, `03-arquitectura/validation/` y `09-deploy/`. Las menciones a «aún sin implementar» o «pendiente» que aparezcan en documentos de fases anteriores describen el momento en que se redactaron.

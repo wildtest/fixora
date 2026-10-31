@@ -23,7 +23,9 @@
 
 `DATABASE_URL` y `DIRECT_URL` de Production nunca coinciden en el mismo ámbito. Ninguna credencial de Production sirve en development ni en test, y viceversa.
 
-## Estado verificado (preflight del 2026-10-28)
+## Preflight histórico — 2026-10-28
+
+> **Evidencia histórica, no el estado actual.** La tabla siguiente describe el entorno antes del aprovisionamiento (p. ej. Neon `main` «reservada y vacía»). Production se aprovisionó después (sección «Evidencia de la línea base») y el estado final de release está en [RELEASE-READINESS.md](RELEASE-READINESS.md).
 
 | Plataforma | Hallazgo | Estado |
 |---|---|---|
