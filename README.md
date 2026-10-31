@@ -21,7 +21,39 @@ Muchos talleres gestionan las reparaciones por WhatsApp, llamadas, papel o Excel
 
 Diferenciadores: **Repair Journey** visual · seguimiento por código sin cuenta · **máquina de estados real** con transiciones controladas · **separación estricta entre información pública e interna**.
 
-<!-- Capturas: galería de 4–6 imágenes del producto real (landing, registro, consulta con Repair Journey, panel y detalle administrativo) pendiente de incorporar. -->
+## Vista del producto
+
+<table>
+  <tr>
+    <td width="62%" valign="top"><a href="docs/assets/screenshots/01-landing-desktop.png"><img src="docs/assets/screenshots/01-landing-desktop.png" alt="Landing de FIXORA en escritorio: ilustración del proceso, accesos para registrar y consultar, Repair Journey de ejemplo, cómo funciona y servicios" width="100%"></a></td>
+    <td width="38%" valign="top"><a href="docs/assets/screenshots/02-landing-mobile.png"><img src="docs/assets/screenshots/02-landing-mobile.png" alt="Landing de FIXORA en móvil: insignia, lema, descripción e ilustración sin desbordamiento" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><sub><b>Landing</b> en escritorio y móvil (Production).</sub></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="40%" valign="top"><a href="docs/assets/screenshots/03-registro-confirmacion.png"><img src="docs/assets/screenshots/03-registro-confirmacion.png" alt="Confirmación del registro con el código de seguimiento y el aviso para conservarlo" width="100%"></a></td>
+    <td width="60%" valign="top"><a href="docs/assets/screenshots/04-seguimiento-publico.png"><img src="docs/assets/screenshots/04-seguimiento-publico.png" alt="Consulta pública con el estado actual, el Repair Journey de siete etapas, el historial, el diagnóstico, el costo estimado y las notas públicas" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><sub><b>Cliente:</b> confirmación del registro con el código de seguimiento y consulta pública del estado.</sub></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><a href="docs/assets/screenshots/05-dashboard-admin.png"><img src="docs/assets/screenshots/05-dashboard-admin.png" alt="Dashboard administrativo con conteos por estado y órdenes recientes" width="100%"></a></td>
+    <td width="50%" valign="top"><a href="docs/assets/screenshots/06-detalle-orden-admin.png"><img src="docs/assets/screenshots/06-detalle-orden-admin.png" alt="Detalle administrativo de una orden con Repair Journey, acciones, bloques público e interno, notas e historial" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><sub><b>Administración:</b> dashboard y detalle de orden con la separación entre información pública e interna.</sub></td>
+  </tr>
+</table>
+
+<sub>La landing es del despliegue de Production. El resto proviene de un entorno de pruebas con **datos exclusivamente ficticios** (el código de seguimiento mostrado no existe en Production). Haz clic en una imagen para verla completa.</sub>
 
 ## Funcionalidades
 
