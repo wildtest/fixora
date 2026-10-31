@@ -1,6 +1,6 @@
 import 'server-only';
 import { createPublicOrderStore } from '../infrastructure/tracking/public-order-store';
-import { getLimiter, type Limiter } from '../infrastructure/limiter/limiter';
+import { getLimiter, recordFailureWithCleanup, type Limiter } from '../infrastructure/limiter/limiter';
 import { getLogger } from '../infrastructure/logging/server-logger';
 import { newUuid } from '../infrastructure/security/crypto';
 import { clientSubject } from '../infrastructure/security/client-subject';
@@ -13,12 +13,13 @@ import { LOOKUP_POLICY, trackOrder, type TrackOrderCode, type TrackOrderDependen
 // de CHG-02 (HMAC del origen; la IP nunca se almacena en claro). Si no puede construirse (configuración ausente) o
 // falla, el resultado es `unavailable` (falla cerrada), nunca «permitido».
 
-const UNAVAILABLE_LIMITER: Pick<Limiter, 'isBlocked' | 'recordFailure'> = {
+const UNAVAILABLE_LIMITER: Pick<Limiter, 'isBlocked' | 'recordFailure' | 'cleanupExpired'> = {
   isBlocked: async () => ({ status: 'unavailable' }),
   recordFailure: async () => ({ status: 'unavailable' }),
+  cleanupExpired: async () => 'unavailable',
 };
 
-function productionLimiter(): Pick<Limiter, 'isBlocked' | 'recordFailure'> {
+function productionLimiter(): Pick<Limiter, 'isBlocked' | 'recordFailure' | 'cleanupExpired'> {
   try {
     return getLimiter();
   } catch {
@@ -30,7 +31,7 @@ export function productionDependencies(): TrackOrderDependencies {
   const limiter = productionLimiter();
   return {
     isBlocked: (subject) => limiter.isBlocked(subject, 'PUBLIC_TRACKING'),
-    recordFailure: (subject) => limiter.recordFailure(subject, 'PUBLIC_TRACKING', LOOKUP_POLICY),
+    recordFailure: (subject) => recordFailureWithCleanup(limiter, subject, 'PUBLIC_TRACKING', LOOKUP_POLICY),
     // El repositorio se crea al usarse, solo si el limitador permitió la consulta: sin configuración de base de datos
     // el limitador ya habrá fallado cerrado y nunca se llega aquí.
     findByTrackingCode: (code) => createPublicOrderStore().findByTrackingCode(code),

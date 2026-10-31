@@ -13,7 +13,7 @@
 
 Aplicación web responsive para **pequeños servicios técnicos de reparación de equipos tecnológicos**. Proyecto final de la especialización «Desarrollo de Software AI-First con Claude».
 
-> **Resumen rápido** · V1 completa y desplegada como demostración académica · 8 specs canónicas de OpenSpec, 0 changes activos · 618 pruebas unitarias, 262 de integración y E2E completa en CI · Security Pass sin hallazgos Critical ni High · [Metodología AI-First](#metodología-ai-first) con decisiones humanas en cada puerta.
+> **Resumen rápido** · V1 completa y desplegada como demostración académica · 8 specs canónicas de OpenSpec, 0 changes activos · 621 pruebas unitarias, 263 de integración y E2E completa en CI · Security Pass sin hallazgos Critical ni High · [Metodología AI-First](#metodología-ai-first) con decisiones humanas en cada puerta.
 
 ## Problema y solución
 
@@ -151,7 +151,7 @@ Idea → PRD → UX (Stitch) → Diseño (Claude Design) → Technical Design + 
 | **Claude Code** | Análisis, redacción de specs y tareas, implementación, pruebas, refactorización, revisión y automatización, siempre dentro de las reglas del repositorio ([CLAUDE.md](CLAUDE.md)). |
 | **OpenSpec** | Ciclo de cada cambio: *propose* (propuesta, diseño, tareas y specs delta) → revisión humana → *apply* → verificación → *archive* (fusión en `openspec/specs/`). |
 
-Resultado: 16 changes planificados (CHG-01…CHG-15) y 2 mejoras visuales posteriores, todos archivados; 8 specs canónicas. El PRD manda sobre el resto; las contradicciones se reportan, no se resuelven en silencio. **El proyecto no se generó de forma autónoma**: cada fase, cada merge y cada acción sobre Production pasó por una aprobación humana.
+Resultado: 16 changes planificados (CHG-01…CHG-15) y 2 mejoras visuales posteriores, todos archivados; 8 specs canónicas. El PRD manda sobre el resto; las contradicciones se reportan, no se resuelven en silencio. **El proyecto no se generó de forma autónoma**: cada fase, cada merge y cada acción sobre Production pasó por una aprobación humana. Evidencia de revisión: [revisión adversarial final de la arquitectura](docs/03-arquitectura/ARCHITECTURE-ADVERSARIAL-REVIEW.md) y [revisión independiente de código](docs/07-testing/CODE-REVIEW.md) (ambas del estado final, con hallazgos, decisiones y un refactor verificado), además del gate de cobertura 6.5 y el Security Pass.
 
 ## Ejecución local
 
@@ -184,14 +184,14 @@ Pide la contraseña de forma interactiva y luego se entra en `/admin/acceso`. **
 
 | Verificación | Resultado vigente |
 |---|---|
-| Pruebas unitarias (`npm run test:unit`) | **618** |
-| Pruebas de integración (PostgreSQL real, rama Neon `test`) | **262** |
+| Pruebas unitarias (`npm run test:unit`) | **621** |
+| Pruebas de integración (PostgreSQL real, rama Neon `test`) | **263** |
 | E2E (Playwright, escritorio y móvil) | **PASS** completa en GitHub CI (`db-tests`) |
 | Cobertura de `domain/` | **100 %** de líneas · **97,43 %** de ramas (umbral 90 %) |
 | Trazabilidad de criterios (`SC-*` y `E*`) | **37/37** verificados |
 | `lint` · `typecheck` · `build` · `ci:secrets` · `ci:audit` | OK |
 
-Verificado sobre `main` `030aaf7` (2026-10-30); desde entonces solo hay cambios de documentación. El conteo exacto de E2E depende de la suite y de las pruebas omitidas por diseño; la fuente es el último run de CI.
+Verificado el 2026-10-31 sobre la rama de la revisión final (`review/final-evidence-closure`, a fusionarse en `main`). El conteo exacto de E2E depende de la suite y de las pruebas omitidas por diseño; la fuente es el último run de CI.
 
 | Comando | Qué ejecuta |
 |---|---|
@@ -203,7 +203,7 @@ Verificado sobre `main` `030aaf7` (2026-10-30); desde entonces solo hay cambios 
 | `npm run ci:secrets` · `npm run ci:audit` | Higiene de secretos · política de `npm audit` |
 | `SMOKE_BASE_URL=<url> npm run test:smoke` | Smoke público y no mutante de Production |
 
-Detalle de las compuertas en [CI-QUALITY-GATES.md](docs/07-testing/CI-QUALITY-GATES.md).
+Detalle de las compuertas en [CI-QUALITY-GATES.md](docs/07-testing/CI-QUALITY-GATES.md) y revisión de código en [CODE-REVIEW.md](docs/07-testing/CODE-REVIEW.md).
 
 ## Seguridad
 

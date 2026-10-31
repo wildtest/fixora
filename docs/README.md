@@ -55,7 +55,7 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 
 La Fase 15 **no** se marca completa hasta cerrar la auditoría académica final.
 
-Cifras vigentes de calidad (sobre `main` `030aaf7`, 2026-10-30): 618 pruebas unitarias, 262 de integración, E2E completa en GitHub CI, cobertura de `domain/` 100 % de líneas y 97,43 % de ramas, trazabilidad 37/37. Los informes de cada fase conservan sus propias cifras como evidencia **fechada**; no son el estado actual.
+Cifras vigentes de calidad (2026-10-31, tras la revisión final): 621 pruebas unitarias, 263 de integración, E2E completa en GitHub CI, cobertura de `domain/` 100 % de líneas y 97,43 % de ramas, trazabilidad 37/37. Los informes de cada fase conservan sus propias cifras como evidencia **fechada**; no son el estado actual.
 
 ## Mapa de documentos y su rol
 
@@ -71,10 +71,11 @@ Cifras vigentes de calidad (sobre `main` `030aaf7`, 2026-10-30): 618 pruebas uni
 | Arquitectura | `03-arquitectura/TECHNICAL-DESIGN.md` | **Cómo** se construye (fuente de verdad técnica) |
 | Arquitectura | `03-arquitectura/adrs/ADR-001…010` | **Por qué**: razonamiento y alternativas |
 | Arquitectura | `03-arquitectura/validation/` | Evidencia de los Architecture Validation Gates |
+| Arquitectura | `03-arquitectura/ARCHITECTURE-ADVERSARIAL-REVIEW.md` | Revalidación adversarial final de la arquitectura (la revisión original se cita como histórica, sin artefacto preservado) |
 | Planificación | `04-planificacion/OPENSPEC-STRATEGY.md`, `BACKLOG.md`, `PHASE-6.5-COVERAGE-GATE.md` | Estrategia de partición, backlog maestro y gate de cobertura. Planificación, no Specs |
 | Specs / OpenSpec | `openspec/specs/` y `openspec/changes/archive/` | Specs canónicas vigentes e historial de changes archivados |
 | Diagramas | `06-diagramas/DIAGRAMAS.md` | Índice de diagramas, flujo CI/CD y pipeline AI-First |
-| Testing | `07-testing/` | Compuertas de calidad, trazabilidad y revisión responsive |
+| Testing | `07-testing/` | Compuertas de calidad, trazabilidad, revisión responsive y [CODE-REVIEW.md](07-testing/CODE-REVIEW.md) (revisión independiente de código) |
 | Seguridad | `08-seguridad/SECURITY-REPORT.md` | Security Pass formal |
 | Deploy | `09-deploy/` | Entornos, Production, runbooks y decisión de release |
 

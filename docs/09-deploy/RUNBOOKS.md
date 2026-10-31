@@ -4,7 +4,7 @@
 
 ## 1. Migración de esquema
 
-Solo para cambios que incluyen `prisma/migrations/**`. Las migraciones son *forward-only* y *expand/contract*: la migración previa al despliegue es compatible con la versión desplegada y con la nueva (por eso el rollback de aplicación sigue siendo viable). No existe rollback SQL ordinario: se corrige con una migración posterior.
+Solo para cambios que incluyen `prisma/migrations/**`. Las migraciones son *forward-only* y *expand/contract*: la migración previa al despliegue es compatible con la versión desplegada y con la nueva (por eso el rollback de aplicación sigue siendo viable). No existe rollback SQL ordinario: se corrige con una migración posterior. **Una vez aplicada una migración a Production, ninguna corrección edita ese archivo: siempre es una migración nueva**, incluso si la PR cambia o se abandona antes de fusionarse (en ese caso, la migración ya aplicada se trata como incidente de deriva: se verifica la identidad de `prisma/migrations/` y se corrige hacia adelante con RB-2).
 
 1. PR terminada con `static` y `db-tests` en verde; el SQL generado está revisado a mano.
 2. Obtener la identidad del contenido de las migraciones **de la cabeza de la PR**: `npm run ops:migration-identity` (imprime un SHA-256).

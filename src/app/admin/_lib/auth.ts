@@ -2,7 +2,6 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { guardAdminAction } from "@/application/admin/admin-action";
 import type { AdminContext } from "@/application/admin/admin-context";
 import { authenticateSession } from "@/application/admin/admin-service";
 import { sessionCookieSettings } from "@/application/admin/session-cookie";
@@ -35,16 +34,6 @@ export async function requireAdmin(): Promise<AdminContext> {
     redirect(hadCookie ? "/admin/acceso?motivo=expirada" : "/admin/acceso");
   }
   return admin;
-}
-
-/**
- * Server Actions administrativas: la sesión se comprueba de nuevo en CADA acción. Sin sesión válida el trabajo no
- * se ejecuta y el resultado es `SESSION_EXPIRED`. Sin caché: una acción nunca reutiliza una comprobación previa.
- */
-export function adminAction<T, C extends string = never>(
-  work: Parameters<typeof guardAdminAction<T, C>>[1],
-): ReturnType<typeof guardAdminAction<T, C>> {
-  return guardAdminAction(async () => authenticateSession(await readToken()), work);
 }
 
 /** Autenticación de una Server Action (sin caché): el adaptador la pasa a los casos de uso de `application`. */
