@@ -11,6 +11,5 @@ export function normalizeCustomerNameSearch(name: string): string {
     .normalize('NFD')
     .toLowerCase()
     .replace(COMBINING_MARKS, '')
-    .replace(/ñ/g, 'n')
     .replace(/\s+/g, ' ');
 }

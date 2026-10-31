@@ -21,6 +21,7 @@ La vinculación posterior con Vercel (integración gestionada por Neon) es de CH
 3. **Las contraseñas las fija la persona operadora de forma interactiva** (`ALTER ROLE … PASSWORD …`), no se escriben en el repositorio, en documentos ni en migraciones. Cada rama tiene sus propias credenciales: las de un entorno no funcionan en otro.
 4. **Los archivos de entorno los crea la persona operadora** y no se versionan (`.gitignore`). El agente de desarrollo no los lee. Ver `.env.example` para los nombres.
 5. Las migraciones **nunca** se ejecutan contra `main` desde este procedimiento.
+6. **La contraseña del propietario (`neondb_owner`) también debe ser distinta en cada rama.** Una rama hija hereda los roles y sus contraseñas: tras ramificar, restablece la del propietario en `development` y `test` (por ejemplo, desde la consola de Neon) y comprueba que la conexión directa de una rama **no** autentica contra otra. Registra la verificación (sin credenciales) en el change o informe correspondiente. Revisión adversarial final: hallazgo `AR-001` en `docs/03-arquitectura/ARCHITECTURE-ADVERSARIAL-REVIEW.md`.
 
 ## Procedimiento por rama (propietario de la rama, por SQL)
 

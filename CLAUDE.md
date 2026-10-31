@@ -72,13 +72,13 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 
 ## Estado actual del proyecto
 
-**Snapshot final (2026-10-30, `main` `030aaf7`):**
+**Snapshot final (2026-10-31, tras la revisión final de evidencia):**
 
 ```text
 FIXORA V1: COMPLETE
 Production: READY FOR ACADEMIC DEMO  (https://fixora-rho-one.vercel.app)
 OpenSpec: 0 active changes · 8 main specs
-Calidad: 618 unit · 262 integration · E2E completa en GitHub CI · coverage domain 100 % líneas / 97,43 % ramas · trazabilidad 37/37
+Calidad: 621 unit · 263 integration · E2E completa en GitHub CI · coverage domain 100 % líneas / 97,43 % ramas · trazabilidad 37/37
 Seguridad: Security Pass con 0 Critical y 0 High
 ```
 

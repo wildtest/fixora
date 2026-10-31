@@ -127,3 +127,25 @@ export function createLimiter({ db, hmacSecret, now }: LimiterDependencies): Lim
 export function getLimiter(): Limiter {
   return createLimiter({ db: getPrisma(), hmacSecret: readLimiterConfig().hmacSecret, now: () => new Date() });
 }
+
+/**
+ * Registra un fallo y, a continuación, limpia de forma oportunista y acotada los cubos vencidos de la misma
+ * superficie (TD §22: «limpieza oportunista, sin cron»). La limpieza es de mejor esfuerzo: nunca altera la decisión
+ * devuelta ni propaga errores, y solo borra filas con ventana y bloqueo vencidos (el siguiente fallo de esos
+ * sujetos ya reiniciaría su contador).
+ */
+export async function recordFailureWithCleanup(
+  limiter: Pick<Limiter, 'recordFailure' | 'cleanupExpired'>,
+  subject: string,
+  surface: LimiterSurface,
+  policy: LimiterPolicy,
+  cleanupLimit = 20,
+): Promise<LimiterDecision> {
+  const decision = await limiter.recordFailure(subject, surface, policy);
+  try {
+    await limiter.cleanupExpired(surface, policy.windowMs, cleanupLimit);
+  } catch {
+    // Mejor esfuerzo: un fallo de la limpieza no cambia el resultado.
+  }
+  return decision;
+}

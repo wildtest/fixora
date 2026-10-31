@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { PrismaClient } from '../../src/infrastructure/db/generated/client.ts';
-import { createLimiter, type LimiterPolicy } from '../../src/infrastructure/limiter/limiter';
+import { createLimiter, recordFailureWithCleanup, type LimiterPolicy } from '../../src/infrastructure/limiter/limiter';
 import { subjectKey } from '../../src/infrastructure/limiter/subject-key';
 import { appPrisma, ownerPg } from './support/connections';
 import { resetTestDatabase } from './support/reset';
@@ -165,5 +165,27 @@ describe('limpieza oportunista acotada', () => {
       await owner.end();
     }
     expect((await l.isBlocked('bloqueado', 'PUBLIC_TRACKING')).status).toBe('blocked');
+  });
+});
+
+describe('recordFailureWithCleanup sobre PostgreSQL real (CR-001)', () => {
+  it('registra el fallo y elimina los cubos vencidos sin tocar el cubo recién registrado ni los bloqueos vigentes', async () => {
+    const l = limiter();
+    clock = at(0);
+    await l.recordFailure('viejo', 'PUBLIC_TRACKING', POLICY);
+    for (const ms of [0, 1_000, 2_000]) {
+      clock = at(ms);
+      await l.recordFailure('bloqueado', 'PUBLIC_TRACKING', POLICY);
+    }
+    clock = at(100_000); // 'viejo': ventana vencida; 'bloqueado': bloqueo vigente hasta 122 s
+    expect(await recordFailureWithCleanup(l, 'nuevo', 'PUBLIC_TRACKING', POLICY)).toEqual({ status: 'allowed' });
+
+    const owner = await ownerPg();
+    try {
+      const remaining = (await owner.query('SELECT subject_key FROM rate_limit_buckets')).rows.map((r) => r.subject_key).sort();
+      expect(remaining).toEqual([subjectKey(SECRET, 'bloqueado'), subjectKey(SECRET, 'nuevo')].sort());
+    } finally {
+      await owner.end();
+    }
   });
 });

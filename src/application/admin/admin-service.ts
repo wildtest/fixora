@@ -1,6 +1,6 @@
 import 'server-only';
 import { createAdminStore } from '../../infrastructure/admin/admin-store';
-import { getLimiter, type Limiter } from '../../infrastructure/limiter/limiter';
+import { getLimiter, recordFailureWithCleanup, type Limiter } from '../../infrastructure/limiter/limiter';
 import { getLogger } from '../../infrastructure/logging/server-logger';
 import { newUuid, secureRandomBytes, sha256Hex } from '../../infrastructure/security/crypto';
 import { clientSubject } from '../../infrastructure/security/client-subject';
@@ -17,12 +17,13 @@ import { runAction, type RunActionOptions } from '../run-action';
 // es `unavailable` (falla cerrada), nunca «permitido». La verificación de contraseña pasa por un tope de
 // concurrencia por instancia, acotado: si no cabe, SERVICE_UNAVAILABLE.
 
-const UNAVAILABLE_LIMITER: Pick<Limiter, 'isBlocked' | 'recordFailure'> = {
+const UNAVAILABLE_LIMITER: Pick<Limiter, 'isBlocked' | 'recordFailure' | 'cleanupExpired'> = {
   isBlocked: async () => ({ status: 'unavailable' }),
   recordFailure: async () => ({ status: 'unavailable' }),
+  cleanupExpired: async () => 'unavailable',
 };
 
-function productionLimiter(): Pick<Limiter, 'isBlocked' | 'recordFailure'> {
+function productionLimiter(): Pick<Limiter, 'isBlocked' | 'recordFailure' | 'cleanupExpired'> {
   try {
     return getLimiter();
   } catch {
@@ -46,7 +47,7 @@ export function productionSignInDependencies(): SignInDependencies {
   const limiter = productionLimiter();
   return {
     isBlocked: (subject) => limiter.isBlocked(subject, 'ADMIN_LOGIN'),
-    recordFailure: (subject) => limiter.recordFailure(subject, 'ADMIN_LOGIN', LOGIN_POLICY),
+    recordFailure: (subject) => recordFailureWithCleanup(limiter, subject, 'ADMIN_LOGIN', LOGIN_POLICY),
     // Los repositorios se crean al usarse, solo si el limitador permitió el intento: sin configuración de base de
     // datos el limitador ya habrá fallado cerrado y nunca se llega aquí.
     findAdminByEmail: (email) => createAdminStore().findAdminByEmail(email),
