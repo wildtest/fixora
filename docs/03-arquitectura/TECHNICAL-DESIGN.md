@@ -28,6 +28,8 @@
 
 **Estado de implementación.** Hoy solo existe el scaffold de Next.js. Nada de lo descrito como «aprobado» en este documento está implementado ni instalado, salvo lo indicado como presente en la sección 4.
 
+> **Nota posterior (2026-10-30).** La frase anterior describe el estado **en el momento en que se redactó este diseño** (Fase 5) y se conserva como histórica. La arquitectura descrita **ya fue implementada**, verificada y desplegada (FIXORA V1 completa; ver `docs/README.md` y `docs/09-deploy/RELEASE-READINESS.md`). Este documento sigue siendo la fuente de verdad técnica y no se reescribe.
+
 ---
 
 ## 2. Resumen ejecutivo de arquitectura
