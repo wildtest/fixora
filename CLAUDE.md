@@ -49,7 +49,7 @@ Fuente de verdad en `docs/` (ver `docs/README.md`). Cada documento consume el an
 | 02 Diseño | `docs/02-diseno/` |
 | 03 Arquitectura (Technical Design + ADRs) | `docs/03-arquitectura/` |
 | 04 Backlog / planificación | `docs/04-planificacion/` (estrategia `OPENSPEC-STRATEGY.md` y backlog maestro `BACKLOG.md`) |
-| 05 Specs / OpenSpec | `openspec/specs/` (Specs canónicas) y `openspec/changes/` (propuestas); no hay copia paralela en `docs/05-specs/` |
+| 05 Specs / OpenSpec | `openspec/specs/` (Specs canónicas) y `openspec/changes/` (propuestas); `docs/05-specs/` es solo un índice humano, sin copia paralela |
 | 06 Diagramas | `docs/06-diagramas/` |
 | 07 Testing | `docs/07-testing/` |
 | 08 Seguridad | `docs/08-seguridad/` |
@@ -72,7 +72,7 @@ No modifiques silenciosamente decisiones del PRD. Si una fase posterior exige ca
 
 ## Estado actual del proyecto
 
-**Snapshot final (2026-10-31, tras la revisión final de evidencia):**
+**Snapshot final (2026-11-02, tras el cierre de AR-001 y la auditoría final):**
 
 ```text
 FIXORA V1: COMPLETE
@@ -83,7 +83,7 @@ Seguridad: Security Pass con 0 Critical y 0 High
 ```
 
 - **No** está aprobada para operación real: `VAL-04` sigue abierta. La demo puede recibir datos reales pese al aviso.
-- **Fase 15 (README, portfolio y auditoría final): en cierre.** README, diagramas, badges, las seis capturas finales, URL de Production y metadatos de GitHub (descripción, sitio web, topics): COMPLETE. Pendiente: **auditoría académica final 5/5**. LICENSE: sin licencia seleccionada, decisión de la persona propietaria diferida (no requerida para la entrega académica / demo).
+- **Fase 15 (README, portfolio y auditoría final): COMPLETE.** README, diagramas, badges, las seis capturas finales, URL de Production y metadatos de GitHub (descripción, sitio web, topics): COMPLETE. Auditoría académica final cerrada el 2026-11-02 (AR-001 verificado, corregido y cerrado). LICENSE: sin licencia seleccionada, decisión de la persona propietaria diferida (no requerida para la entrega académica / demo).
 - Las 8 main specs son `public-site-entry`, `repair-request-registration`, `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate` y `order-notes`. CHG-01…CHG-15 y las mejoras posteriores `landing-visual-fidelity` y `landing-visual-enhancement` están archivados en `openspec/changes/archive/`.
 
 | Fase | Ruta | Estado |

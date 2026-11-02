@@ -23,7 +23,7 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 
 ## Estado actual
 
-**FIXORA V1 completa y desplegada como demostración académica** (`https://fixora-rho-one.vercel.app`). Fases 0 a 14 completadas técnicamente; **Fase 15 (README, portfolio y auditoría final) en cierre**. OpenSpec: **0 changes activos y 8 specs canónicas** (`public-site-entry`, `repair-request-registration`, `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate`, `order-notes`). La V1 **no** está aprobada para operación real: `VAL-04` sigue abierta.
+**FIXORA V1 completa y desplegada como demostración académica** (`https://fixora-rho-one.vercel.app`). Fases 0 a 15 completas; **auditoría académica final cerrada el 2026-11-02**. OpenSpec: **0 changes activos y 8 specs canónicas** (`public-site-entry`, `repair-request-registration`, `public-order-tracking`, `admin-access`, `admin-order-management`, `repair-lifecycle`, `diagnosis-and-estimate`, `order-notes`). La V1 **no** está aprobada para operación real: `VAL-04` sigue abierta.
 
 | Fase | Carpeta | Estado |
 |---|---|---|
@@ -32,13 +32,13 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 | 02 Diseño | `02-diseno/` | ✅ Completada — exploración UX (Stitch) y sistema visual (Claude Design); `DESIGN.md` aprobado el 2026-10-26 |
 | 03 Arquitectura | `03-arquitectura/` | ✅ Completada — Technical Design aprobado, ADR-001…010 aceptados, revisión adversarial sin Critical ni High; cerrada el 2026-10-26; Architecture Validation Gates AV-1, AV-2 y AV-3 en PASS |
 | 04 Backlog / planificación | `04-planificacion/` | ✅ Completada — `OPENSPEC-STRATEGY.md`, `BACKLOG.md` y gate de cobertura de la Fase 6.5 |
-| 05 Specs | `openspec/` | ✅ Completada — 16 changes (CHG-01…CHG-15) implementados, verificados y archivados, más 2 mejoras visuales posteriores de la landing; 8 specs canónicas en `openspec/specs/`. No hay copia paralela en `docs/05-specs/` |
+| 05 Specs | `openspec/` · índice en [`05-specs/`](05-specs/README.md) | ✅ Completada — 16 changes (CHG-01…CHG-15) implementados, verificados y archivados, más 2 mejoras visuales posteriores de la landing; 8 specs canónicas en `openspec/specs/`. `docs/05-specs/` es solo un índice humano, sin copia paralela |
 | Implementación | `src/`, `prisma/`, `tests/` | ✅ Completada — V1 funcional (hitos M0…M5) |
 | 06 Diagramas | `06-diagramas/` | ✅ Índice de diagramas, flujo CI/CD y pipeline AI-First; el resto vive en el Technical Design |
 | 07 Testing | `07-testing/` | ✅ Implementado — [CI-QUALITY-GATES.md](07-testing/CI-QUALITY-GATES.md), [TRACEABILITY.md](07-testing/TRACEABILITY.md) (37/37 verificados), [SC-15-RESPONSIVE-REVIEW.md](07-testing/SC-15-RESPONSIVE-REVIEW.md) |
 | 08 Seguridad | `08-seguridad/` | ✅ Implementado — [SECURITY-REPORT.md](08-seguridad/SECURITY-REPORT.md): 0 Critical y 0 High |
 | 09 Deploy | `09-deploy/` | ✅ Implementado — Production en Vercel + Neon, CI/CD, `migrate-production`, runbooks y [RELEASE-READINESS.md](09-deploy/RELEASE-READINESS.md): listo para evaluación académica / demo |
-| 15 README, portfolio y auditoría final | `README.md` | 🟡 En cierre — ver el detalle de la Fase 15 más abajo; **solo falta la auditoría académica final 5/5** |
+| 15 README, portfolio y auditoría final | `README.md` | ✅ Completada — ver el detalle de la Fase 15 más abajo |
 
 **Fase 15 — estado de sus entregables:**
 
@@ -50,10 +50,10 @@ FIXORA se construye con una metodología AI-First: primero se documenta y se dec
 | Capturas | ✅ COMPLETE — las seis capturas finales (`docs/assets/screenshots/`) se generaron, revisaron e incorporaron al README |
 | URL de Production | ✅ COMPLETE (`https://fixora-rho-one.vercel.app`) |
 | GitHub portfolio | ✅ COMPLETE (repositorio público con descripción, sitio web y topics) |
-| Auditoría académica final 5/5 | ⏳ PENDING |
+| Auditoría académica final | ✅ COMPLETE (2026-11-02; sin Critical, High ni Medium abiertos) |
 | LICENSE | Sin licencia seleccionada; decisión de la persona propietaria diferida. No se requiere para la entrega académica / demo |
 
-La Fase 15 **no** se marca completa hasta cerrar la auditoría académica final.
+Cierre de la Fase 15: AR-001 (credenciales del propietario compartidas entre ramas de Neon) se verificó, se corrigió y se cerró con evidencia el 2026-11-02; el detalle está en la [revisión adversarial](03-arquitectura/ARCHITECTURE-ADVERSARIAL-REVIEW.md).
 
 Cifras vigentes de calidad (2026-10-31, tras la revisión final): 621 pruebas unitarias, 263 de integración, E2E completa en GitHub CI, cobertura de `domain/` 100 % de líneas y 97,43 % de ramas, trazabilidad 37/37. Los informes de cada fase conservan sus propias cifras como evidencia **fechada**; no son el estado actual.
 

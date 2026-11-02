@@ -240,7 +240,7 @@ Punto de entrada: [docs/README.md](docs/README.md). Fuentes de verdad, en orden 
 | [UX](docs/02-diseno/UX-EXPLORATION.md) · [DESIGN](docs/02-diseno/DESIGN.md) | Estructura UX y sistema visual |
 | [Technical Design](docs/03-arquitectura/TECHNICAL-DESIGN.md) · [ADR](docs/03-arquitectura/adrs/) | Cómo se construye y por qué |
 | [Backlog](docs/04-planificacion/BACKLOG.md) · [Estrategia OpenSpec](docs/04-planificacion/OPENSPEC-STRATEGY.md) | Planificación |
-| [`openspec/specs/`](openspec/specs/) | Especificaciones canónicas (8 capabilities) |
+| [`openspec/specs/`](openspec/specs/) · [índice](docs/05-specs/README.md) | Especificaciones canónicas (8 capabilities) |
 | [Trazabilidad](docs/07-testing/TRACEABILITY.md) · [Seguridad](docs/08-seguridad/SECURITY-REPORT.md) · [Release](docs/09-deploy/RELEASE-READINESS.md) | Evidencia |
 | [CLAUDE.md](CLAUDE.md) · [AGENTS.md](AGENTS.md) | Reglas de trabajo para agentes |
 
@@ -255,7 +255,7 @@ docs/       pipeline documental (00 definición … 09 despliegue)
 
 ## Estado del proyecto
 
-**FIXORA V1 completa**, desplegada y lista para **demostración y evaluación académica**. Fase 15 (README, portfolio y auditoría final) en cierre. OpenSpec: 0 changes activos y 8 specs canónicas.
+**FIXORA V1 completa**, desplegada y lista para **demostración y evaluación académica**. Fases 0 a 15 completas (auditoría académica final cerrada el 2026-11-02). OpenSpec: 0 changes activos y 8 specs canónicas.
 
 ## Limitaciones y alcance V1
 
