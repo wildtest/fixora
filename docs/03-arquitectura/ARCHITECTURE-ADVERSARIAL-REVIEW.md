@@ -40,18 +40,18 @@ Fuentes: `PRD.md`, `TECHNICAL-DESIGN.md`, ADR-001…010, `BACKLOG.md`, las 8 mai
 | 13 | Fallos parciales | NO FINDING. Lo inesperado se convierte en `INTERNAL_ERROR` sin detalle. |
 | 14 | Idempotencia | NO FINDING. Tres `INSERT` en una transacción, `ON CONFLICT DO NOTHING` y lectura del ganador. |
 | 15 | Migraciones | AR-003 (Low), AR-007 (Informational). |
-| 16 | Entornos Neon | **AR-001 (Medium)**. |
+| 16 | Entornos Neon | AR-001 (escalado a High y **cerrado** con evidencia; ver §5). |
 | 17 | CI/CD | AR-002 (Low), AR-006 (Informational). |
 | 18 | Rollback | NO FINDING. *Instant Rollback* probado; *roll-forward* y *expand/contract*. |
 | 19 | Observabilidad y logs | AR-009 (Informational). Logger cerrado verificado. |
 
 ## 5. Hallazgos
 
-Totales: **Critical 0 · High 0 · Medium 1 · Low 4 · Informational 4.**
+Totales iniciales: Critical 0 · High 0 · Medium 1 · Low 4 · Informational 4. **Estado final tras el cierre de AR-001: Critical 0 · High 0 abiertos · Medium 0 abiertos · Low 1 abierto (AR-005, seguimiento) · Low 1 aceptado (AR-004) · Informational 4 aceptados.**
 
 | ID | Área | Severidad | Verificado | Decisión | Estado |
 |---|---|---|---|---|---|
-| AR-001 | Entornos Neon | Medium | Documental (credenciales no verificables) | Corrección documental ahora; **verificación por la persona propietaria** | **ABIERTO (acción del propietario)** |
+| AR-001 | Entornos Neon | Medium → **High** (escalado el 2026-11-02) | Sí: prueba real de autenticación cruzada | Corrección documental + **restablecimiento de contraseñas por la persona propietaria** + verificación | **CERRADO (2026-11-02)** |
 | AR-002 | CI/CD | Low | Sí | Smoke ejecutado ahora sobre el despliegue vigente; automatización aceptada como diferida | Cerrado (ver §6) |
 | AR-003 | Migraciones | Low | Sí | Corrección documental en RUNBOOKS §1 | Cerrado |
 | AR-004 | Rate limiting / auth | Low | Sí | Riesgo residual aceptado | Aceptado |
@@ -61,13 +61,30 @@ Totales: **Critical 0 · High 0 · Medium 1 · Low 4 · Informational 4.**
 | AR-008 | Persistencia | Informational | Sí | Aceptado (coste solo editable por el administrador; PRD sin tope) | Aceptado |
 | AR-009 | Observabilidad | Informational | Sí | Aceptado: eventos reservados del catálogo | Aceptado |
 
-### AR-001 — Separación de credenciales del propietario entre ramas de Neon (Medium)
+### AR-001 — Separación de credenciales del propietario entre ramas de Neon (Medium → High → cerrado)
 
 - **Hallazgo:** las ramas hijas de Neon heredan los roles del padre. El procedimiento documentado restablece la contraseña de `fixora_app` por rama, pero **no exige ni registra** restablecer la del propietario (`neondb_owner`) en cada rama. Si fuese la misma en `main`, `development` y `test`, la conexión directa de `development` (en el equipo local) bastaría, cambiando solo el host, para obtener privilegios de propietario sobre Production.
 - **Evidencia:** `openspec/changes/archive/2026-10-28-persistence-foundation/design.md` (D-7: «las contraseñas del propietario y de la aplicación se restablecen por rama»); `docs/09-deploy/NEON-ENVIRONMENTS.md` (procedimiento solo para `fixora_app`); TD §25.1 («ninguna credencial de producción funciona en development o test»). `RELEASE-READINESS.md` §3 documenta que ya hubo una confusión entre ramas.
 - **Impacto:** potencialmente High si las contraseñas se comparten; Medium mientras no se confirme.
 - **Recomendación:** comprobar que la conexión del propietario de cada rama **no** autentica en otra y restablecer la contraseña del propietario por rama si hace falta; registrar la verificación.
-- **Decisión y estado:** se añadió el paso al procedimiento (`NEON-ENVIRONMENTS.md`, regla 6). La comprobación del estado real de las credenciales **no es verificable desde el repositorio ni por el agente**; queda como **acción abierta de la persona propietaria**. No se rebaja ni se da por cerrado.
+- **Decisión inicial:** se añadió el paso al procedimiento (`NEON-ENVIRONMENTS.md`, regla 6); la comprobación real se dejó como acción de la persona propietaria.
+
+**Verificación y escalado (2026-11-02).** Un verificador sin salida de secretos (solo `REJECTED`/`ACCEPTED`) probó la autenticación cruzada del propietario con los archivos de entorno locales. Resultado **antes** de la corrección: el propietario tenía la **misma contraseña** en `development` y `test`, y la credencial de cada una **autenticaba** en la otra → **FAIL**. El rol de aplicación `fixora_app` ya estaba aislado (rechazado en ambos sentidos). Conforme a la regla fijada para esta ronda, el hallazgo se **escaló a High** (precautorio respecto de `main`, que no era verificable por el agente) y se detuvo el cierre.
+
+**Corrección (persona propietaria, sin exponer secretos).** Restablecimiento de la contraseña de `neondb_owner` en `development`, `test` y `main`, con valores distintos por rama; actualización de los consumidores: `.env.local`, `.env.test`, el secreto `TEST_DIRECT_URL` del Environment `test` y el secreto `DIRECT_URL` del Environment `production` de GitHub.
+
+**Evidencia posterior (sin secretos).**
+
+| Credencial | development | test | main | Fuente |
+|---|---|---|---|---|
+| Propietario de `development` | ACEPTADA | RECHAZADA | RECHAZADA | Persona propietaria (main); agente (test) |
+| Propietario de `test` | RECHAZADA | ACEPTADA | RECHAZADA | Persona propietaria (main); agente (development) |
+| Propietario de `main` | RECHAZADA | RECHAZADA | ACEPTADA | Persona propietaria (no verificable por el agente) |
+| `fixora_app`, cruces entre entornos | RECHAZADA | RECHAZADA | RECHAZADA | Persona propietaria; agente (development ↔ test) |
+
+El agente **reejecutó** el verificador tras la corrección: `development → test` y `test → development` para propietario y aplicación: `REJECTED` (PASS) en los cuatro cruces, con contraseñas distintas por archivo. Las comprobaciones que implican `main` las ejecutó y reportó la persona propietaria: el agente no tiene (ni debe tener) credenciales de Production.
+
+**Estado: CERRADO** con evidencia real. Residual aceptado: la verificación de `main` es declarada por la persona propietaria, no reproducida por el agente. Esta verificación debe repetirse tras cualquier nueva ramificación o restablecimiento de contraseñas.
 
 ### AR-002 — Smoke y registro de despliegues (Low)
 
@@ -105,6 +122,6 @@ Totales: **Critical 0 · High 0 · Medium 1 · Low 4 · Informational 4.**
 ## 7. Resultado final
 
 - **Critical: 0 · High: 0** (no hubo que detener la revisión).
-- **Medium: 1 (AR-001), abierto como acción de la persona propietaria** (verificación de credenciales de Neon).
+- **Medium: 0 abiertos.** AR-001 (credenciales del propietario compartidas entre ramas) se verificó como real, se escaló a High, se corrigió y se **cerró el 2026-11-02** con evidencia de autenticación cruzada (ver §5).
 - Todo lo demás está cerrado, aceptado con justificación o registrado como seguimiento sin impacto en la V1.
 - La arquitectura implementada es coherente con el PRD y con el Technical Design; las defensas por capas (dominio, versión optimista, transacción, `CHECK`, privilegios por rol) se verificaron en el código y en la migración.
